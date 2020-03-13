@@ -1,20 +1,33 @@
-import React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
+import React from "react";
+import { RouteComponentProps } from "react-router-dom";
 
-import { select } from 'd3-selection';
-import * as shape from 'd3-shape';
-import * as ease from 'd3-ease';
-import 'd3-transition';
-import { Observable, Subscription, of } from 'rxjs';
-import { first } from 'rxjs/operators';
-import { identity, scale, smoothMatrix, toSVG, transform, translate } from 'transformation-matrix';
-import { Layout } from '../models/layout.model';
-import { LayoutService } from './layouts/layout.service';
-import { Edge } from '../models/edge.model';
-import { Node, ClusterNode } from '../models/node.model';
-import { Graph } from '../models/graph.model';
-import { id } from '../utils/id';
-import { PanningAxis } from '../enums/panning.enum';
+import { select } from "d3-selection";
+import * as shape from "d3-shape";
+import * as ease from "d3-ease";
+import "d3-transition";
+import { Observable, Subscription, of } from "rxjs";
+import { first } from "rxjs/operators";
+import {
+  identity,
+  scale,
+  smoothMatrix,
+  toSVG,
+  transform,
+  translate
+} from "transformation-matrix";
+import { Layout } from "../models/layout.model";
+import { LayoutService } from "./layouts/layout.service";
+import { Edge } from "../models/edge.model";
+import { Node, ClusterNode } from "../models/node.model";
+import { Graph } from "../models/graph.model";
+import { id } from "../utils/id";
+import { PanningAxis } from "../enums/panning.enum";
+
+import { ColorHelper } from "./utils/color.helper";
+import {
+  ViewDimensions,
+  calculateViewDimensions
+} from "./utils/view-dimensions.helper";
 
 /**
  * Matrix
@@ -29,206 +42,180 @@ export interface Matrix {
 }
 
 interface Props extends RouteComponentProps<any> {
-    legend?: boolean = false;
-    nodes?: Node[] = [];
-    links?: Edge[] = [];
-    activeEntries?: any[] = [];
-    curve?: any;
-    draggingEnabled?: boolean = true;
-    nodeHeight?: number;
-    nodeMaxHeight?: number;
-    nodeMinHeight?: number;
-    nodeWidth?: number;
-    nodeMinWidth?: number;
-    nodeMaxWidth:? number;
-    panningEnabled?: boolean = true;
-    panningAxis?: PanningAxis = PanningAxis.Both;
-    enableZoom?: boolean = true;
-    zoomSpeed?: number = 0.1;
-    minZoomLevel?: number = 0.1;
-    maxZoomLevel?: number = 4.0;
-    autoZoom?: boolean = false;
-    panOnZoom?: boolean = true;
-    animate?: boolean = false;
-    autoCenter?: boolean = false;
-    update$?: Observable<any>;
-    center$?: Observable<any>;
-    zoomToFit$?: Observable<any>;
-    panToNode$?: Observable<any>;
-    layout?: string | Layout;
-    layoutSettings?: any;
-    enableTrackpadSupport?: boolean = false;
-    //
-    activate?: (value: any) => void;
-    deactivate?: (value: any) => void;
-    zoomChange?: (value: number) => void;
-    clickHandler?: (value: MouseEvent) => void;
+  legend?: boolean;
+  nodes?: Node[];
+  clusters: ClusterNode[];
+  links?: Edge[];
+  activeEntries?: any;
+  curve?: any;
+  draggingEnabled?: boolean;
+  nodeHeight?: number;
+  nodeMaxHeight?: number;
+  nodeMinHeight?: number;
+  nodeWidth?: number;
+  nodeMinWidth?: number;
+  nodeMaxWidth?: number;
+  panningEnabled?: boolean;
+  panningAxis?: PanningAxis;
+  enableZoom?: boolean;
+  zoomSpeed?: number;
+  minZoomLevel?: number;
+  maxZoomLevel?: number;
+  autoZoom?: boolean;
+  panOnZoom?: boolean;
+  animate?: boolean;
+  autoCenter?: boolean;
+  update$?: Observable<any>;
+  center$?: Observable<any>;
+  zoomToFit$?: Observable<any>;
+  panToNode$?: Observable<any>;
+  layout?: string | Layout | undefined;
+  layoutSettings?: any;
+  enableTrackpadSupport?: boolean;
+  //
+  activate?: (value: any) => void;
+  deactivate?: (value: any) => void;
+  zoomChange?: (value: number) => void;
+  clickHandler?: (value: MouseEvent) => void;
+  //
+  nodeTemplate?: React.FunctionComponent<Node>;
+  linkTemplate?: React.FunctionComponent<any>;
+  clusterTemplate?: React.FunctionComponent<any>;
+  defsTemplate?: React.FunctionComponent<any>;
 }
 
 class ReactGraph extends React.Component<Props> {
-    render() {
-      return <section
-      [view]="[width, height]"
-      [showLegend]="legend"
-      [legendOptions]="legendOptions"
-      (legendLabelClick)="onClick($event)"
-      (legendLabelActivate)="onActivate($event)"
-      (legendLabelDeactivate)="onDeactivate($event)"
-      mouseWheel
-      (mouseWheelUp)="onZoom($event, 'in')"
-      (mouseWheelDown)="onZoom($event, 'out')"
-    >
-      <svg:g
-        *ngIf="initialized && graph"
-        [attr.transform]="transform"
-        (touchstart)="onTouchStart($event)"
-        (touchend)="onTouchEnd($event)"
-        class="graph chart"
-      >
-        <defs>
-          <ng-container *ngIf="defsTemplate" [ngTemplateOutlet]="defsTemplate"></ng-container>
-          <svg:path
-            class="text-path"
-            *ngFor="let link of graph.edges"
-            [attr.d]="link.textPath"
-            [attr.id]="link.id"
-          ></svg:path>
-        </defs>
-    
-        <svg:rect
-          class="panning-rect"
-          [attr.width]="dims.width * 100"
-          [attr.height]="dims.height * 100"
-          [attr.transform]="'translate(' + (-dims.width || 0) * 50 + ',' + (-dims.height || 0) * 50 + ')'"
-          (mousedown)="isPanning = true"
-        />
-    
-        <ng-content></ng-content>
-    
-        <svg:g class="clusters">
-          <svg:g
-            #clusterElement
-            *ngFor="let node of graph.clusters; trackBy: trackNodeBy"
-            class="node-group"
-            [class.old-node]="animate && oldClusters.has(node.id)"
-            [id]="node.id"
-            [attr.transform]="node.transform"
-            (click)="onClick(node)"
-          >
-            <ng-container
-              *ngIf="clusterTemplate"
-              [ngTemplateOutlet]="clusterTemplate"
-              [ngTemplateOutletContext]="{ $implicit: node }"
-            ></ng-container>
-            <svg:g *ngIf="!clusterTemplate" class="node cluster">
-              <svg:rect
-                [attr.width]="node.dimension.width"
-                [attr.height]="node.dimension.height"
-                [attr.fill]="node.data?.color"
-              />
-              <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-                {{ node.label }}
-              </svg:text>
-            </svg:g>
-          </svg:g>
-        </svg:g>
-    
-        <svg:g class="links">
-          <svg:g #linkElement *ngFor="let link of graph.edges; trackBy: trackLinkBy" class="link-group" [id]="link.id">
-            <ng-container
-              *ngIf="linkTemplate"
-              [ngTemplateOutlet]="linkTemplate"
-              [ngTemplateOutletContext]="{ $implicit: link }"
-            ></ng-container>
-            <svg:path *ngIf="!linkTemplate" class="edge" [attr.d]="link.line" />
-          </svg:g>
-        </svg:g>
-    
-        <svg:g class="nodes">
-          <svg:g
-            #nodeElement
-            *ngFor="let node of graph.nodes; trackBy: trackNodeBy"
-            class="node-group"
-            [class.old-node]="animate && oldNodes.has(node.id)"
-            [id]="node.id"
-            [attr.transform]="node.transform"
-            (click)="onClick(node)"
-            (mousedown)="onNodeMouseDown($event, node)"
-          >
-            <ng-container
-              *ngIf="nodeTemplate"
-              [ngTemplateOutlet]="nodeTemplate"
-              [ngTemplateOutletContext]="{ $implicit: node }"
-            ></ng-container>
-            <svg:circle
-              *ngIf="!nodeTemplate"
-              r="10"
-              [attr.cx]="node.dimension.width / 2"
-              [attr.cy]="node.dimension.height / 2"
-              [attr.fill]="node.data?.color"
-            />
-          </svg:g>
-        </svg:g>
-      </svg:g>
-    </ngx-charts-chart>
-    }
-}
+  public graphSubscription: Subscription = new Subscription();
+  public subscriptions: Subscription[] = [];
+  public colors: ColorHelper;
+  public dims: ViewDimensions;
+  public margin = [0, 0, 0, 0];
+  public results = [];
+  public seriesDomain: any;
+  public transform: string;
+  public legendOptions: any;
+  public isPanning = false;
+  public isDragging = false;
+  public draggingNode: Node;
+  public initialized = false;
+  public graph: Graph;
+  public graphDims: any = { width: 0, height: 0 };
+  public _oldLinks: Edge[] = [];
+  public oldNodes: Set<string> = new Set();
+  public oldClusters: Set<string> = new Set();
+  public transformationMatrix: Matrix = identity();
+  public _touchLastX = null;
+  public _touchLastY = null;
 
-/////////////////////////////////////////////////////////////
+  private isMouseMoveCalled: boolean = false;
 
-@Component({
-  selector: 'ngx-graph',
-  styleUrls: ['./graph.component.scss'],
-  templateUrl: 'graph.component.html',
-  encapsulation: ViewEncapsulation.None,
-  changeDetection: ChangeDetectionStrategy.OnPush
-})
-export class GraphComponent extends BaseChartComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+  render() {
+    return <></>;
+    //   return <section
+    //   [view]="[width, height]"
+    //   [showLegend]="legend"
+    //   [legendOptions]="legendOptions"
+    //   (legendLabelClick)="onClick($event)"
+    //   (legendLabelActivate)="onActivate($event)"
+    //   (legendLabelDeactivate)="onDeactivate($event)"
+    //   mouseWheel
+    //   (mouseWheelUp)="onZoom($event, 'in')"
+    //   (mouseWheelDown)="onZoom($event, 'out')"
+    // >
+    //   <svg:g
+    //     *ngIf="initialized && graph"
+    //     [attr.transform]="transform"
+    //     (touchstart)="onTouchStart($event)"
+    //     (touchend)="onTouchEnd($event)"
+    //     class="graph chart"
+    //   >
+    //     <defs>
+    //       <ng-container *ngIf="defsTemplate" [ngTemplateOutlet]="defsTemplate"></ng-container>
+    //       <svg:path
+    //         class="text-path"
+    //         *ngFor="let link of graph.edges"
+    //         [attr.d]="link.textPath"
+    //         [attr.id]="link.id"
+    //       ></svg:path>
+    //     </defs>
 
-  @ContentChild('linkTemplate') linkTemplate: TemplateRef<any>;
-  @ContentChild('nodeTemplate') nodeTemplate: TemplateRef<any>;
-  @ContentChild('clusterTemplate') clusterTemplate: TemplateRef<any>;
-  @ContentChild('defsTemplate') defsTemplate: TemplateRef<any>;
+    //     <svg:rect
+    //       class="panning-rect"
+    //       [attr.width]="dims.width * 100"
+    //       [attr.height]="dims.height * 100"
+    //       [attr.transform]="'translate(' + (-dims.width || 0) * 50 + ',' + (-dims.height || 0) * 50 + ')'"
+    //       (mousedown)="isPanning = true"
+    //     />
 
-  @ViewChild(ChartComponent, { read: ElementRef, static: true }) chart: ElementRef;
-  @ViewChildren('nodeElement') nodeElements: QueryList<ElementRef>;
-  @ViewChildren('linkElement') linkElements: QueryList<ElementRef>;
+    //     <ng-content></ng-content>
 
-  private isMouseMoveCalled:boolean = false;
+    //     <svg:g class="clusters">
+    //       <svg:g
+    //         #clusterElement
+    //         *ngFor="let node of graph.clusters; trackBy: trackNodeBy"
+    //         class="node-group"
+    //         [class.old-node]="animate && oldClusters.has(node.id)"
+    //         [id]="node.id"
+    //         [attr.transform]="node.transform"
+    //         (click)="onClick(node)"
+    //       >
+    //         <ng-container
+    //           *ngIf="clusterTemplate"
+    //           [ngTemplateOutlet]="clusterTemplate"
+    //           [ngTemplateOutletContext]="{ $implicit: node }"
+    //         ></ng-container>
+    //         <svg:g *ngIf="!clusterTemplate" class="node cluster">
+    //           <svg:rect
+    //             [attr.width]="node.dimension.width"
+    //             [attr.height]="node.dimension.height"
+    //             [attr.fill]="node.data?.color"
+    //           />
+    //           <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+    //             {{ node.label }}
+    //           </svg:text>
+    //         </svg:g>
+    //       </svg:g>
+    //     </svg:g>
 
-  graphSubscription: Subscription = new Subscription();
-  subscriptions: Subscription[] = [];
-  colors: ColorHelper;
-  dims: ViewDimensions;
-  margin = [0, 0, 0, 0];
-  results = [];
-  seriesDomain: any;
-  transform: string;
-  legendOptions: any;
-  isPanning = false;
-  isDragging = false;
-  draggingNode: Node;
-  initialized = false;
-  graph: Graph;
-  graphDims: any = { width: 0, height: 0 };
-  _oldLinks: Edge[] = [];
-  oldNodes: Set<string> = new Set();
-  oldClusters: Set<string> = new Set();
-  transformationMatrix: Matrix = identity();
-  _touchLastX = null;
-  _touchLastY = null;
+    //     <svg:g class="links">
+    //       <svg:g #linkElement *ngFor="let link of graph.edges; trackBy: trackLinkBy" class="link-group" [id]="link.id">
+    //         <ng-container
+    //           *ngIf="linkTemplate"
+    //           [ngTemplateOutlet]="linkTemplate"
+    //           [ngTemplateOutletContext]="{ $implicit: link }"
+    //         ></ng-container>
+    //         <svg:path *ngIf="!linkTemplate" class="edge" [attr.d]="link.line" />
+    //       </svg:g>
+    //     </svg:g>
 
-  constructor(
-    private el: ElementRef,
-    public zone: NgZone,
-    public cd: ChangeDetectorRef,
-    private layoutService: LayoutService
-  ) {
-    super(el, zone, cd);
+    //     <svg:g class="nodes">
+    //       <svg:g
+    //         #nodeElement
+    //         *ngFor="let node of graph.nodes; trackBy: trackNodeBy"
+    //         class="node-group"
+    //         [class.old-node]="animate && oldNodes.has(node.id)"
+    //         [id]="node.id"
+    //         [attr.transform]="node.transform"
+    //         (click)="onClick(node)"
+    //         (mousedown)="onNodeMouseDown($event, node)"
+    //       >
+    //         <ng-container
+    //           *ngIf="nodeTemplate"
+    //           [ngTemplateOutlet]="nodeTemplate"
+    //           [ngTemplateOutletContext]="{ $implicit: node }"
+    //         ></ng-container>
+    //         <svg:circle
+    //           *ngIf="!nodeTemplate"
+    //           r="10"
+    //           [attr.cx]="node.dimension.width / 2"
+    //           [attr.cy]="node.dimension.height / 2"
+    //           [attr.fill]="node.data?.color"
+    //         />
+    //       </svg:g>
+    //     </svg:g>
+    //   </svg:g>
+    // </ngx-charts-chart>
   }
-
-  @Input()
-  groupResultsBy: (node: any) => string = node => node.label;
 
   /**
    * Get the current zoom level
@@ -240,7 +227,6 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
   /**
    * Set the current zoom level
    */
-  @Input('zoomLevel')
   set zoomLevel(level) {
     this.zoomTo(Number(level));
   }
@@ -255,7 +241,6 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
   /**
    * Set the current `x` position of the graph
    */
-  @Input('panOffsetX')
   set panOffsetX(x) {
     this.panTo(Number(x), null);
   }
@@ -270,7 +255,6 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
   /**
    * Set the current `y` position of the graph
    */
-  @Input('panOffsetY')
   set panOffsetY(y) {
     this.panTo(null, Number(y));
   }
@@ -282,32 +266,32 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    * @memberOf GraphComponent
    */
   ngOnInit(): void {
-    if (this.update$) {
+    if (this.props.update$) {
       this.subscriptions.push(
-        this.update$.subscribe(() => {
+        this.props.update$.subscribe(() => {
           this.update();
         })
       );
     }
 
-    if (this.center$) {
+    if (this.props.center$) {
       this.subscriptions.push(
-        this.center$.subscribe(() => {
+        this.props.center$.subscribe(() => {
           this.center();
         })
       );
     }
-    if (this.zoomToFit$) {
+    if (this.props.zoomToFit$) {
       this.subscriptions.push(
-        this.zoomToFit$.subscribe(() => {
+        this.props.zoomToFit$.subscribe(() => {
           this.zoomToFit();
         })
       );
     }
 
-    if (this.panToNode$) {
+    if (this.props.panToNode$) {
       this.subscriptions.push(
-        this.panToNode$.subscribe((nodeId: string) => {
+        this.props.panToNode$.subscribe((nodeId: string) => {
           this.panToNodeId(nodeId);
         })
       );
@@ -316,27 +300,27 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
 
   ngOnChanges(changes: SimpleChanges): void {
     const { layout, layoutSettings, nodes, clusters, links } = changes;
-    this.setLayout(this.layout);
+    this.setLayout(this.props.layout);
     if (layoutSettings) {
-      this.setLayoutSettings(this.layoutSettings);
+      this.setLayoutSettings(this.props.layoutSettings);
     }
     this.update();
   }
 
-  setLayout(layout: string | Layout): void {
+  setLayout(layout: string | Layout | undefined): void {
     this.initialized = false;
     if (!layout) {
-      layout = 'dagre';
+      layout = "dagre";
     }
-    if (typeof layout === 'string') {
-      this.layout = this.layoutService.getLayout(layout);
-      this.setLayoutSettings(this.layoutSettings);
+    if (typeof layout === "string") {
+      this.layout = this.props.layoutService.getLayout(layout);
+      this.setLayoutSettings(this.props.layoutSettings);
     }
   }
 
   setLayoutSettings(settings: any): void {
-    if (this.layout && typeof this.layout !== 'string') {
-      this.layout.settings = settings;
+    if (this.props.layout && typeof this.props.layout !== "string") {
+      this.props.layout.settings = settings;
       this.update();
     }
   }
@@ -352,7 +336,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
-    this.subscriptions = null;
+    this.subscriptions = [];
   }
 
   /**
@@ -377,22 +361,20 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
       this.curve = shape.curveBundle.beta(1);
     }
 
-    this.zone.run(() => {
-      this.dims = calculateViewDimensions({
-        width: this.width,
-        height: this.height,
-        margins: this.margin,
-        showLegend: this.legend
-      });
-
-      this.seriesDomain = this.getSeriesDomain();
-      this.setColors();
-      this.legendOptions = this.getLegendOptions();
-
-      this.createGraph();
-      this.updateTransform();
-      this.initialized = true;
+    this.dims = calculateViewDimensions({
+      width: this.width,
+      height: this.height,
+      margins: this.margin,
+      showLegend: this.legend
     });
+
+    this.seriesDomain = this.getSeriesDomain();
+    this.setColors();
+    this.legendOptions = this.getLegendOptions();
+
+    this.createGraph();
+    this.updateTransform();
+    this.initialized = true;
   }
 
   /**
@@ -412,13 +394,14 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
       }
       if (!n.dimension) {
         n.dimension = {
-          width: this.nodeWidth ? this.nodeWidth : 30,
-          height: this.nodeHeight ? this.nodeHeight : 30
+          width: this.props.nodeWidth ? this.props.nodeWidth : 30,
+          height: this.props.nodeHeight ? this.props.nodeHeight : 30
         };
 
         n.meta.forceDimensions = false;
       } else {
-        n.meta.forceDimensions = n.meta.forceDimensions === undefined ? true : n.meta.forceDimensions;
+        n.meta.forceDimensions =
+          n.meta.forceDimensions === undefined ? true : n.meta.forceDimensions;
       }
       n.position = {
         x: 0,
@@ -429,9 +412,9 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     };
 
     this.graph = {
-      nodes: [...this.nodes].map(initializeNode),
-      clusters: [...(this.clusters || [])].map(initializeNode),
-      edges: [...this.links].map(e => {
+      nodes: [...(this.props.nodes || [])].map(initializeNode),
+      clusters: [...(this.props.clusters || [])].map(initializeNode),
+      edges: [...(this.props.links || [])].map(e => {
         if (!e.id) {
           e.id = id();
         }
@@ -449,14 +432,14 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    * @memberOf GraphComponent
    */
   draw(): void {
-    if (!this.layout || typeof this.layout === 'string') {
+    if (!this.props.layout || typeof this.props.layout === "string") {
       return;
     }
     // Calc view dims for the nodes
     this.applyNodeDimensions();
 
     // Recalc the layout
-    const result = this.layout.run(this.graph);
+    const result = this.props.layout.run(this.graph);
     const result$ = result instanceof Observable ? result : of(result);
     this.graphSubscription.add(
       result$.subscribe(graph => {
@@ -464,7 +447,9 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
         this.tick();
       })
     );
-    result$.pipe(first(graph => graph.nodes.length > 0)).subscribe(() => this.applyNodeDimensions());
+    result$
+      .pipe(first(graph => graph.nodes.length > 0))
+      .subscribe(() => this.applyNodeDimensions());
   }
 
   tick() {
@@ -472,8 +457,9 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     const oldNodes: Set<string> = new Set();
 
     this.graph.nodes.map(n => {
-      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${n.position.y - n.dimension.height / 2 ||
-        0})`;
+      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${n
+        .position.y -
+        n.dimension.height / 2 || 0})`;
       if (!n.data) {
         n.data = {};
       }
@@ -484,8 +470,9 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     const oldClusters: Set<string> = new Set();
 
     (this.graph.clusters || []).map(n => {
-      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${n.position.y - n.dimension.height / 2 ||
-        0})`;
+      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${n
+        .position.y -
+        n.dimension.height / 2 || 0})`;
       if (!n.data) {
         n.data = {};
       }
@@ -504,23 +491,36 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     for (const edgeLabelId in this.graph.edgeLabels) {
       const edgeLabel = this.graph.edgeLabels[edgeLabelId];
 
-      const normKey = edgeLabelId.replace(/[^\w-]*/g, '');
+      const normKey = edgeLabelId.replace(/[^\w-]*/g, "");
 
-      const isMultigraph = this.layout && typeof this.layout !== 'string' && this.layout.settings && this.layout.settings.multigraph;
+      const isMultigraph =
+        this.layout &&
+        typeof this.layout !== "string" &&
+        this.layout.settings &&
+        this.layout.settings.multigraph;
 
-      let oldLink = isMultigraph ? this._oldLinks.find(ol => `${ol.source}${ol.target}${ol.id}` === normKey) :
-                                      this._oldLinks.find(ol => `${ol.source}${ol.target}` === normKey);  
+      let oldLink = isMultigraph
+        ? this._oldLinks.find(
+            ol => `${ol.source}${ol.target}${ol.id}` === normKey
+          )
+        : this._oldLinks.find(ol => `${ol.source}${ol.target}` === normKey);
 
-      const linkFromGraph = isMultigraph ? this.graph.edges.find(nl => `${nl.source}${nl.target}${nl.id}` === normKey) :
-                                            this.graph.edges.find(nl => `${nl.source}${nl.target}` === normKey);  
-      
+      const linkFromGraph = isMultigraph
+        ? this.graph.edges.find(
+            nl => `${nl.source}${nl.target}${nl.id}` === normKey
+          )
+        : this.graph.edges.find(nl => `${nl.source}${nl.target}` === normKey);
+
       if (!oldLink) {
         oldLink = linkFromGraph || edgeLabel;
       } else if (
-        oldLink.data && 
-        linkFromGraph && linkFromGraph.data && 
-        JSON.stringify(oldLink.data) !== JSON.stringify(linkFromGraph.data)) { // Compare old link to new link and replace if not equal      
-        oldLink.data = linkFromGraph.data 
+        oldLink.data &&
+        linkFromGraph &&
+        linkFromGraph.data &&
+        JSON.stringify(oldLink.data) !== JSON.stringify(linkFromGraph.data)
+      ) {
+        // Compare old link to new link and replace if not equal
+        oldLink.data = linkFromGraph.data;
       }
 
       oldLink.oldLine = oldLink.line;
@@ -536,7 +536,8 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
 
       const textPos = points[Math.floor(points.length / 2)];
       if (textPos) {
-        newLink.textTransform = `translate(${textPos.x || 0},${textPos.y || 0})`;
+        newLink.textTransform = `translate(${textPos.x || 0},${textPos.y ||
+          0})`;
       }
 
       newLink.textAngle = 0;
@@ -560,9 +561,13 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     }
 
     // Calculate the height/width total, but only if we have any nodes
-    if(this.graph.nodes && this.graph.nodes.length) {
-      this.graphDims.width = Math.max(...this.graph.nodes.map(n => n.position.x + n.dimension.width));
-      this.graphDims.height = Math.max(...this.graph.nodes.map(n => n.position.y + n.dimension.height));
+    if (this.graph.nodes && this.graph.nodes.length) {
+      this.graphDims.width = Math.max(
+        ...this.graph.nodes.map(n => n.position.x + n.dimension.width)
+      );
+      this.graphDims.height = Math.max(
+        ...this.graph.nodes.map(n => n.position.y + n.dimension.height)
+      );
     }
 
     if (this.autoZoom) {
@@ -597,27 +602,44 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
           // Skip drawing if element is not displayed - Firefox would throw an error here
           return;
         }
-        if (this.nodeHeight) {          
-          node.dimension.height = node.dimension.height && node.meta.forceDimensions ? node.dimension.height : this.nodeHeight;
+        if (this.nodeHeight) {
+          node.dimension.height =
+            node.dimension.height && node.meta.forceDimensions
+              ? node.dimension.height
+              : this.nodeHeight;
         } else {
-          node.dimension.height = node.dimension.height && node.meta.forceDimensions ? node.dimension.height : dims.height;
+          node.dimension.height =
+            node.dimension.height && node.meta.forceDimensions
+              ? node.dimension.height
+              : dims.height;
         }
 
         if (this.nodeMaxHeight) {
-          node.dimension.height = Math.max(node.dimension.height, this.nodeMaxHeight);
+          node.dimension.height = Math.max(
+            node.dimension.height,
+            this.nodeMaxHeight
+          );
         }
         if (this.nodeMinHeight) {
-          node.dimension.height = Math.min(node.dimension.height, this.nodeMinHeight);
+          node.dimension.height = Math.min(
+            node.dimension.height,
+            this.nodeMinHeight
+          );
         }
 
         if (this.nodeWidth) {
-          node.dimension.width =  node.dimension.width && node.meta.forceDimensions ? node.dimension.width : this.nodeWidth;
+          node.dimension.width =
+            node.dimension.width && node.meta.forceDimensions
+              ? node.dimension.width
+              : this.nodeWidth;
         } else {
           // calculate the width
-          if (nativeElement.getElementsByTagName('text').length) {
+          if (nativeElement.getElementsByTagName("text").length) {
             let maxTextDims;
             try {
-              for (const textElem of nativeElement.getElementsByTagName('text')) {
+              for (const textElem of nativeElement.getElementsByTagName(
+                "text"
+              )) {
                 const currentBBox = textElem.getBBox();
                 if (!maxTextDims) {
                   maxTextDims = currentBBox;
@@ -634,17 +656,29 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
               // Skip drawing if element is not displayed - Firefox would throw an error here
               return;
             }
-            node.dimension.width = node.dimension.width && node.meta.forceDimensions ? node.dimension.width : maxTextDims.width + 20;
+            node.dimension.width =
+              node.dimension.width && node.meta.forceDimensions
+                ? node.dimension.width
+                : maxTextDims.width + 20;
           } else {
-            node.dimension.width = node.dimension.width && node.meta.forceDimensions ? node.dimension.width : dims.width;
+            node.dimension.width =
+              node.dimension.width && node.meta.forceDimensions
+                ? node.dimension.width
+                : dims.width;
           }
         }
 
         if (this.nodeMaxWidth) {
-          node.dimension.width = Math.max(node.dimension.width, this.nodeMaxWidth);
+          node.dimension.width = Math.max(
+            node.dimension.width,
+            this.nodeMaxWidth
+          );
         }
         if (this.nodeMinWidth) {
-          node.dimension.width = Math.min(node.dimension.width, this.nodeMinWidth);
+          node.dimension.width = Math.min(
+            node.dimension.width,
+            this.nodeMinWidth
+          );
         }
       });
     }
@@ -657,24 +691,28 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    */
   redrawLines(_animate = this.animate): void {
     this.linkElements.map(linkEl => {
-      const edge = this.graph.edges.find(lin => lin.id === linkEl.nativeElement.id);
+      const edge = this.graph.edges.find(
+        lin => lin.id === linkEl.nativeElement.id
+      );
 
       if (edge) {
-        const linkSelection = select(linkEl.nativeElement).select('.line');
+        const linkSelection = select(linkEl.nativeElement).select(".line");
         linkSelection
-          .attr('d', edge.oldLine)
+          .attr("d", edge.oldLine)
           .transition()
           .ease(ease.easeSinInOut)
           .duration(_animate ? 500 : 0)
-          .attr('d', edge.line);
+          .attr("d", edge.line);
 
-        const textPathSelection = select(this.chartElement.nativeElement).select(`#${edge.id}`);
+        const textPathSelection = select(
+          this.chartElement.nativeElement
+        ).select(`#${edge.id}`);
         textPathSelection
-          .attr('d', edge.oldTextPath)
+          .attr("d", edge.oldTextPath)
           .transition()
           .ease(ease.easeSinInOut)
           .duration(_animate ? 500 : 0)
-          .attr('d', edge.textPath);
+          .attr("d", edge.textPath);
 
         this.updateMidpointOnEdge(edge, edge.points);
       }
@@ -692,12 +730,12 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     link.oldTextPath = link.textPath;
 
     if (lastPoint.x < firstPoint.x) {
-      link.dominantBaseline = 'text-before-edge';
+      link.dominantBaseline = "text-before-edge";
 
       // reverse text path for when its flipped upside down
       link.textPath = this.generateLine([...link.points].reverse());
     } else {
-      link.dominantBaseline = 'text-after-edge';
+      link.dominantBaseline = "text-after-edge";
       link.textPath = link.line;
     }
   }
@@ -727,11 +765,15 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
       return;
     }
 
-    const zoomFactor = 1 + (direction === 'in' ? this.zoomSpeed : -this.zoomSpeed);
+    const zoomFactor =
+      1 + (direction === "in" ? this.zoomSpeed : -this.zoomSpeed);
 
     // Check that zooming wouldn't put us out of bounds
     const newZoomLevel = this.zoomLevel * zoomFactor;
-    if (newZoomLevel <= this.minZoomLevel || newZoomLevel >= this.maxZoomLevel) {
+    if (
+      newZoomLevel <= this.minZoomLevel ||
+      newZoomLevel >= this.maxZoomLevel
+    ) {
       return;
     }
 
@@ -746,8 +788,8 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
       const mouseY = $event.clientY;
 
       // Transform the mouse X/Y into a SVG X/Y
-      const svg = this.chart.nativeElement.querySelector('svg');
-      const svgGroup = svg.querySelector('g.chart');
+      const svg = this.chart.nativeElement.querySelector("svg");
+      const svgGroup = svg.querySelector("g.chart");
 
       const point = svg.createSVGPoint();
       point.x = mouseX;
@@ -771,7 +813,10 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    */
   pan(x: number, y: number, ignoreZoomLevel: boolean = false): void {
     const zoomLevel = ignoreZoomLevel ? 1 : this.zoomLevel;
-    this.transformationMatrix = transform(this.transformationMatrix, translate(x / zoomLevel, y / zoomLevel));
+    this.transformationMatrix = transform(
+      this.transformationMatrix,
+      translate(x / zoomLevel, y / zoomLevel)
+    );
 
     this.updateTransform();
   }
@@ -780,8 +825,15 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    * Pan to a fixed x/y
    *
    */
-  panTo(x: number, y: number): void {
-    if (x === null || x === undefined || isNaN(x) || y === null || y === undefined || isNaN(y)) {
+  panTo(x: number | null, y: number | null): void {
+    if (
+      x === null ||
+      x === undefined ||
+      isNaN(x) ||
+      y === null ||
+      y === undefined ||
+      isNaN(y)
+    ) {
       return;
     }
 
@@ -801,7 +853,10 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    *
    */
   zoom(factor: number): void {
-    this.transformationMatrix = transform(this.transformationMatrix, scale(factor, factor));
+    this.transformationMatrix = transform(
+      this.transformationMatrix,
+      scale(factor, factor)
+    );
     this.zoomChange.emit(this.zoomLevel);
     this.updateTransform();
   }
@@ -811,8 +866,12 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    *
    */
   zoomTo(level: number): void {
-    this.transformationMatrix.a = isNaN(level) ? this.transformationMatrix.a : Number(level);
-    this.transformationMatrix.d = isNaN(level) ? this.transformationMatrix.d : Number(level);
+    this.transformationMatrix.a = isNaN(level)
+      ? this.transformationMatrix.a
+      : Number(level);
+    this.transformationMatrix.d = isNaN(level)
+      ? this.transformationMatrix.d
+      : Number(level);
     this.zoomChange.emit(this.zoomLevel);
     this.updateTransform();
     this.update();
@@ -837,7 +896,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
       return;
     }
     const node = this.draggingNode;
-    if (this.layout && typeof this.layout !== 'string' && this.layout.onDrag) {
+    if (this.layout && typeof this.layout !== "string" && this.layout.onDrag) {
       this.layout.onDrag(node, event);
     }
 
@@ -856,7 +915,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
         (link.target as any).id === node.id ||
         (link.source as any).id === node.id
       ) {
-        if (this.layout && typeof this.layout !== 'string') {
+        if (this.layout && typeof this.layout !== "string") {
           const result = this.layout.updateEdge(this.graph, link);
           const result$ = result instanceof Observable ? result : of(result);
           this.graphSubscription.add(
@@ -935,7 +994,11 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
   getSeriesDomain(): any[] {
     return this.nodes
       .map(d => this.groupResultsBy(d))
-      .reduce((nodes: string[], node): any[] => (nodes.indexOf(node) !== -1 ? nodes : nodes.concat([node])), [])
+      .reduce(
+        (nodes: string[], node): any[] =>
+          nodes.indexOf(node) !== -1 ? nodes : nodes.concat([node]),
+        []
+      )
       .sort();
   }
 
@@ -966,7 +1029,12 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    * @memberOf GraphComponent
    */
   setColors(): void {
-    this.colors = new ColorHelper(this.scheme, 'ordinal', this.seriesDomain, this.customColors);
+    this.colors = new ColorHelper(
+      this.scheme,
+      "ordinal",
+      this.seriesDomain,
+      this.customColors
+    );
   }
 
   /**
@@ -976,7 +1044,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    */
   getLegendOptions(): any {
     return {
-      scaleType: 'ordinal',
+      scaleType: "ordinal",
       domain: this.seriesDomain,
       colors: this.colors
     };
@@ -987,7 +1055,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    *
    * @memberOf GraphComponent
    */
-  @HostListener('document:mousemove', ['$event'])
+  @HostListener("document:mousemove", ["$event"])
   onMouseMove($event: MouseEvent): void {
     this.isMouseMoveCalled = true;
     if (this.isPanning && this.panningEnabled) {
@@ -997,15 +1065,14 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     }
   }
 
-  @HostListener('document:mousedown', ['$event'])
+  @HostListener("document:mousedown", ["$event"])
   onMouseDown(event: MouseEvent): void {
-     this.isMouseMoveCalled = false;
+    this.isMouseMoveCalled = false;
   }
 
-  @HostListener('document:click', ['$event'])
+  @HostListener("document:click", ["$event"])
   graphClick(event: MouseEvent): void {
-    if (!this.isMouseMoveCalled)
-      this.clickHandler.emit(event);
+    if (!this.isMouseMoveCalled) this.clickHandler.emit(event);
   }
 
   /**
@@ -1024,7 +1091,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    * On touch move event, used for panning.
    *
    */
-  @HostListener('document:touchmove', ['$event'])
+  @HostListener("document:touchmove", ["$event"])
   onTouchMove($event: any): void {
     if (this.isPanning && this.panningEnabled) {
       const clientX = $event.changedTouches[0].clientX;
@@ -1052,11 +1119,15 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
    *
    * @memberOf GraphComponent
    */
-  @HostListener('document:mouseup', ['$event'])
+  @HostListener("document:mouseup", ["$event"])
   onMouseUp(event: MouseEvent): void {
     this.isDragging = false;
     this.isPanning = false;
-    if (this.layout && typeof this.layout !== 'string' && this.layout.onDragEnd) {
+    if (
+      this.layout &&
+      typeof this.layout !== "string" &&
+      this.layout.onDragEnd
+    ) {
       this.layout.onDragEnd(this.draggingNode, event);
     }
   }
@@ -1073,7 +1144,11 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     this.isDragging = true;
     this.draggingNode = node;
 
-    if (this.layout && typeof this.layout !== 'string' && this.layout.onDragStart) {
+    if (
+      this.layout &&
+      typeof this.layout !== "string" &&
+      this.layout.onDragStart
+    ) {
       this.layout.onDragStart(node, event);
     }
   }
@@ -1096,7 +1171,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     if (zoomLevel <= this.minZoomLevel || zoomLevel >= this.maxZoomLevel) {
       return;
     }
-    
+
     if (zoomLevel !== this.zoomLevel) {
       this.zoomLevel = zoomLevel;
       this.updateTransform();
@@ -1106,7 +1181,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
 
   /**
    * Pans to the node
-   * @param nodeId 
+   * @param nodeId
    */
   panToNodeId(nodeId: string): void {
     const node = this.graph.nodes.find(n => n.id === nodeId);
@@ -1135,7 +1210,7 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     if (!edge || !points) {
       return;
     }
-    
+
     if (points.length % 2 === 1) {
       edge.midPoint = points[Math.floor(points.length / 2)];
     } else {
@@ -1148,3 +1223,33 @@ export class GraphComponent extends BaseChartComponent implements OnInit, OnChan
     }
   }
 }
+
+/////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////
+
+// @Component({
+//   selector: "ngx-graph",
+//   styleUrls: ["./graph.component.scss"],
+//   templateUrl: "graph.component.html",
+//   encapsulation: ViewEncapsulation.None,
+//   changeDetection: ChangeDetectionStrategy.OnPush
+// })
+// export class GraphComponent extends BaseChartComponent
+//   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
+//   @ViewChild(ChartComponent, { read: ElementRef, static: true })
+//   chart: ElementRef;
+//   @ViewChildren("nodeElement") nodeElements: QueryList<ElementRef>;
+//   @ViewChildren("linkElement") linkElements: QueryList<ElementRef>;
+
+//   constructor(
+//     private el: ElementRef,
+//     public zone: NgZone,
+//     public cd: ChangeDetectorRef,
+//     private layoutService: LayoutService
+//   ) {
+//     super(el, zone, cd);
+//   }
+
+//   @Input()
+//   groupResultsBy: (node: any) => string = node => node.label;
+// }
