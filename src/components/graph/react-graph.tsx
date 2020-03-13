@@ -1,5 +1,4 @@
 import React from "react";
-import { RouteComponentProps } from "react-router-dom";
 
 import { select } from "d3-selection";
 import * as shape from "d3-shape";
@@ -16,7 +15,7 @@ import {
   translate
 } from "transformation-matrix";
 import { Layout } from "../models/layout.model";
-import { LayoutService } from "./layouts/layout.service";
+import { LayoutService } from "./utils/layout";
 import { Edge } from "../models/edge.model";
 import { Node, ClusterNode } from "../models/node.model";
 import { Graph } from "../models/graph.model";
@@ -41,7 +40,7 @@ export interface Matrix {
   f: number;
 }
 
-interface Props extends RouteComponentProps<any> {
+interface Props {
   legend?: boolean;
   nodes?: Node[];
   clusters: ClusterNode[];
@@ -90,7 +89,7 @@ class ReactGraph extends React.Component<Props> {
   public colors: ColorHelper;
   public dims: ViewDimensions;
   public margin = [0, 0, 0, 0];
-  public results = [];
+  public results: any = [];
   public seriesDomain: any;
   public transform: string;
   public legendOptions: any;
@@ -104,8 +103,9 @@ class ReactGraph extends React.Component<Props> {
   public oldNodes: Set<string> = new Set();
   public oldClusters: Set<string> = new Set();
   public transformationMatrix: Matrix = identity();
-  public _touchLastX = null;
-  public _touchLastY = null;
+  public _touchLastX: any = null;
+  public _touchLastY: any = null;
+  public layoutService: LayoutService = new LayoutService();
 
   private isMouseMoveCalled: boolean = false;
 
@@ -313,10 +313,12 @@ class ReactGraph extends React.Component<Props> {
       layout = "dagre";
     }
     if (typeof layout === "string") {
-      this.layout = this.props.layoutService.getLayout(layout);
+      this.layout = this.layoutService.getLayout(layout);
       this.setLayoutSettings(this.props.layoutSettings);
     }
   }
+
+  groupResultsBy: (node: any) => string = node => node.label;
 
   setLayoutSettings(settings: any): void {
     if (this.props.layout && typeof this.props.layout !== "string") {
@@ -357,8 +359,8 @@ class ReactGraph extends React.Component<Props> {
    */
   update(): void {
     super.update();
-    if (!this.curve) {
-      this.curve = shape.curveBundle.beta(1);
+    if (!this.props.curve) {
+      this.props.curve = shape.curveBundle.beta(1);
     }
 
     this.dims = calculateViewDimensions({
@@ -494,10 +496,10 @@ class ReactGraph extends React.Component<Props> {
       const normKey = edgeLabelId.replace(/[^\w-]*/g, "");
 
       const isMultigraph =
-        this.layout &&
-        typeof this.layout !== "string" &&
-        this.layout.settings &&
-        this.layout.settings.multigraph;
+        this.props.layout &&
+        typeof this.props.layout !== "string" &&
+        this.props.layout.settings &&
+        this.props.layout.settings.multigraph;
 
       let oldLink = isMultigraph
         ? this._oldLinks.find(
@@ -570,11 +572,11 @@ class ReactGraph extends React.Component<Props> {
       );
     }
 
-    if (this.autoZoom) {
+    if (this.props.autoZoom) {
       this.zoomToFit();
     }
 
-    if (this.autoCenter) {
+    if (this.props.autoCenter) {
       // Auto-center when rendering
       this.center();
     }
@@ -614,24 +616,24 @@ class ReactGraph extends React.Component<Props> {
               : dims.height;
         }
 
-        if (this.nodeMaxHeight) {
+        if (this.props.nodeMaxHeight) {
           node.dimension.height = Math.max(
             node.dimension.height,
             this.nodeMaxHeight
           );
         }
-        if (this.nodeMinHeight) {
+        if (this.props.nodeMinHeight) {
           node.dimension.height = Math.min(
             node.dimension.height,
             this.nodeMinHeight
           );
         }
 
-        if (this.nodeWidth) {
+        if (this.props.nodeWidth) {
           node.dimension.width =
             node.dimension.width && node.meta.forceDimensions
               ? node.dimension.width
-              : this.nodeWidth;
+              : this.props.nodeWidth;
         } else {
           // calculate the width
           if (nativeElement.getElementsByTagName("text").length) {
@@ -668,16 +670,16 @@ class ReactGraph extends React.Component<Props> {
           }
         }
 
-        if (this.nodeMaxWidth) {
+        if (this.props.nodeMaxWidth) {
           node.dimension.width = Math.max(
             node.dimension.width,
-            this.nodeMaxWidth
+            this.props.nodeMaxWidth
           );
         }
-        if (this.nodeMinWidth) {
+        if (this.props.nodeMinWidth) {
           node.dimension.width = Math.min(
             node.dimension.width,
-            this.nodeMinWidth
+            this.props.nodeMinWidth
           );
         }
       });
@@ -689,7 +691,7 @@ class ReactGraph extends React.Component<Props> {
    *
    * @memberOf GraphComponent
    */
-  redrawLines(_animate = this.animate): void {
+  redrawLines(_animate = this.props.animate): void {
     this.linkElements.map(linkEl => {
       const edge = this.graph.edges.find(
         lin => lin.id === linkEl.nativeElement.id
@@ -724,7 +726,7 @@ class ReactGraph extends React.Component<Props> {
    *
    * @memberOf GraphComponent
    */
-  calcDominantBaseline(link): void {
+  calcDominantBaseline(link: any): void {
     const firstPoint = link.points[0];
     const lastPoint = link.points[link.points.length - 1];
     link.oldTextPath = link.textPath;
@@ -750,7 +752,7 @@ class ReactGraph extends React.Component<Props> {
       .line<any>()
       .x(d => d.x)
       .y(d => d.y)
-      .curve(this.curve);
+      .curve(this.props.curve);
     return lineFunction(points);
   }
 
@@ -759,30 +761,30 @@ class ReactGraph extends React.Component<Props> {
    *
    * @memberOf GraphComponent
    */
-  onZoom($event: WheelEvent, direction): void {
-    if (this.enableTrackpadSupport && !$event.ctrlKey) {
+  onZoom($event: WheelEvent, direction: any): void {
+    if (this.props.enableTrackpadSupport && !$event.ctrlKey) {
       this.pan($event.deltaX * -1, $event.deltaY * -1);
       return;
     }
 
     const zoomFactor =
-      1 + (direction === "in" ? this.zoomSpeed : -this.zoomSpeed);
+      1 + (direction === "in" ? this.props.zoomSpeed : -this.props.zoomSpeed);
 
     // Check that zooming wouldn't put us out of bounds
     const newZoomLevel = this.zoomLevel * zoomFactor;
     if (
-      newZoomLevel <= this.minZoomLevel ||
-      newZoomLevel >= this.maxZoomLevel
+      newZoomLevel <= this.props.minZoomLevel ||
+      newZoomLevel >= this.props.maxZoomLevel
     ) {
       return;
     }
 
     // Check if zooming is enabled or not
-    if (!this.enableZoom) {
+    if (!this.props.enableZoom) {
       return;
     }
 
-    if (this.panOnZoom === true && $event) {
+    if (this.props.panOnZoom === true && $event) {
       // Absolute mouse X/Y on the screen
       const mouseX = $event.clientX;
       const mouseY = $event.clientY;
@@ -857,7 +859,7 @@ class ReactGraph extends React.Component<Props> {
       this.transformationMatrix,
       scale(factor, factor)
     );
-    this.zoomChange.emit(this.zoomLevel);
+    this.props.zoomChange(this.zoomLevel);
     this.updateTransform();
   }
 
@@ -872,7 +874,7 @@ class ReactGraph extends React.Component<Props> {
     this.transformationMatrix.d = isNaN(level)
       ? this.transformationMatrix.d
       : Number(level);
-    this.zoomChange.emit(this.zoomLevel);
+    this.props.zoomChange(this.zoomLevel);
     this.updateTransform();
     this.update();
   }
@@ -892,12 +894,16 @@ class ReactGraph extends React.Component<Props> {
    * @memberOf GraphComponent
    */
   onDrag(event: MouseEvent): void {
-    if (!this.draggingEnabled) {
+    if (!this.props.draggingEnabled) {
       return;
     }
     const node = this.draggingNode;
-    if (this.layout && typeof this.layout !== "string" && this.layout.onDrag) {
-      this.layout.onDrag(node, event);
+    if (
+      this.props.layout &&
+      typeof this.props.layout !== "string" &&
+      this.props.layout.onDrag
+    ) {
+      this.props.layout.onDrag(node, event);
     }
 
     node.position.x += event.movementX / this.zoomLevel;
@@ -969,7 +975,7 @@ class ReactGraph extends React.Component<Props> {
       return;
     }
     this.activeEntries = [event, ...this.activeEntries];
-    this.activate.emit({ value: event, entries: this.activeEntries });
+    this.props.activate({ value: event, entries: this.activeEntries });
   }
 
   /**
@@ -992,7 +998,7 @@ class ReactGraph extends React.Component<Props> {
    * @memberOf GraphComponent
    */
   getSeriesDomain(): any[] {
-    return this.nodes
+    return this.props.nodes
       .map(d => this.groupResultsBy(d))
       .reduce(
         (nodes: string[], node): any[] =>
@@ -1058,9 +1064,9 @@ class ReactGraph extends React.Component<Props> {
   @HostListener("document:mousemove", ["$event"])
   onMouseMove($event: MouseEvent): void {
     this.isMouseMoveCalled = true;
-    if (this.isPanning && this.panningEnabled) {
-      this.checkEnum(this.panningAxis, $event);
-    } else if (this.isDragging && this.draggingEnabled) {
+    if (this.isPanning && this.props.panningEnabled) {
+      this.checkEnum(this.props.panningAxis, $event);
+    } else if (this.isDragging && this.props.draggingEnabled) {
       this.onDrag($event);
     }
   }
@@ -1072,7 +1078,7 @@ class ReactGraph extends React.Component<Props> {
 
   @HostListener("document:click", ["$event"])
   graphClick(event: MouseEvent): void {
-    if (!this.isMouseMoveCalled) this.clickHandler.emit(event);
+    if (!this.isMouseMoveCalled) this.props.clickHandler(event);
   }
 
   /**
@@ -1093,7 +1099,7 @@ class ReactGraph extends React.Component<Props> {
    */
   @HostListener("document:touchmove", ["$event"])
   onTouchMove($event: any): void {
-    if (this.isPanning && this.panningEnabled) {
+    if (this.isPanning && this.props.panningEnabled) {
       const clientX = $event.changedTouches[0].clientX;
       const clientY = $event.changedTouches[0].clientY;
       const movementX = clientX - this._touchLastX;
@@ -1138,18 +1144,18 @@ class ReactGraph extends React.Component<Props> {
    * @memberOf GraphComponent
    */
   onNodeMouseDown(event: MouseEvent, node: any): void {
-    if (!this.draggingEnabled) {
+    if (!this.props.draggingEnabled) {
       return;
     }
     this.isDragging = true;
     this.draggingNode = node;
 
     if (
-      this.layout &&
-      typeof this.layout !== "string" &&
-      this.layout.onDragStart
+      this.props.layout &&
+      typeof this.props.layout !== "string" &&
+      this.props.layout.onDragStart
     ) {
-      this.layout.onDragStart(node, event);
+      this.props.layout.onDragStart(node, event);
     }
   }
 
@@ -1168,14 +1174,17 @@ class ReactGraph extends React.Component<Props> {
     const widthZoom = this.dims.width / this.graphDims.width;
     const zoomLevel = Math.min(heightZoom, widthZoom, 1);
 
-    if (zoomLevel <= this.minZoomLevel || zoomLevel >= this.maxZoomLevel) {
+    if (
+      zoomLevel <= this.props.minZoomLevel ||
+      zoomLevel >= this.props.maxZoomLevel
+    ) {
       return;
     }
 
     if (zoomLevel !== this.zoomLevel) {
       this.zoomLevel = zoomLevel;
       this.updateTransform();
-      this.zoomChange.emit(this.zoomLevel);
+      this.props.zoomChange(this.zoomLevel);
     }
   }
 
