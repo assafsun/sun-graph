@@ -40,6 +40,11 @@ export interface Matrix {
   f: number;
 }
 
+interface State {
+  layout: string | Layout | undefined;
+  initialized: boolean;
+}
+
 interface Props {
   legend?: boolean;
   nodes?: Node[];
@@ -83,7 +88,7 @@ interface Props {
   defsTemplate?: React.FunctionComponent<any>;
 }
 
-class ReactGraph extends React.Component<Props> {
+class ReactGraph extends React.Component<Props, State> {
   public graphSubscription: Subscription = new Subscription();
   public subscriptions: Subscription[] = [];
   public colors: ColorHelper;
@@ -109,7 +114,73 @@ class ReactGraph extends React.Component<Props> {
 
   private isMouseMoveCalled: boolean = false;
 
+  constructor(props: Props) {
+    super(props);
+    if (this.props.update$) {
+      this.subscriptions.push(
+        this.props.update$.subscribe(() => {
+          this.update();
+        })
+      );
+    }
+
+    if (this.props.center$) {
+      this.subscriptions.push(
+        this.props.center$.subscribe(() => {
+          this.center();
+        })
+      );
+    }
+    if (this.props.zoomToFit$) {
+      this.subscriptions.push(
+        this.props.zoomToFit$.subscribe(() => {
+          this.zoomToFit();
+        })
+      );
+    }
+
+    if (this.props.panToNode$) {
+      this.subscriptions.push(
+        this.props.panToNode$.subscribe((nodeId: string) => {
+          this.panToNodeId(nodeId);
+        })
+      );
+    }
+
+    let currentLayout: any;
+    if (!this.props.layout) {
+      currentLayout = "dagre";
+    }
+
+    if (typeof this.props.layout === "string") {
+      currentLayout = this.layoutService.getLayout(this.props.layout);
+    }
+
+    if (this.props.layoutSettings) {
+      if (this.props.layout && typeof this.props.layout !== "string") {
+        currentLayout.settings = this.props.layoutSettings;
+        this.update();
+      }
+    }
+
+    this.state = { layout: "dagre", initialized: false };
+  }
+
+  // static getDerivedStateFromProps(props: Props, state) {}
+
+  componentDidMount() {
+    this.setState({ initialized: true });
+  }
+
+  componentWillUnmount() {
+    for (const sub of this.subscriptions) {
+      sub.unsubscribe();
+    }
+    this.subscriptions = [];
+  }
+
   render() {
+    this.update();
     return <></>;
     //   return <section
     //   [view]="[width, height]"
@@ -259,98 +330,7 @@ class ReactGraph extends React.Component<Props> {
     this.panTo(null, Number(y));
   }
 
-  /**
-   * Angular lifecycle event
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  ngOnInit(): void {
-    if (this.props.update$) {
-      this.subscriptions.push(
-        this.props.update$.subscribe(() => {
-          this.update();
-        })
-      );
-    }
-
-    if (this.props.center$) {
-      this.subscriptions.push(
-        this.props.center$.subscribe(() => {
-          this.center();
-        })
-      );
-    }
-    if (this.props.zoomToFit$) {
-      this.subscriptions.push(
-        this.props.zoomToFit$.subscribe(() => {
-          this.zoomToFit();
-        })
-      );
-    }
-
-    if (this.props.panToNode$) {
-      this.subscriptions.push(
-        this.props.panToNode$.subscribe((nodeId: string) => {
-          this.panToNodeId(nodeId);
-        })
-      );
-    }
-  }
-
-  ngOnChanges(changes: SimpleChanges): void {
-    const { layout, layoutSettings, nodes, clusters, links } = changes;
-    this.setLayout(this.props.layout);
-    if (layoutSettings) {
-      this.setLayoutSettings(this.props.layoutSettings);
-    }
-    this.update();
-  }
-
-  setLayout(layout: string | Layout | undefined): void {
-    this.initialized = false;
-    if (!layout) {
-      layout = "dagre";
-    }
-    if (typeof layout === "string") {
-      this.layout = this.layoutService.getLayout(layout);
-      this.setLayoutSettings(this.props.layoutSettings);
-    }
-  }
-
   groupResultsBy: (node: any) => string = node => node.label;
-
-  setLayoutSettings(settings: any): void {
-    if (this.props.layout && typeof this.props.layout !== "string") {
-      this.props.layout.settings = settings;
-      this.update();
-    }
-  }
-
-  /**
-   * Angular lifecycle event
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  ngOnDestroy(): void {
-    super.ngOnDestroy();
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
-    }
-    this.subscriptions = [];
-  }
-
-  /**
-   * Angular lifecycle event
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  ngAfterViewInit(): void {
-    super.ngAfterViewInit();
-    setTimeout(() => this.update());
-  }
 
   /**
    * Base class update implementation for the dag graph
@@ -376,7 +356,6 @@ class ReactGraph extends React.Component<Props> {
 
     this.createGraph();
     this.updateTransform();
-    this.initialized = true;
   }
 
   /**
@@ -434,14 +413,14 @@ class ReactGraph extends React.Component<Props> {
    * @memberOf GraphComponent
    */
   draw(): void {
-    if (!this.props.layout || typeof this.props.layout === "string") {
+    if (!this.state.layout || typeof this.state.layout === "string") {
       return;
     }
     // Calc view dims for the nodes
     this.applyNodeDimensions();
 
     // Recalc the layout
-    const result = this.props.layout.run(this.graph);
+    const result = this.state.layout.run(this.graph);
     const result$ = result instanceof Observable ? result : of(result);
     this.graphSubscription.add(
       result$.subscribe(graph => {
@@ -496,10 +475,10 @@ class ReactGraph extends React.Component<Props> {
       const normKey = edgeLabelId.replace(/[^\w-]*/g, "");
 
       const isMultigraph =
-        this.props.layout &&
-        typeof this.props.layout !== "string" &&
-        this.props.layout.settings &&
-        this.props.layout.settings.multigraph;
+        this.state.layout &&
+        typeof this.state.layout !== "string" &&
+        this.state.layout.settings &&
+        this.state.layout.settings.multigraph;
 
       let oldLink = isMultigraph
         ? this._oldLinks.find(
@@ -604,11 +583,11 @@ class ReactGraph extends React.Component<Props> {
           // Skip drawing if element is not displayed - Firefox would throw an error here
           return;
         }
-        if (this.nodeHeight) {
+        if (this.props.nodeHeight) {
           node.dimension.height =
             node.dimension.height && node.meta.forceDimensions
               ? node.dimension.height
-              : this.nodeHeight;
+              : this.props.nodeHeight;
         } else {
           node.dimension.height =
             node.dimension.height && node.meta.forceDimensions
@@ -619,13 +598,13 @@ class ReactGraph extends React.Component<Props> {
         if (this.props.nodeMaxHeight) {
           node.dimension.height = Math.max(
             node.dimension.height,
-            this.nodeMaxHeight
+            this.props.nodeMaxHeight
           );
         }
         if (this.props.nodeMinHeight) {
           node.dimension.height = Math.min(
             node.dimension.height,
-            this.nodeMinHeight
+            this.props.nodeMinHeight
           );
         }
 
@@ -899,11 +878,11 @@ class ReactGraph extends React.Component<Props> {
     }
     const node = this.draggingNode;
     if (
-      this.props.layout &&
-      typeof this.props.layout !== "string" &&
-      this.props.layout.onDrag
+      this.state.layout &&
+      typeof this.state.layout !== "string" &&
+      this.state.layout.onDrag
     ) {
-      this.props.layout.onDrag(node, event);
+      this.state.layout.onDrag(node, event);
     }
 
     node.position.x += event.movementX / this.zoomLevel;
@@ -921,8 +900,8 @@ class ReactGraph extends React.Component<Props> {
         (link.target as any).id === node.id ||
         (link.source as any).id === node.id
       ) {
-        if (this.layout && typeof this.layout !== "string") {
-          const result = this.layout.updateEdge(this.graph, link);
+        if (this.state.layout && typeof this.state.layout !== "string") {
+          const result = this.state.layout.updateEdge(this.graph, link);
           const result$ = result instanceof Observable ? result : of(result);
           this.graphSubscription.add(
             result$.subscribe(graph => {
@@ -970,12 +949,12 @@ class ReactGraph extends React.Component<Props> {
    *
    * @memberOf GraphComponent
    */
-  onActivate(event): void {
-    if (this.activeEntries.indexOf(event) > -1) {
+  onActivate(event: any): void {
+    if (this.props.activeEntries.indexOf(event) > -1) {
       return;
     }
-    this.activeEntries = [event, ...this.activeEntries];
-    this.props.activate({ value: event, entries: this.activeEntries });
+    this.props.activeEntries = [event, ...this.props.activeEntries];
+    this.props.activate({ value: event, entries: this.props.activeEntries });
   }
 
   /**
@@ -983,8 +962,8 @@ class ReactGraph extends React.Component<Props> {
    *
    * @memberOf GraphComponent
    */
-  onDeactivate(event): void {
-    const idx = this.activeEntries.indexOf(event);
+  onDeactivate(event: any): void {
+    const idx = this.props.activeEntries.indexOf(event);
 
     this.activeEntries.splice(idx, 1);
     this.activeEntries = [...this.activeEntries];
@@ -1151,11 +1130,11 @@ class ReactGraph extends React.Component<Props> {
     this.draggingNode = node;
 
     if (
-      this.props.layout &&
-      typeof this.props.layout !== "string" &&
-      this.props.layout.onDragStart
+      this.state.layout &&
+      typeof this.state.layout !== "string" &&
+      this.state.layout.onDragStart
     ) {
-      this.props.layout.onDragStart(node, event);
+      this.state.layout.onDragStart(node, event);
     }
   }
 
