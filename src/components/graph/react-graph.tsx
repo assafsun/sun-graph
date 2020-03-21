@@ -2,7 +2,6 @@ import React from "react";
 
 import { select } from "d3-selection";
 import * as shape from "d3-shape";
-import * as ease from "d3-ease";
 import "d3-transition";
 import { Observable, Subscription, of } from "rxjs";
 import { first } from "rxjs/operators";
@@ -86,9 +85,15 @@ interface Props {
   linkTemplate?: React.FunctionComponent<any>;
   clusterTemplate?: React.FunctionComponent<any>;
   defsTemplate?: React.FunctionComponent<any>;
+
+  view: [number, number];
 }
 
-class ReactGraph extends React.Component<Props, State> {
+export class ReactGraph extends React.Component<Props, State> {
+  public chartElement: any;
+  public nodeElements: any;
+  public linkElements: any;
+
   public graphSubscription: Subscription = new Subscription();
   public subscriptions: Subscription[] = [];
   public colors: ColorHelper;
@@ -111,11 +116,14 @@ class ReactGraph extends React.Component<Props, State> {
   public _touchLastX: any = null;
   public _touchLastY: any = null;
   public layoutService: LayoutService = new LayoutService();
+  public width: number;
+  public height: number;
 
   private isMouseMoveCalled: boolean = false;
 
   constructor(props: Props) {
     super(props);
+    this.chartElement = React.createRef();
     if (this.props.update$) {
       this.subscriptions.push(
         this.props.update$.subscribe(() => {
@@ -168,7 +176,12 @@ class ReactGraph extends React.Component<Props, State> {
 
   // static getDerivedStateFromProps(props: Props, state) {}
 
+  componentDidUpdate() {
+    requestAnimationFrame(() => this.draw());
+  }
+
   componentDidMount() {
+    requestAnimationFrame(() => this.draw());
     this.setState({ initialized: true });
   }
 
@@ -179,113 +192,113 @@ class ReactGraph extends React.Component<Props, State> {
     this.subscriptions = [];
   }
 
+  getDefaultProps() {
+    return {
+      curve: shape.curveBundle.beta(1)
+    };
+  }
+
   render() {
     this.update();
     return <></>;
-    //   return <section
-    //   [view]="[width, height]"
-    //   [showLegend]="legend"
-    //   [legendOptions]="legendOptions"
-    //   (legendLabelClick)="onClick($event)"
-    //   (legendLabelActivate)="onActivate($event)"
-    //   (legendLabelDeactivate)="onDeactivate($event)"
-    //   mouseWheel
-    //   (mouseWheelUp)="onZoom($event, 'in')"
-    //   (mouseWheelDown)="onZoom($event, 'out')"
+    //   <div className="ngx-charts-outer" ref={this.chartElement} {[style.width.px]=[2]} >
+    //   <svg className="ngx-charts" {[attr.width]="chartWidth"} {[attr.height]="view[1]"}>
+
+    //   {/* <svg:g
+    //   *ngIf="initialized && graph"
+    //   [attr.transform]="transform"
+    //   (touchstart)="onTouchStart($event)"
+    //   (touchend)="onTouchEnd($event)"
+    //   className="graph chart"
     // >
-    //   <svg:g
-    //     *ngIf="initialized && graph"
-    //     [attr.transform]="transform"
-    //     (touchstart)="onTouchStart($event)"
-    //     (touchend)="onTouchEnd($event)"
-    //     class="graph chart"
-    //   >
-    //     <defs>
-    //       <ng-container *ngIf="defsTemplate" [ngTemplateOutlet]="defsTemplate"></ng-container>
-    //       <svg:path
-    //         class="text-path"
-    //         *ngFor="let link of graph.edges"
-    //         [attr.d]="link.textPath"
-    //         [attr.id]="link.id"
-    //       ></svg:path>
-    //     </defs>
+    //   <defs>
+    //     <ng-container *ngIf="defsTemplate" [ngTemplateOutlet]="defsTemplate"></ng-container>
+    //     <svg:path
+    //     className="text-path"
+    //       *ngFor="let link of graph.edges"
+    //       [attr.d]="link.textPath"
+    //       [attr.id]="link.id"
+    //     ></svg:path>
+    //   </defs>
 
-    //     <svg:rect
-    //       class="panning-rect"
-    //       [attr.width]="dims.width * 100"
-    //       [attr.height]="dims.height * 100"
-    //       [attr.transform]="'translate(' + (-dims.width || 0) * 50 + ',' + (-dims.height || 0) * 50 + ')'"
-    //       (mousedown)="isPanning = true"
-    //     />
+    //   <svg:rect
+    //     className="panning-rect"
+    //     [attr.width]="dims.width * 100"
+    //     [attr.height]="dims.height * 100"
+    //     [attr.transform]="'translate(' + (-dims.width || 0) * 50 + ',' + (-dims.height || 0) * 50 + ')'"
+    //     (mousedown)="isPanning = true"
+    //   />
 
-    //     <ng-content></ng-content>
+    //   <ng-content></ng-content>
 
-    //     <svg:g class="clusters">
-    //       <svg:g
-    //         #clusterElement
-    //         *ngFor="let node of graph.clusters; trackBy: trackNodeBy"
-    //         class="node-group"
-    //         [class.old-node]="animate && oldClusters.has(node.id)"
-    //         [id]="node.id"
-    //         [attr.transform]="node.transform"
-    //         (click)="onClick(node)"
-    //       >
-    //         <ng-container
-    //           *ngIf="clusterTemplate"
-    //           [ngTemplateOutlet]="clusterTemplate"
-    //           [ngTemplateOutletContext]="{ $implicit: node }"
-    //         ></ng-container>
-    //         <svg:g *ngIf="!clusterTemplate" class="node cluster">
-    //           <svg:rect
-    //             [attr.width]="node.dimension.width"
-    //             [attr.height]="node.dimension.height"
-    //             [attr.fill]="node.data?.color"
-    //           />
-    //           <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-    //             {{ node.label }}
-    //           </svg:text>
-    //         </svg:g>
-    //       </svg:g>
-    //     </svg:g>
-
-    //     <svg:g class="links">
-    //       <svg:g #linkElement *ngFor="let link of graph.edges; trackBy: trackLinkBy" class="link-group" [id]="link.id">
-    //         <ng-container
-    //           *ngIf="linkTemplate"
-    //           [ngTemplateOutlet]="linkTemplate"
-    //           [ngTemplateOutletContext]="{ $implicit: link }"
-    //         ></ng-container>
-    //         <svg:path *ngIf="!linkTemplate" class="edge" [attr.d]="link.line" />
-    //       </svg:g>
-    //     </svg:g>
-
-    //     <svg:g class="nodes">
-    //       <svg:g
-    //         #nodeElement
-    //         *ngFor="let node of graph.nodes; trackBy: trackNodeBy"
-    //         class="node-group"
-    //         [class.old-node]="animate && oldNodes.has(node.id)"
-    //         [id]="node.id"
-    //         [attr.transform]="node.transform"
-    //         (click)="onClick(node)"
-    //         (mousedown)="onNodeMouseDown($event, node)"
-    //       >
-    //         <ng-container
-    //           *ngIf="nodeTemplate"
-    //           [ngTemplateOutlet]="nodeTemplate"
-    //           [ngTemplateOutletContext]="{ $implicit: node }"
-    //         ></ng-container>
-    //         <svg:circle
-    //           *ngIf="!nodeTemplate"
-    //           r="10"
-    //           [attr.cx]="node.dimension.width / 2"
-    //           [attr.cy]="node.dimension.height / 2"
+    //   <svg:g className="clusters">
+    //     <svg:g
+    //       #clusterElement
+    //       *ngFor="let node of graph.clusters; trackBy: trackNodeBy"
+    //       className="node-group"
+    //       [class.old-node]="animate && oldClusters.has(node.id)"
+    //       [id]="node.id"
+    //       [attr.transform]="node.transform"
+    //       (click)="onClick(node)"
+    //     >
+    //       <ng-container
+    //         *ngIf="clusterTemplate"
+    //         [ngTemplateOutlet]="clusterTemplate"
+    //         [ngTemplateOutletContext]="{ $implicit: node }"
+    //       ></ng-container>
+    //       <svg:g *ngIf="!clusterTemplate" className="node cluster">
+    //         <svg:rect
+    //           [attr.width]="node.dimension.width"
+    //           [attr.height]="node.dimension.height"
     //           [attr.fill]="node.data?.color"
     //         />
+    //         <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
+    //           {{ node.label }}
+    //         </svg:text>
     //       </svg:g>
     //     </svg:g>
     //   </svg:g>
-    // </ngx-charts-chart>
+
+    //   <svg:g className="links">
+    //     <svg:g #linkElement *ngFor="let link of graph.edges; trackBy: trackLinkBy" className="link-group" [id]="link.id">
+    //       <ng-container
+    //         *ngIf="linkTemplate"
+    //         [ngTemplateOutlet]="linkTemplate"
+    //         [ngTemplateOutletContext]="{ $implicit: link }"
+    //       ></ng-container>
+    //       <svg:path *ngIf="!linkTemplate" className="edge" [attr.d]="link.line" />
+    //     </svg:g>
+    //   </svg:g>
+
+    //   <svg:g className="nodes">
+    //     <svg:g
+    //       #nodeElement
+    //       *ngFor="let node of graph.nodes; trackBy: trackNodeBy"
+    //       className="node-group"
+    //       [class.old-node]="animate && oldNodes.has(node.id)"
+    //       [id]="node.id"
+    //       [attr.transform]="node.transform"
+    //       (click)="onClick(node)"
+    //       (mousedown)="onNodeMouseDown($event, node)"
+    //     >
+    //       <ng-container
+    //         *ngIf="nodeTemplate"
+    //         [ngTemplateOutlet]="nodeTemplate"
+    //         [ngTemplateOutletContext]="{ $implicit: node }"
+    //       ></ng-container>
+    //       <svg:circle
+    //         *ngIf="!nodeTemplate"
+    //         r="10"
+    //         [attr.cx]="node.dimension.width / 2"
+    //         [attr.cy]="node.dimension.height / 2"
+    //         [attr.fill]="node.data?.color"
+    //       />
+    //     </svg:g>
+    //   </svg:g>
+    // </svg:g> */}
+
+    //   </svg>
+    // </div>;
   }
 
   /**
@@ -332,22 +345,71 @@ class ReactGraph extends React.Component<Props, State> {
 
   groupResultsBy: (node: any) => string = node => node.label;
 
+  getContainerDims(): any {
+    let width;
+    let height;
+    const hostElem = this.chartElement.nativeElement;
+
+    if (hostElem.parentNode !== null) {
+      // Get the container dimensions
+      const dims = hostElem.parentNode.getBoundingClientRect();
+      width = dims.width;
+      height = dims.height;
+    }
+
+    if (width && height) {
+      return { width, height };
+    }
+
+    return null;
+  }
+
+  basicUpdate(): void {
+    if (this.results) {
+      this.results = this.cloneData(this.results);
+    } else {
+      this.results = [];
+    }
+
+    if (this.props.view) {
+      this.width = this.props.view[0];
+      this.height = this.props.view[1];
+    } else {
+      const dims = this.getContainerDims();
+      if (dims) {
+        this.width = dims.width;
+        this.height = dims.height;
+      }
+    }
+
+    // default values if width or height are 0 or undefined
+    if (!this.width) {
+      this.width = 600;
+    }
+
+    if (!this.height) {
+      this.height = 400;
+    }
+
+    this.width = Math.floor(this.width);
+    this.height = Math.floor(this.height);
+  }
   /**
    * Base class update implementation for the dag graph
    *
    * @memberOf GraphComponent
    */
   update(): void {
-    super.update();
-    if (!this.props.curve) {
-      this.props.curve = shape.curveBundle.beta(1);
-    }
+    this.basicUpdate();
+    // if (!this.props.curve) {
+    //   this.props.curve = shape.curveBundle.beta(1);
+    // }
 
     this.dims = calculateViewDimensions({
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showLegend: this.legend
+      showLegend: false
     });
 
     this.seriesDomain = this.getSeriesDomain();
@@ -356,6 +418,36 @@ class ReactGraph extends React.Component<Props, State> {
 
     this.createGraph();
     this.updateTransform();
+  }
+
+  private cloneData(data: any): any {
+    const results = [];
+
+    for (const item of data) {
+      const copy: any = {
+        name: item["name"]
+      };
+
+      if (item["value"] !== undefined) {
+        copy["value"] = item["value"];
+      }
+
+      if (item["series"] !== undefined) {
+        copy["series"] = [];
+        for (const seriesItem of item["series"]) {
+          const seriesItemCopy = Object.assign({}, seriesItem);
+          copy["series"].push(seriesItemCopy);
+        }
+      }
+
+      if (item["extra"] !== undefined) {
+        copy["extra"] = JSON.parse(JSON.stringify(item["extra"]));
+      }
+
+      results.push(copy);
+    }
+
+    return results;
   }
 
   /**
@@ -402,8 +494,6 @@ class ReactGraph extends React.Component<Props, State> {
         return e;
       })
     };
-
-    requestAnimationFrame(() => this.draw());
   }
 
   /**
@@ -561,7 +651,6 @@ class ReactGraph extends React.Component<Props, State> {
     }
 
     requestAnimationFrame(() => this.redrawLines());
-    this.cd.markForCheck();
   }
 
   /**
@@ -570,8 +659,9 @@ class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   applyNodeDimensions(): void {
+    this.nodeElements = document.getElementsByName("nodeElement");
     if (this.nodeElements && this.nodeElements.length) {
-      this.nodeElements.map(elem => {
+      this.nodeElements.map((elem: any) => {
         const nativeElement = elem.nativeElement;
         const node = this.graph.nodes.find(n => n.id === nativeElement.id);
 
@@ -671,7 +761,8 @@ class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   redrawLines(_animate = this.props.animate): void {
-    this.linkElements.map(linkEl => {
+    this.linkElements = document.getElementsByName("linkElement");
+    this.linkElements.map((linkEl: any) => {
       const edge = this.graph.edges.find(
         lin => lin.id === linkEl.nativeElement.id
       );
@@ -680,9 +771,9 @@ class ReactGraph extends React.Component<Props, State> {
         const linkSelection = select(linkEl.nativeElement).select(".line");
         linkSelection
           .attr("d", edge.oldLine)
-          .transition()
-          .ease(ease.easeSinInOut)
-          .duration(_animate ? 500 : 0)
+          // .transition()
+          // .ease(ease.easeSinInOut)
+          //.duration(_animate ? 500 : 0)
           .attr("d", edge.line);
 
         const textPathSelection = select(
@@ -690,9 +781,9 @@ class ReactGraph extends React.Component<Props, State> {
         ).select(`#${edge.id}`);
         textPathSelection
           .attr("d", edge.oldTextPath)
-          .transition()
-          .ease(ease.easeSinInOut)
-          .duration(_animate ? 500 : 0)
+          // .transition()
+          // .ease(ease.easeSinInOut)
+          //.duration(_animate ? 500 : 0)
           .attr("d", edge.textPath);
 
         this.updateMidpointOnEdge(edge, edge.points);
@@ -769,7 +860,7 @@ class ReactGraph extends React.Component<Props, State> {
       const mouseY = $event.clientY;
 
       // Transform the mouse X/Y into a SVG X/Y
-      const svg = this.chart.nativeElement.querySelector("svg");
+      const svg = this.chartElement.nativeElement.querySelector("svg");
       const svgGroup = svg.querySelector("g.chart");
 
       const point = svg.createSVGPoint();
@@ -940,7 +1031,7 @@ class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   onClick(event: any): void {
-    this.select.emit(event);
+    //this.props.select.emit(event);
   }
 
   /**
@@ -953,8 +1044,8 @@ class ReactGraph extends React.Component<Props, State> {
     if (this.props.activeEntries.indexOf(event) > -1) {
       return;
     }
-    this.props.activeEntries = [event, ...this.props.activeEntries];
-    this.props.activate({ value: event, entries: this.props.activeEntries });
+    const activeEntries = [event, ...this.props.activeEntries];
+    this.props.activate({ value: event, entries: activeEntries });
   }
 
   /**
@@ -963,12 +1054,13 @@ class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   onDeactivate(event: any): void {
-    const idx = this.props.activeEntries.indexOf(event);
+    const activeEntries = [this.props.activeEntries];
+    const idx = activeEntries.indexOf(event);
 
-    this.activeEntries.splice(idx, 1);
-    this.activeEntries = [...this.activeEntries];
+    activeEntries.splice(idx, 1);
+    //activeEntries = [...this.activeEntries];
 
-    this.deactivate.emit({ value: event, entries: this.activeEntries });
+    //this.deactivate.emit({ value: event, entries: this.activeEntries });
   }
 
   /**
@@ -1015,10 +1107,9 @@ class ReactGraph extends React.Component<Props, State> {
    */
   setColors(): void {
     this.colors = new ColorHelper(
-      this.scheme,
+      "cool" /*this.scheme*/,
       "ordinal",
-      this.seriesDomain,
-      this.customColors
+      this.seriesDomain
     );
   }
 
@@ -1040,7 +1131,7 @@ class ReactGraph extends React.Component<Props, State> {
    *
    * @memberOf GraphComponent
    */
-  @HostListener("document:mousemove", ["$event"])
+  //@HostListener("document:mousemove", ["$event"])
   onMouseMove($event: MouseEvent): void {
     this.isMouseMoveCalled = true;
     if (this.isPanning && this.props.panningEnabled) {
@@ -1050,12 +1141,12 @@ class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  @HostListener("document:mousedown", ["$event"])
+  //@HostListener("document:mousedown", ["$event"])
   onMouseDown(event: MouseEvent): void {
     this.isMouseMoveCalled = false;
   }
 
-  @HostListener("document:click", ["$event"])
+  //@HostListener("document:click", ["$event"])
   graphClick(event: MouseEvent): void {
     if (!this.isMouseMoveCalled) this.props.clickHandler(event);
   }
@@ -1076,7 +1167,7 @@ class ReactGraph extends React.Component<Props, State> {
    * On touch move event, used for panning.
    *
    */
-  @HostListener("document:touchmove", ["$event"])
+  //@HostListener("document:touchmove", ["$event"])
   onTouchMove($event: any): void {
     if (this.isPanning && this.props.panningEnabled) {
       const clientX = $event.changedTouches[0].clientX;
@@ -1104,16 +1195,16 @@ class ReactGraph extends React.Component<Props, State> {
    *
    * @memberOf GraphComponent
    */
-  @HostListener("document:mouseup", ["$event"])
+  //@HostListener("document:mouseup", ["$event"])
   onMouseUp(event: MouseEvent): void {
     this.isDragging = false;
     this.isPanning = false;
     if (
-      this.layout &&
-      typeof this.layout !== "string" &&
-      this.layout.onDragEnd
+      this.state.layout &&
+      typeof this.state.layout !== "string" &&
+      (this.state.layout as Layout).onDragEnd
     ) {
-      this.layout.onDragEnd(this.draggingNode, event);
+      (this.state.layout as Layout).onDragEnd(this.draggingNode, event);
     }
   }
 
