@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ReactNode } from "react";
 import { Layout } from "../../components/models/layout.model";
 import { Node } from "../../components/models/node.model";
 import { Edge } from "../../components/models/edge.model";
@@ -23,7 +23,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
   public nodes: Node[] = [];
   public links: Edge[] = [];
   public layoutSettings = {
-    orientation: "TB"
+    orientation: "TB",
   };
   public curve: any = shape.curveLinear;
   public layout: Layout = new DagreNodesOnlyLayout();
@@ -36,7 +36,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         name: "Employee 1",
         office: "Office 1",
         role: "Manager",
-        backgroundColor: "#DC143C"
+        backgroundColor: "#DC143C",
       },
       {
         id: "2",
@@ -44,7 +44,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         office: "Office 2",
         role: "Engineer",
         backgroundColor: "#00FFFF",
-        upperManagerId: "1"
+        upperManagerId: "1",
       },
       {
         id: "3",
@@ -52,7 +52,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         office: "Office 3",
         role: "Engineer",
         backgroundColor: "#00FFFF",
-        upperManagerId: "1"
+        upperManagerId: "1",
       },
       {
         id: "4",
@@ -60,7 +60,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         office: "Office 4",
         role: "Engineer",
         backgroundColor: "#00FFFF",
-        upperManagerId: "1"
+        upperManagerId: "1",
       },
       {
         id: "5",
@@ -68,12 +68,10 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         office: "Office 5",
         role: "Student",
         backgroundColor: "#8A2BE2",
-        upperManagerId: "4"
-      }
+        upperManagerId: "4",
+      },
     ];
-  }
 
-  public ngOnInit(): void {
     for (const employee of this.employees) {
       const node: Node = {
         id: employee.id,
@@ -81,8 +79,8 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         data: {
           office: employee.office,
           role: employee.role,
-          backgroundColor: employee.backgroundColor
-        }
+          backgroundColor: employee.backgroundColor,
+        },
       };
 
       this.nodes.push(node);
@@ -98,15 +96,15 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         target: employee.id,
         label: "",
         data: {
-          linkText: "Manager of"
-        }
+          linkText: "Manager of",
+        },
       };
 
       this.links.push(edge);
     }
   }
 
-  public render() {
+  render() {
     return <ReactGraph></ReactGraph>;
   }
 
@@ -156,7 +154,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
 
   public getStyles(node: Node): any {
     return {
-      "background-color": node.data.backgroundColor
+      "background-color": node.data.backgroundColor,
     };
   }
 }

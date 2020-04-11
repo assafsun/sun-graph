@@ -2,7 +2,6 @@ import React from "react";
 
 import { select } from "d3-selection";
 import * as shape from "d3-shape";
-import "d3-transition";
 import { Observable, Subscription, of } from "rxjs";
 import { first } from "rxjs/operators";
 import {
@@ -11,7 +10,7 @@ import {
   smoothMatrix,
   toSVG,
   transform,
-  translate
+  translate,
 } from "transformation-matrix";
 import { Layout } from "../models/layout.model";
 import { LayoutService } from "./utils/layout";
@@ -24,7 +23,7 @@ import { PanningAxis } from "../enums/panning.enum";
 import { ColorHelper } from "./utils/color.helper";
 import {
   ViewDimensions,
-  calculateViewDimensions
+  calculateViewDimensions,
 } from "./utils/view-dimensions.helper";
 
 /**
@@ -47,7 +46,7 @@ interface State {
 interface Props {
   legend?: boolean;
   nodes?: Node[];
-  clusters: ClusterNode[];
+  clusters?: ClusterNode[];
   links?: Edge[];
   activeEntries?: any;
   curve?: any;
@@ -86,7 +85,7 @@ interface Props {
   clusterTemplate?: React.FunctionComponent<any>;
   defsTemplate?: React.FunctionComponent<any>;
 
-  view: [number, number];
+  view?: [number, number];
 }
 
 export class ReactGraph extends React.Component<Props, State> {
@@ -194,17 +193,26 @@ export class ReactGraph extends React.Component<Props, State> {
 
   getDefaultProps() {
     return {
-      curve: shape.curveBundle.beta(1)
+      curve: shape.curveBundle.beta(1),
     };
   }
 
-  render() {
-    this.update();
-    return <></>;
-    //   <div className="ngx-charts-outer" ref={this.chartElement} {[style.width.px]=[2]} >
-    //   <svg className="ngx-charts" {[attr.width]="chartWidth"} {[attr.height]="view[1]"}>
+  divStyle = {
+    width: 300,
+    height: 300,
+  };
 
-    //   {/* <svg:g
+  render() {
+    //this.update();
+    return (
+      <div className="ngx-charts-outer" ref={this.chartElement}>
+        <svg className="ngx-charts" style={this.divStyle}>
+          <g style={{ transform: this.transform }} className="graph chart"></g>
+        </svg>
+      </div>
+    );
+
+    //   <svg:g
     //   *ngIf="initialized && graph"
     //   [attr.transform]="transform"
     //   (touchstart)="onTouchStart($event)"
@@ -295,10 +303,7 @@ export class ReactGraph extends React.Component<Props, State> {
     //       />
     //     </svg:g>
     //   </svg:g>
-    // </svg:g> */}
-
-    //   </svg>
-    // </div>;
+    // </svg:g>
   }
 
   /**
@@ -343,7 +348,7 @@ export class ReactGraph extends React.Component<Props, State> {
     this.panTo(null, Number(y));
   }
 
-  groupResultsBy: (node: any) => string = node => node.label;
+  groupResultsBy: (node: any) => string = (node) => node.label;
 
   getContainerDims(): any {
     let width;
@@ -409,7 +414,7 @@ export class ReactGraph extends React.Component<Props, State> {
       width: this.width,
       height: this.height,
       margins: this.margin,
-      showLegend: false
+      showLegend: false,
     });
 
     this.seriesDomain = this.getSeriesDomain();
@@ -425,7 +430,7 @@ export class ReactGraph extends React.Component<Props, State> {
 
     for (const item of data) {
       const copy: any = {
-        name: item["name"]
+        name: item["name"],
       };
 
       if (item["value"] !== undefined) {
@@ -468,7 +473,7 @@ export class ReactGraph extends React.Component<Props, State> {
       if (!n.dimension) {
         n.dimension = {
           width: this.props.nodeWidth ? this.props.nodeWidth : 30,
-          height: this.props.nodeHeight ? this.props.nodeHeight : 30
+          height: this.props.nodeHeight ? this.props.nodeHeight : 30,
         };
 
         n.meta.forceDimensions = false;
@@ -478,7 +483,7 @@ export class ReactGraph extends React.Component<Props, State> {
       }
       n.position = {
         x: 0,
-        y: 0
+        y: 0,
       };
       n.data = n.data ? n.data : {};
       return n;
@@ -487,12 +492,12 @@ export class ReactGraph extends React.Component<Props, State> {
     this.graph = {
       nodes: [...(this.props.nodes || [])].map(initializeNode),
       clusters: [...(this.props.clusters || [])].map(initializeNode),
-      edges: [...(this.props.links || [])].map(e => {
+      edges: [...(this.props.links || [])].map((e) => {
         if (!e.id) {
           e.id = id();
         }
         return e;
-      })
+      }),
     };
   }
 
@@ -513,13 +518,13 @@ export class ReactGraph extends React.Component<Props, State> {
     const result = this.state.layout.run(this.graph);
     const result$ = result instanceof Observable ? result : of(result);
     this.graphSubscription.add(
-      result$.subscribe(graph => {
+      result$.subscribe((graph) => {
         this.graph = graph;
         this.tick();
       })
     );
     result$
-      .pipe(first(graph => graph.nodes.length > 0))
+      .pipe(first((graph) => graph.nodes.length > 0))
       .subscribe(() => this.applyNodeDimensions());
   }
 
@@ -527,10 +532,10 @@ export class ReactGraph extends React.Component<Props, State> {
     // Transposes view options to the node
     const oldNodes: Set<string> = new Set();
 
-    this.graph.nodes.map(n => {
-      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${n
-        .position.y -
-        n.dimension.height / 2 || 0})`;
+    this.graph.nodes.map((n) => {
+      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${
+        n.position.y - n.dimension.height / 2 || 0
+      })`;
       if (!n.data) {
         n.data = {};
       }
@@ -540,10 +545,10 @@ export class ReactGraph extends React.Component<Props, State> {
 
     const oldClusters: Set<string> = new Set();
 
-    (this.graph.clusters || []).map(n => {
-      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${n
-        .position.y -
-        n.dimension.height / 2 || 0})`;
+    (this.graph.clusters || []).map((n) => {
+      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${
+        n.position.y - n.dimension.height / 2 || 0
+      })`;
       if (!n.data) {
         n.data = {};
       }
@@ -572,15 +577,15 @@ export class ReactGraph extends React.Component<Props, State> {
 
       let oldLink = isMultigraph
         ? this._oldLinks.find(
-            ol => `${ol.source}${ol.target}${ol.id}` === normKey
+            (ol) => `${ol.source}${ol.target}${ol.id}` === normKey
           )
-        : this._oldLinks.find(ol => `${ol.source}${ol.target}` === normKey);
+        : this._oldLinks.find((ol) => `${ol.source}${ol.target}` === normKey);
 
       const linkFromGraph = isMultigraph
         ? this.graph.edges.find(
-            nl => `${nl.source}${nl.target}${nl.id}` === normKey
+            (nl) => `${nl.source}${nl.target}${nl.id}` === normKey
           )
-        : this.graph.edges.find(nl => `${nl.source}${nl.target}` === normKey);
+        : this.graph.edges.find((nl) => `${nl.source}${nl.target}` === normKey);
 
       if (!oldLink) {
         oldLink = linkFromGraph || edgeLabel;
@@ -607,8 +612,9 @@ export class ReactGraph extends React.Component<Props, State> {
 
       const textPos = points[Math.floor(points.length / 2)];
       if (textPos) {
-        newLink.textTransform = `translate(${textPos.x || 0},${textPos.y ||
-          0})`;
+        newLink.textTransform = `translate(${textPos.x || 0},${
+          textPos.y || 0
+        })`;
       }
 
       newLink.textAngle = 0;
@@ -624,7 +630,7 @@ export class ReactGraph extends React.Component<Props, State> {
 
     // Map the old links for animations
     if (this.graph.edges) {
-      this._oldLinks = this.graph.edges.map(l => {
+      this._oldLinks = this.graph.edges.map((l) => {
         const newL = Object.assign({}, l);
         newL.oldLine = l.line;
         return newL;
@@ -634,10 +640,10 @@ export class ReactGraph extends React.Component<Props, State> {
     // Calculate the height/width total, but only if we have any nodes
     if (this.graph.nodes && this.graph.nodes.length) {
       this.graphDims.width = Math.max(
-        ...this.graph.nodes.map(n => n.position.x + n.dimension.width)
+        ...this.graph.nodes.map((n) => n.position.x + n.dimension.width)
       );
       this.graphDims.height = Math.max(
-        ...this.graph.nodes.map(n => n.position.y + n.dimension.height)
+        ...this.graph.nodes.map((n) => n.position.y + n.dimension.height)
       );
     }
 
@@ -663,7 +669,7 @@ export class ReactGraph extends React.Component<Props, State> {
     if (this.nodeElements && this.nodeElements.length) {
       this.nodeElements.map((elem: any) => {
         const nativeElement = elem.nativeElement;
-        const node = this.graph.nodes.find(n => n.id === nativeElement.id);
+        const node = this.graph.nodes.find((n) => n.id === nativeElement.id);
 
         // calculate the height
         let dims;
@@ -764,7 +770,7 @@ export class ReactGraph extends React.Component<Props, State> {
     this.linkElements = document.getElementsByName("linkElement");
     this.linkElements.map((linkEl: any) => {
       const edge = this.graph.edges.find(
-        lin => lin.id === linkEl.nativeElement.id
+        (lin) => lin.id === linkEl.nativeElement.id
       );
 
       if (edge) {
@@ -820,8 +826,8 @@ export class ReactGraph extends React.Component<Props, State> {
   generateLine(points: any): any {
     const lineFunction = shape
       .line<any>()
-      .x(d => d.x)
-      .y(d => d.y)
+      .x((d) => d.x)
+      .y((d) => d.y)
       .curve(this.props.curve);
     return lineFunction(points);
   }
@@ -995,7 +1001,7 @@ export class ReactGraph extends React.Component<Props, State> {
           const result = this.state.layout.updateEdge(this.graph, link);
           const result$ = result instanceof Observable ? result : of(result);
           this.graphSubscription.add(
-            result$.subscribe(graph => {
+            result$.subscribe((graph) => {
               this.graph = graph;
               this.redrawEdge(link);
             })
@@ -1070,7 +1076,7 @@ export class ReactGraph extends React.Component<Props, State> {
    */
   getSeriesDomain(): any[] {
     return this.props.nodes
-      .map(d => this.groupResultsBy(d))
+      .map((d) => this.groupResultsBy(d))
       .reduce(
         (nodes: string[], node): any[] =>
           nodes.indexOf(node) !== -1 ? nodes : nodes.concat([node]),
@@ -1122,7 +1128,7 @@ export class ReactGraph extends React.Component<Props, State> {
     return {
       scaleType: "ordinal",
       domain: this.seriesDomain,
-      colors: this.colors
+      colors: this.colors,
     };
   }
 
@@ -1263,7 +1269,7 @@ export class ReactGraph extends React.Component<Props, State> {
    * @param nodeId
    */
   panToNodeId(nodeId: string): void {
-    const node = this.graph.nodes.find(n => n.id === nodeId);
+    const node = this.graph.nodes.find((n) => n.id === nodeId);
     if (!node) {
       return;
     }
@@ -1297,7 +1303,7 @@ export class ReactGraph extends React.Component<Props, State> {
       const second = points[points.length / 2 - 1];
       edge.midPoint = {
         x: (first.x + second.x) / 2,
-        y: (first.y + second.y) / 2
+        y: (first.y + second.y) / 2,
       };
     }
   }
