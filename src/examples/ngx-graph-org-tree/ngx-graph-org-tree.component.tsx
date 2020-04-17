@@ -105,7 +105,22 @@ export class NgxGraphOrgTreeComponent extends React.Component {
   }
 
   render() {
-    return <ReactGraph></ReactGraph>;
+    return (
+      <ReactGraph
+        defsTemplate={<svg>assaf</svg>}
+        nodes={this.nodes}
+        links={this.links}
+        nodeUI={() => this.nodeUI()}
+        layout={new DagreNodesOnlyLayout()}
+        curve={(line: any) => shape.curveLinear(line)}
+        nodeWidth={150}
+        nodeHeight={100}
+      ></ReactGraph>
+    );
+  }
+
+  public nodeUI() {
+    return <div className="nodeUI"></div>;
   }
 
   // view={[800, 500]}

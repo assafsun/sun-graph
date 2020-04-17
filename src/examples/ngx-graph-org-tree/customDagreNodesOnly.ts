@@ -7,14 +7,14 @@ export enum Orientation {
   LEFT_TO_RIGHT = "LR",
   RIGHT_TO_LEFT = "RL",
   TOP_TO_BOTTOM = "TB",
-  BOTTOM_TO_TOM = "BT"
+  BOTTOM_TO_TOM = "BT",
 }
 export enum Alignment {
   CENTER = "C",
   UP_LEFT = "UL",
   UP_RIGHT = "UR",
   DOWN_LEFT = "DL",
-  DOWN_RIGHT = "DR"
+  DOWN_RIGHT = "DR",
 }
 
 export interface DagreSettings {
@@ -41,7 +41,7 @@ const EDGE_KEY_DELIM = "\x01";
 
 export class DagreNodesOnlyLayout implements Layout {
   defaultSettings: DagreNodesOnlySettings = {
-    orientation: Orientation.LEFT_TO_RIGHT,
+    orientation: Orientation.TOP_TO_BOTTOM,
     marginX: 20,
     marginY: 20,
     edgePadding: 100,
@@ -49,7 +49,7 @@ export class DagreNodesOnlyLayout implements Layout {
     nodePadding: 50,
     curveDistance: 20,
     multigraph: false,
-    compound: true
+    compound: true,
   };
   settings: DagreNodesOnlySettings = {};
 
@@ -65,14 +65,14 @@ export class DagreNodesOnlyLayout implements Layout {
 
     for (const dagreNodeId in this.dagreGraph._nodes) {
       const dagreNode = this.dagreGraph._nodes[dagreNodeId];
-      const node = graph.nodes.find(n => n.id === dagreNode.id);
+      const node = graph.nodes.find((n) => n.id === dagreNode.id);
       node.position = {
         x: dagreNode.x,
-        y: dagreNode.y
+        y: dagreNode.y,
       };
       node.dimension = {
         width: dagreNode.width,
-        height: dagreNode.height
+        height: dagreNode.height,
       };
     }
     for (const edge of graph.edges) {
@@ -83,8 +83,8 @@ export class DagreNodesOnlyLayout implements Layout {
   }
 
   public updateEdge(graph: Graph, edge: Edge): Graph {
-    const sourceNode = graph.nodes.find(n => n.id === edge.source);
-    const targetNode = graph.nodes.find(n => n.id === edge.target);
+    const sourceNode = graph.nodes.find((n) => n.id === edge.source);
+    const targetNode = graph.nodes.find((n) => n.id === edge.target);
     const rankAxis: "x" | "y" =
       this.settings.orientation === "BT" || this.settings.orientation === "TB"
         ? "y"
@@ -98,13 +98,13 @@ export class DagreNodesOnlyLayout implements Layout {
       [orderAxis]: sourceNode.position[orderAxis],
       [rankAxis]:
         sourceNode.position[rankAxis] -
-        dir * (sourceNode.dimension[rankDimension] / 2)
+        dir * (sourceNode.dimension[rankDimension] / 2),
     };
     const endingPoint = {
       [orderAxis]: targetNode.position[orderAxis],
       [rankAxis]:
         targetNode.position[rankAxis] +
-        dir * (targetNode.dimension[rankDimension] / 2)
+        dir * (targetNode.dimension[rankDimension] / 2),
     };
 
     const curveDistance =
@@ -114,13 +114,13 @@ export class DagreNodesOnlyLayout implements Layout {
       startingPoint,
       {
         [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
-        [orderAxis]: startingPoint[orderAxis]
+        [orderAxis]: startingPoint[orderAxis],
       },
       {
         [orderAxis]: endingPoint[orderAxis],
-        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2
+        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
       },
-      endingPoint
+      endingPoint,
     ];
     const edgeLabelId = `${edge.source}${EDGE_KEY_DELIM}${edge.target}${EDGE_KEY_DELIM}${DEFAULT_EDGE_NAME}`;
     const matchingEdgeLabel = graph.edgeLabels[edgeLabelId];
@@ -134,7 +134,7 @@ export class DagreNodesOnlyLayout implements Layout {
     const settings = Object.assign({}, this.defaultSettings, this.settings);
     this.dagreGraph = new dagre.graphlib.Graph({
       compound: settings.compound,
-      multigraph: settings.multigraph
+      multigraph: settings.multigraph,
     });
     this.dagreGraph.setGraph({
       rankdir: settings.orientation,
@@ -147,7 +147,7 @@ export class DagreNodesOnlyLayout implements Layout {
       acyclicer: settings.acyclicer,
       ranker: settings.ranker,
       multigraph: settings.multigraph,
-      compound: settings.compound
+      compound: settings.compound,
     });
 
     // Default to assigning a new object as a label for each new edge.
@@ -157,7 +157,7 @@ export class DagreNodesOnlyLayout implements Layout {
       };
     });
 
-    this.dagreNodes = graph.nodes.map(n => {
+    this.dagreNodes = graph.nodes.map((n) => {
       const node: any = Object.assign({}, n);
       node.width = n.dimension.width;
       node.height = n.dimension.height;
@@ -166,7 +166,7 @@ export class DagreNodesOnlyLayout implements Layout {
       return node;
     });
 
-    this.dagreEdges = graph.edges.map(l => {
+    this.dagreEdges = graph.edges.map((l) => {
       let linkId: number = 1;
       const newLink: any = Object.assign({}, l);
       if (!newLink.id) {

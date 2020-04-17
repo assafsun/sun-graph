@@ -26,6 +26,8 @@ import {
   calculateViewDimensions,
 } from "./utils/view-dimensions.helper";
 
+import "./react-graph.scss";
+
 /**
  * Matrix
  */
@@ -80,10 +82,12 @@ interface Props {
   zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   //
+  nodeUI?: () => any;
+
   nodeTemplate?: React.FunctionComponent<Node>;
   linkTemplate?: React.FunctionComponent<any>;
   clusterTemplate?: React.FunctionComponent<any>;
-  defsTemplate?: React.FunctionComponent<any>;
+  defsTemplate?: any;
 
   view?: [number, number];
 }
@@ -171,6 +175,8 @@ export class ReactGraph extends React.Component<Props, State> {
     }
 
     this.state = { layout: "dagre", initialized: false };
+    this.update();
+    this.draw();
   }
 
   // static getDerivedStateFromProps(props: Props, state) {}
@@ -180,7 +186,7 @@ export class ReactGraph extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    requestAnimationFrame(() => this.draw());
+    //requestAnimationFrame(() => this.draw());
     this.setState({ initialized: true });
   }
 
@@ -191,23 +197,49 @@ export class ReactGraph extends React.Component<Props, State> {
     this.subscriptions = [];
   }
 
-  getDefaultProps() {
-    return {
-      curve: shape.curveBundle.beta(1),
-    };
-  }
-
   divStyle = {
-    width: 300,
-    height: 300,
+    width: 800,
+    height: 800,
   };
 
   render() {
     //this.update();
+
+    const items = [];
+
+    for (let node of this.graph.nodes) {
+      items.push(
+        <svg>
+          <g transform={node.transform}>
+            <rect r="10" width={150} height={100} fill="green" />
+          </g>
+        </svg>
+      );
+    }
+
+    const links = [];
+    for (let link of this.graph.edges) {
+      links.push(
+        <g className="link-group" id={link.id}>
+          <path className="edge" d={link.line} />
+        </g>
+      );
+    }
+
     return (
-      <div className="ngx-charts-outer" ref={this.chartElement}>
-        <svg className="ngx-charts" style={this.divStyle}>
-          <g style={{ transform: this.transform }} className="graph chart"></g>
+      <div className="graph" ref={this.chartElement}>
+        <svg
+          className="ngx-charts"
+          style={this.divStyle}
+          transform={this.transform}
+        >
+          <g style={{ transform: this.transform }} className="graph chart">
+            {this.props.defsTemplate}
+          </g>
+          <g className="nodes">
+            <g className="node-group">{items}</g>
+          </g>
+          <g>{links}</g>
         </svg>
       </div>
     );
@@ -354,6 +386,9 @@ export class ReactGraph extends React.Component<Props, State> {
     let width;
     let height;
     const hostElem = this.chartElement.nativeElement;
+    if (!hostElem) {
+      return null;
+    }
 
     if (hostElem.parentNode !== null) {
       // Get the container dimensions
@@ -508,14 +543,14 @@ export class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   draw(): void {
-    if (!this.state.layout || typeof this.state.layout === "string") {
+    if (!this.props.layout || typeof this.props.layout === "string") {
       return;
     }
     // Calc view dims for the nodes
     this.applyNodeDimensions();
 
     // Recalc the layout
-    const result = this.state.layout.run(this.graph);
+    const result = this.props.layout.run(this.graph);
     const result$ = result instanceof Observable ? result : of(result);
     this.graphSubscription.add(
       result$.subscribe((graph) => {
@@ -768,31 +803,34 @@ export class ReactGraph extends React.Component<Props, State> {
    */
   redrawLines(_animate = this.props.animate): void {
     this.linkElements = document.getElementsByName("linkElement");
-    this.linkElements.map((linkEl: any) => {
-      const edge = this.graph.edges.find(
-        (lin) => lin.id === linkEl.nativeElement.id
-      );
+    // if (this.linkElements.length === 0) {
+    //   return;
+    // }
+    this.graph.edges.map((linkEl: any) => {
+      // const edge = this.graph.edges.find(
+      //   (lin) => lin.id === linkEl.nativeElement.id
+      // );
 
-      if (edge) {
+      if (linkEl) {
         const linkSelection = select(linkEl.nativeElement).select(".line");
         linkSelection
-          .attr("d", edge.oldLine)
+          .attr("d", linkEl.oldLine)
           // .transition()
           // .ease(ease.easeSinInOut)
           //.duration(_animate ? 500 : 0)
-          .attr("d", edge.line);
+          .attr("d", linkEl.line);
 
         const textPathSelection = select(
           this.chartElement.nativeElement
-        ).select(`#${edge.id}`);
+        ).select(`#${linkEl.id}`);
         textPathSelection
-          .attr("d", edge.oldTextPath)
+          .attr("d", linkEl.oldTextPath)
           // .transition()
           // .ease(ease.easeSinInOut)
           //.duration(_animate ? 500 : 0)
-          .attr("d", edge.textPath);
+          .attr("d", linkEl.textPath);
 
-        this.updateMidpointOnEdge(edge, edge.points);
+        this.updateMidpointOnEdge(linkEl, linkEl.points);
       }
     });
   }
