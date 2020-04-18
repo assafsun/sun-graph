@@ -264,7 +264,6 @@ export class ReactGraph extends React.Component<Props, State> {
             this.onMouseUp(e);
           }}
           onWheel={(e: any) => {
-            e.preventDefault();
             e.stopPropagation();
             const delta: number = Math.max(
               -1,
