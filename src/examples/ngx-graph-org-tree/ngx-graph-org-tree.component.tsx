@@ -116,6 +116,8 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         nodeWidth={150}
         nodeHeight={100}
         panningEnabled={true}
+        enableZoom={true}
+        zoomSpeed={0.1}
       ></ReactGraph>
     );
   }

@@ -232,6 +232,22 @@ export class ReactGraph extends React.Component<Props, State> {
           onMouseUp={(e: any) => {
             this.onMouseUp(e);
           }}
+          onWheel={(e: any) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const delta: number = Math.max(
+              -1,
+              Math.min(1, e.wheelDelta || -e.detail || e.deltaY || e.deltaX)
+            );
+            const isWheelMouseUp: boolean = e.wheelDelta
+              ? delta > 0
+              : delta < 0;
+            if (isWheelMouseUp) {
+              this.onZoom(e, "in");
+            } else {
+              this.onZoom(e, "down");
+            }
+          }}
           ref={this.chartElement}
         >
           <svg
@@ -983,7 +999,7 @@ export class ReactGraph extends React.Component<Props, State> {
       this.transformationMatrix,
       scale(factor, factor)
     );
-    this.props.zoomChange(this.zoomLevel);
+    //this.props.zoomChange(this.zoomLevel);
     this.updateTransform();
   }
 
@@ -998,7 +1014,7 @@ export class ReactGraph extends React.Component<Props, State> {
     this.transformationMatrix.d = isNaN(level)
       ? this.transformationMatrix.d
       : Number(level);
-    this.props.zoomChange(this.zoomLevel);
+    //this.props.zoomChange(this.zoomLevel);
     this.updateTransform();
     this.update();
   }
@@ -1310,7 +1326,7 @@ export class ReactGraph extends React.Component<Props, State> {
     if (zoomLevel !== this.zoomLevel) {
       this.zoomLevel = zoomLevel;
       this.updateTransform();
-      this.props.zoomChange(this.zoomLevel);
+      //this.props.zoomChange(this.zoomLevel);
     }
   }
 
