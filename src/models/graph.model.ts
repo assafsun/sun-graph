@@ -1,3 +1,9 @@
+export enum PanningAxis {
+  Both = "both",
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
+
 export interface Graph {
   edges: Edge[];
   nodes: Node[];

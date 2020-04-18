@@ -11,9 +11,10 @@ import {
   toSVG,
   transform,
   translate,
+  Matrix,
 } from "transformation-matrix";
 import { Layout } from "../models/layout.model";
-import { Graph, Node, Edge } from "../models/graph.model";
+import { Graph, Node, Edge, PanningAxis } from "../models/graph.model";
 import { id } from "../utils/id";
 
 import {
@@ -24,33 +25,15 @@ import {
 import "./react-graph.scss";
 import { DagreLayout } from "../layouts/dagre";
 
-export enum PanningAxis {
-  Both = "both",
-  Horizontal = "horizontal",
-  Vertical = "vertical",
-}
-
-/**
- * Matrix
- */
-export interface Matrix {
-  a: number;
-  b: number;
-  c: number;
-  d: number;
-  e: number;
-  f: number;
-}
-
 interface State {
   initialized: boolean;
   transform: string;
 }
 
 interface Props {
+  view?: [number, number];
   nodes?: Node[];
   links?: Edge[];
-  activeEntries?: any;
   curve?: any;
   draggingEnabled?: boolean;
   nodeHeight?: number;
@@ -70,28 +53,16 @@ interface Props {
   zoomToFit$?: Observable<any>;
   panToNode$?: Observable<any>;
   layout?: string | Layout | undefined;
-  layoutSettings?: any;
   enableTrackpadSupport?: boolean;
-  //
-  activate?: (value: any) => void;
-  deactivate?: (value: any) => void;
-  zoomChange?: (value: number) => void;
+  //zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
-  //
   defsTemplate?: () => any;
-
-  nodeTemplate?: React.FunctionComponent<Node>;
-  linkTemplate?: React.FunctionComponent<any>;
-  clusterTemplate?: React.FunctionComponent<any>;
-
-  view?: [number, number];
 }
 
 export class ReactGraph extends React.Component<Props, State> {
   public chartElement: any;
   public nodeElements: any;
   public linkElements: any;
-
   public graphSubscription: Subscription = new Subscription();
   public subscriptions: Subscription[] = [];
   public dims: ViewDimensions;
@@ -111,6 +82,13 @@ export class ReactGraph extends React.Component<Props, State> {
   public height: number;
 
   private isMouseMoveCalled: boolean = false;
+
+  static defaultProps = {
+    view: [700, 700],
+    curve: shape.curveLinear,
+    layout: new DagreLayout(),
+    clickHandler: (value: MouseEvent) => {},
+  };
 
   constructor(props: Props) {
     super(props);
@@ -146,22 +124,6 @@ export class ReactGraph extends React.Component<Props, State> {
       );
     }
 
-    let currentLayout: any;
-    if (!this.props.layout) {
-      currentLayout = "dagre";
-    }
-
-    if (typeof this.props.layout === "string") {
-      currentLayout = new DagreLayout();
-    }
-
-    if (this.props.layoutSettings) {
-      if (this.props.layout && typeof this.props.layout !== "string") {
-        currentLayout.settings = this.props.layoutSettings;
-        this.update();
-      }
-    }
-
     this.state = { initialized: false, transform: "" };
     this.update();
     this.draw();
@@ -185,13 +147,12 @@ export class ReactGraph extends React.Component<Props, State> {
   }
 
   divStyle = {
-    width: 700,
-    height: 700,
+    width: this.props.view[0],
+    height: this.props.view[1],
   };
 
   render() {
-    const items = [];
-    let key: number = 1;
+    const nodes = [];
     for (let node of this.graph.nodes) {
       let nodeTemplate = (
         <rect r="10" width={node.width} height={node.height} fill="green" />
@@ -217,18 +178,17 @@ export class ReactGraph extends React.Component<Props, State> {
         );
       }
 
-      items.push(
-        <svg key={key}>
+      nodes.push(
+        <svg key={node.id}>
           <g transform={node.transform}>{nodeTemplate}</g>
         </svg>
       );
-      key++;
     }
 
     const links = [];
     for (let link of this.graph.edges) {
       links.push(
-        <g className="link-group" id={link.id} key={key}>
+        <g className="link-group" id={link.id} key={link.id}>
           <svg>
             <g className="edge">
               <path
@@ -241,16 +201,17 @@ export class ReactGraph extends React.Component<Props, State> {
           </svg>
         </g>
       );
-      key++;
     }
 
     return (
       this.state.initialized && (
         <div
+          style={this.divStyle}
           className="graph"
+          onClick={(e: any) => this.graphClick(e)}
           onMouseMove={(e: any) => this.onMouseMove(e)}
-          onMouseDown={() => {
-            this.isPanning = true;
+          onMouseDown={(e: any) => {
+            this.onMouseDown(e);
           }}
           onMouseUp={(e: any) => {
             this.onMouseUp(e);
@@ -272,21 +233,9 @@ export class ReactGraph extends React.Component<Props, State> {
           }}
           ref={this.chartElement}
         >
-          <svg
-            className="ngx-charts"
-            style={this.divStyle}
-            transform={this.state.transform}
-          >
-            <g
-              style={{ transform: this.state.transform }}
-              className="graph chart"
-            >
-              {this.props.defsTemplate()}
-            </g>
-            <g className="nodes">
-              <g className="node-group">{items}</g>
-            </g>
-            <g>{links}</g>
+          <svg className="svgGraph" transform={this.state.transform}>
+            <g className="nodes">{nodes}</g>
+            <g className="links">{links}</g>
           </svg>
         </div>
       )
@@ -847,17 +796,15 @@ export class ReactGraph extends React.Component<Props, State> {
       );
 
       if (
-        newTempTransofrmationMetrix.e <
-          this.graphDims.width * zoomLevel * -1 + 250 * zoomLevel ||
-        newTempTransofrmationMetrix.e > this.dims.width - 100 * zoomLevel
+        newTempTransofrmationMetrix.f < 0 ||
+        newTempTransofrmationMetrix.e < 0
       ) {
         return;
       }
-
       if (
-        newTempTransofrmationMetrix.f <
-          this.graphDims.height * -1 * zoomLevel + 250 * zoomLevel ||
-        newTempTransofrmationMetrix.f > this.dims.height - 100 * zoomLevel
+        newTempTransofrmationMetrix.f >
+          this.dims.width - this.graphDims.width ||
+        newTempTransofrmationMetrix.e > this.dims.height - this.graphDims.height
       ) {
         return;
       }
@@ -1037,12 +984,6 @@ export class ReactGraph extends React.Component<Props, State> {
     return node.id;
   }
 
-  /**
-   * On mouse move event, used for panning and dragging.
-   *
-   * @memberOf GraphComponent
-   */
-  //@HostListener("document:mousemove", ["$event"])
   onMouseMove($event: MouseEvent): void {
     this.isMouseMoveCalled = true;
     if (this.isPanning && this.props.panningEnabled) {
@@ -1052,8 +993,9 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  //@HostListener("document:mousedown", ["$event"])
   onMouseDown(event: MouseEvent): void {
+    this.isMouseMoveCalled = false;
+    this.isPanning = true;
     this.isMouseMoveCalled = false;
   }
 
