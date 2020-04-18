@@ -48,7 +48,6 @@ interface State {
 }
 
 interface Props {
-  legend?: boolean;
   nodes?: Node[];
   links?: Edge[];
   activeEntries?: any;
@@ -102,8 +101,6 @@ export class ReactGraph extends React.Component<Props, State> {
   public dims: ViewDimensions;
   public margin = [0, 0, 0, 0];
   public results: any = [];
-  public seriesDomain: any;
-  public legendOptions: any;
   public isPanning = false;
   public isDragging = false;
   public draggingNode: Node;
@@ -413,9 +410,6 @@ export class ReactGraph extends React.Component<Props, State> {
       margins: this.margin,
       showLegend: false,
     });
-
-    this.seriesDomain = this.getSeriesDomain();
-    this.legendOptions = this.getLegendOptions();
 
     this.createGraph();
     this.updateTransform();
@@ -1041,51 +1035,6 @@ export class ReactGraph extends React.Component<Props, State> {
   }
 
   /**
-   * Node was focused
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  onActivate(event: any): void {
-    if (this.props.activeEntries.indexOf(event) > -1) {
-      return;
-    }
-    const activeEntries = [event, ...this.props.activeEntries];
-    this.props.activate({ value: event, entries: activeEntries });
-  }
-
-  /**
-   * Node was defocused
-   *
-   * @memberOf GraphComponent
-   */
-  onDeactivate(event: any): void {
-    const activeEntries = [this.props.activeEntries];
-    const idx = activeEntries.indexOf(event);
-
-    activeEntries.splice(idx, 1);
-    //activeEntries = [...this.activeEntries];
-
-    //this.deactivate.emit({ value: event, entries: this.activeEntries });
-  }
-
-  /**
-   * Get the domain series for the nodes
-   *
-   * @memberOf GraphComponent
-   */
-  getSeriesDomain(): any[] {
-    return this.props.nodes
-      .map((d) => this.groupResultsBy(d))
-      .reduce(
-        (nodes: string[], node): any[] =>
-          nodes.indexOf(node) !== -1 ? nodes : nodes.concat([node]),
-        []
-      )
-      .sort();
-  }
-
-  /**
    * Tracking for the link
    *
    *
@@ -1103,18 +1052,6 @@ export class ReactGraph extends React.Component<Props, State> {
    */
   trackNodeBy(index: number, node: Node): any {
     return node.id;
-  }
-
-  /**
-   * Gets the legend options
-   *
-   * @memberOf GraphComponent
-   */
-  getLegendOptions(): any {
-    return {
-      scaleType: "ordinal",
-      domain: this.seriesDomain,
-    };
   }
 
   /**
