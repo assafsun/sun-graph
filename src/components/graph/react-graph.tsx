@@ -41,7 +41,6 @@ export interface Matrix {
 }
 
 interface State {
-  layout: string | Layout | undefined;
   initialized: boolean;
   transform: string;
 }
@@ -173,7 +172,7 @@ export class ReactGraph extends React.Component<Props, State> {
       }
     }
 
-    this.state = { layout: "dagre", initialized: false, transform: "" };
+    this.state = { initialized: false, transform: "" };
     this.update();
     this.draw();
   }
@@ -572,10 +571,10 @@ export class ReactGraph extends React.Component<Props, State> {
       const normKey = edgeLabelId.replace(/[^\w-]*/g, "");
 
       const isMultigraph =
-        this.state.layout &&
-        typeof this.state.layout !== "string" &&
-        this.state.layout.settings &&
-        this.state.layout.settings.multigraph;
+        this.props.layout &&
+        typeof this.props.layout !== "string" &&
+        this.props.layout.settings &&
+        this.props.layout.settings.multigraph;
 
       let oldLink = isMultigraph
         ? this._oldLinks.find(
@@ -984,11 +983,11 @@ export class ReactGraph extends React.Component<Props, State> {
     }
     const node = this.draggingNode;
     if (
-      this.state.layout &&
-      typeof this.state.layout !== "string" &&
-      this.state.layout.onDrag
+      this.props.layout &&
+      typeof this.props.layout !== "string" &&
+      this.props.layout.onDrag
     ) {
-      this.state.layout.onDrag(node, event);
+      this.props.layout.onDrag(node, event);
     }
 
     node.position.x += event.movementX / this.zoomLevel;
@@ -1006,8 +1005,8 @@ export class ReactGraph extends React.Component<Props, State> {
         (link.target as any).id === node.id ||
         (link.source as any).id === node.id
       ) {
-        if (this.state.layout && typeof this.state.layout !== "string") {
-          const result = this.state.layout.updateEdge(this.graph, link);
+        if (this.props.layout && typeof this.props.layout !== "string") {
+          const result = this.props.layout.updateEdge(this.graph, link);
           const result$ = result instanceof Observable ? result : of(result);
           this.graphSubscription.add(
             result$.subscribe((graph) => {
@@ -1036,6 +1035,9 @@ export class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   updateTransform(): void {
+    if (!this.state.initialized) {
+      return;
+    }
     this.setState({
       transform: toSVG(smoothMatrix(this.transformationMatrix, 100)),
     });
@@ -1217,11 +1219,11 @@ export class ReactGraph extends React.Component<Props, State> {
     this.isDragging = false;
     this.isPanning = false;
     if (
-      this.state.layout &&
-      typeof this.state.layout !== "string" &&
-      (this.state.layout as Layout).onDragEnd
+      this.props.layout &&
+      typeof this.props.layout !== "string" &&
+      (this.props.layout as Layout).onDragEnd
     ) {
-      (this.state.layout as Layout).onDragEnd(this.draggingNode, event);
+      (this.props.layout as Layout).onDragEnd(this.draggingNode, event);
     }
   }
 
@@ -1238,11 +1240,11 @@ export class ReactGraph extends React.Component<Props, State> {
     this.draggingNode = node;
 
     if (
-      this.state.layout &&
-      typeof this.state.layout !== "string" &&
-      this.state.layout.onDragStart
+      this.props.layout &&
+      typeof this.props.layout !== "string" &&
+      this.props.layout.onDragStart
     ) {
-      this.state.layout.onDragStart(node, event);
+      this.props.layout.onDragStart(node, event);
     }
   }
 
