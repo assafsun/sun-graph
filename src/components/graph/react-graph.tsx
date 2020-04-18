@@ -202,6 +202,7 @@ export class ReactGraph extends React.Component<Props, State> {
 
   render() {
     const items = [];
+    let key: number = 1;
     for (let node of this.graph.nodes) {
       let nodeTemplate = <rect r="10" width={150} height={100} fill="green" />;
       if (this.props.nodeUI) {
@@ -226,16 +227,17 @@ export class ReactGraph extends React.Component<Props, State> {
       }
 
       items.push(
-        <svg>
+        <svg key={key}>
           <g transform={node.transform}>{nodeTemplate}</g>
         </svg>
       );
+      key++;
     }
 
     const links = [];
     for (let link of this.graph.edges) {
       links.push(
-        <g className="link-group" id={link.id}>
+        <g className="link-group" id={link.id} key={key}>
           <svg>
             <g className="edge">
               <path
@@ -248,6 +250,7 @@ export class ReactGraph extends React.Component<Props, State> {
           </svg>
         </g>
       );
+      key++;
     }
 
     return (
