@@ -43,6 +43,7 @@ export interface Matrix {
 interface State {
   layout: string | Layout | undefined;
   initialized: boolean;
+  transform: string;
 }
 
 interface Props {
@@ -104,12 +105,10 @@ export class ReactGraph extends React.Component<Props, State> {
   public margin = [0, 0, 0, 0];
   public results: any = [];
   public seriesDomain: any;
-  public transform: string;
   public legendOptions: any;
   public isPanning = false;
   public isDragging = false;
   public draggingNode: Node;
-  public initialized = false;
   public graph: Graph;
   public graphDims: any = { width: 0, height: 0 };
   public _oldLinks: Edge[] = [];
@@ -174,7 +173,7 @@ export class ReactGraph extends React.Component<Props, State> {
       }
     }
 
-    this.state = { layout: "dagre", initialized: false };
+    this.state = { layout: "dagre", initialized: false, transform: "" };
     this.update();
     this.draw();
   }
@@ -186,7 +185,6 @@ export class ReactGraph extends React.Component<Props, State> {
   }
 
   componentDidMount() {
-    //requestAnimationFrame(() => this.draw());
     this.setState({ initialized: true });
   }
 
@@ -203,10 +201,7 @@ export class ReactGraph extends React.Component<Props, State> {
   };
 
   render() {
-    //this.update();
-
     const items = [];
-
     for (let node of this.graph.nodes) {
       items.push(
         <svg>
@@ -227,21 +222,36 @@ export class ReactGraph extends React.Component<Props, State> {
     }
 
     return (
-      <div className="graph" ref={this.chartElement}>
-        <svg
-          className="ngx-charts"
-          style={this.divStyle}
-          transform={this.transform}
+      this.state.initialized && (
+        <div
+          className="graph"
+          onMouseMove={(e: any) => this.onMouseMove(e)}
+          onMouseDown={() => {
+            this.isPanning = true;
+          }}
+          onMouseUp={(e: any) => {
+            this.onMouseUp(e);
+          }}
+          ref={this.chartElement}
         >
-          <g style={{ transform: this.transform }} className="graph chart">
-            {this.props.defsTemplate}
-          </g>
-          <g className="nodes">
-            <g className="node-group">{items}</g>
-          </g>
-          <g>{links}</g>
-        </svg>
-      </div>
+          <svg
+            className="ngx-charts"
+            style={this.divStyle}
+            transform={this.state.transform}
+          >
+            <g
+              style={{ transform: this.state.transform }}
+              className="graph chart"
+            >
+              {this.props.defsTemplate}
+            </g>
+            <g className="nodes">
+              <g className="node-group">{items}</g>
+            </g>
+            <g>{links}</g>
+          </svg>
+        </div>
+      )
     );
 
     //   <svg:g
@@ -1065,7 +1075,9 @@ export class ReactGraph extends React.Component<Props, State> {
    * @memberOf GraphComponent
    */
   updateTransform(): void {
-    this.transform = toSVG(smoothMatrix(this.transformationMatrix, 100));
+    this.setState({
+      transform: toSVG(smoothMatrix(this.transformationMatrix, 100)),
+    });
   }
 
   /**
