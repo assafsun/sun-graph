@@ -7,19 +7,9 @@ import { ReactGraph } from "../../GraphComponent/react-graph";
 
 import "./BasicGraph.scss";
 import { DagreLayout } from "../../layouts/dagre";
-const logo = require("./logo.svg") as string;
-
-export class Employee {
-  id: string;
-  name: string;
-  office: string;
-  role: string;
-  backgroundColor: string;
-  upperManagerId?: string;
-}
+import Logo from "./logo.jpg";
 
 export class BasicGraphComponent extends React.Component {
-  public employees: Employee[] = [];
   public nodes: Node[] = [];
   public defTemplateUI: any;
   public links: Edge[] = [];
@@ -27,77 +17,65 @@ export class BasicGraphComponent extends React.Component {
 
   constructor(props: any) {
     super(props);
-    this.employees = [
+    this.nodes = [
       {
         id: "1",
-        name: "Employee 1",
-        office: "Office 1",
-        role: "Manager",
-        backgroundColor: "#DC143C",
+        label: "Node 1",
+        width: 100,
+        height: 100,
+        layout: (node) => this.nodeUI(node),
       },
       {
         id: "2",
-        name: "Employee 2",
-        office: "Office 2",
-        role: "Engineer",
-        backgroundColor: "#00FFFF",
-        upperManagerId: "1",
-      },
-      {
-        id: "3",
-        name: "Employee 3",
-        office: "Office 3",
-        role: "Engineer",
-        backgroundColor: "#00FFFF",
-        upperManagerId: "1",
-      },
-      {
-        id: "4",
-        name: "Employee 4",
-        office: "Office 4",
-        role: "Engineer",
-        backgroundColor: "#00FFFF",
-        upperManagerId: "1",
-      },
-      {
-        id: "5",
-        name: "Employee 5",
-        office: "Office 5",
-        role: "Student",
-        backgroundColor: "#8A2BE2",
-        upperManagerId: "4",
-      },
-    ];
-
-    for (const employee of this.employees) {
-      const node: Node = {
-        id: employee.id,
-        label: employee.name,
+        label: "Node 2",
         data: {
-          office: employee.office,
-          role: employee.role,
-          backgroundColor: employee.backgroundColor,
+          sourceNode: "1",
         },
         width: 100,
         height: 100,
         layout: (node) => this.nodeUI(node),
-      };
+      },
+      {
+        id: "3",
+        label: "Node 3",
+        data: {
+          sourceNode: "1",
+        },
+        width: 100,
+        height: 100,
+        layout: (node) => this.nodeUI(node),
+      },
+      {
+        id: "4",
+        label: "Node 4",
+        data: {
+          sourceNode: "1",
+        },
+        width: 100,
+        height: 100,
+        layout: (node) => this.nodeUI(node),
+      },
+      {
+        id: "5",
+        label: "Node 5",
+        data: {
+          sourceNode: "4",
+        },
+        width: 100,
+        height: 100,
+        layout: (node) => this.nodeUI(node),
+      },
+    ];
 
-      this.nodes.push(node);
-    }
-
-    for (const employee of this.employees) {
-      if (!employee.upperManagerId) {
+    for (const node of this.nodes) {
+      if (!node.data) {
         continue;
       }
 
       const edge: Edge = {
-        source: employee.upperManagerId,
-        target: employee.id,
+        source: node.data.sourceNode,
+        target: node.id,
         label: "",
-        data: {
-          linkText: "Manager of",
-        },
       };
 
       this.links.push(edge);
@@ -122,11 +100,11 @@ export class BasicGraphComponent extends React.Component {
     this.state = {};
   }
 
-  public nodeUI(node: any) {
+  public nodeUI(node: Node) {
     return (
       <div className="container">
-        <label className="title">Title</label>
-        <img src={logo} alt="logo" height="60" width="60"></img>
+        <label className="title">{node.label}</label>
+        <img src={Logo} alt="logo" height="60" width="60"></img>
       </div>
     );
   }
@@ -142,6 +120,7 @@ export class BasicGraphComponent extends React.Component {
         panningEnabled={true}
         enableZoom={true}
         zoomSpeed={0.1}
+        enableTrackpadSupport={true}
       ></ReactGraph>
     );
   }

@@ -54,11 +54,7 @@ interface Props {
   curve?: any;
   draggingEnabled?: boolean;
   nodeHeight?: number;
-  nodeMaxHeight?: number;
-  nodeMinHeight?: number;
   nodeWidth?: number;
-  nodeMinWidth?: number;
-  nodeMaxWidth?: number;
   panningEnabled?: boolean;
   panningAxis?: PanningAxis;
   enableZoom?: boolean;
@@ -664,13 +660,6 @@ export class ReactGraph extends React.Component<Props, State> {
               : dims.height;
         }
 
-        if (this.props.nodeMaxHeight) {
-          node.height = Math.max(node.height, this.props.nodeMaxHeight);
-        }
-        if (this.props.nodeMinHeight) {
-          node.height = Math.min(node.height, this.props.nodeMinHeight);
-        }
-
         if (this.props.nodeWidth) {
           node.width =
             node.width && node.meta.forceDimensions
@@ -710,12 +699,6 @@ export class ReactGraph extends React.Component<Props, State> {
           }
         }
 
-        if (this.props.nodeMaxWidth) {
-          node.width = Math.max(node.width, this.props.nodeMaxWidth);
-        }
-        if (this.props.nodeMinWidth) {
-          node.width = Math.min(node.width, this.props.nodeMinWidth);
-        }
         return elem;
       });
     }
@@ -857,7 +840,7 @@ export class ReactGraph extends React.Component<Props, State> {
   pan(x: number, y: number, ignoreZoomLevel: boolean = false): void {
     const zoomLevel = ignoreZoomLevel ? 1 : this.zoomLevel;
 
-    if (ignoreZoomLevel) {
+    if (this.props.enableTrackpadSupport || ignoreZoomLevel) {
       const newTempTransofrmationMetrix = transform(
         this.transformationMatrix,
         translate(x / zoomLevel, y / zoomLevel)
@@ -865,16 +848,16 @@ export class ReactGraph extends React.Component<Props, State> {
 
       if (
         newTempTransofrmationMetrix.e <
-          this.graphDims.width * zoomLevel * -1 + 300 * zoomLevel ||
-        newTempTransofrmationMetrix.e > this.dims.width - 150 * zoomLevel
+          this.graphDims.width * zoomLevel * -1 + 250 * zoomLevel ||
+        newTempTransofrmationMetrix.e > this.dims.width - 100 * zoomLevel
       ) {
         return;
       }
 
       if (
         newTempTransofrmationMetrix.f <
-          this.graphDims.height * -1 * zoomLevel + 300 * zoomLevel ||
-        newTempTransofrmationMetrix.f > this.dims.height - 150 * zoomLevel
+          this.graphDims.height * -1 * zoomLevel + 250 * zoomLevel ||
+        newTempTransofrmationMetrix.f > this.dims.height - 100 * zoomLevel
       ) {
         return;
       }

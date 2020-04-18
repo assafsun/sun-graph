@@ -1,11 +1,11 @@
 .container {
-  height: 100px;
-  width: 100px;
+  height: 96px;
+  width: 96px;
   display: flex;
   flex-direction: column;
-  background: rgb(28, 65, 233);
+  border: 2px solid black;
   align-items: center;
-
+  border-radius: 25px;
   .title {
     margin-top: 10px;
   }
