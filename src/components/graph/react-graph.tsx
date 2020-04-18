@@ -196,7 +196,7 @@ export class ReactGraph extends React.Component<Props, State> {
 
   divStyle = {
     width: 800,
-    height: 800,
+    height: 400,
   };
 
   render() {
@@ -898,6 +898,30 @@ export class ReactGraph extends React.Component<Props, State> {
    */
   pan(x: number, y: number, ignoreZoomLevel: boolean = false): void {
     const zoomLevel = ignoreZoomLevel ? 1 : this.zoomLevel;
+
+    if (ignoreZoomLevel) {
+      const newTempTransofrmationMetrix = transform(
+        this.transformationMatrix,
+        translate(x / zoomLevel, y / zoomLevel)
+      );
+
+      if (
+        newTempTransofrmationMetrix.e <
+          this.graphDims.width * zoomLevel * -1 + 300 * zoomLevel ||
+        newTempTransofrmationMetrix.e > this.dims.width - 150 * zoomLevel
+      ) {
+        return;
+      }
+
+      if (
+        newTempTransofrmationMetrix.f <
+          this.graphDims.height * -1 * zoomLevel + 300 * zoomLevel ||
+        newTempTransofrmationMetrix.f > this.dims.height - 150 * zoomLevel
+      ) {
+        return;
+      }
+    }
+
     this.transformationMatrix = transform(
       this.transformationMatrix,
       translate(x / zoomLevel, y / zoomLevel)
