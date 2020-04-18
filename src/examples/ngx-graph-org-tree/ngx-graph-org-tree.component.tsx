@@ -8,6 +8,7 @@ import * as shape from "d3-shape";
 import { ReactGraph } from "../../components/graph/react-graph";
 
 import "./ngx-graph-org-tree.component.scss";
+import { DagreLayout } from "../../components/graph/layouts/dagre";
 
 export class Employee {
   id: string;
@@ -21,6 +22,7 @@ export class Employee {
 export class NgxGraphOrgTreeComponent extends React.Component {
   public employees: Employee[] = [];
   public nodes: Node[] = [];
+  public defTemplateUI: any;
   public links: Edge[] = [];
   public layoutSettings = {
     orientation: "TB",
@@ -102,17 +104,33 @@ export class NgxGraphOrgTreeComponent extends React.Component {
 
       this.links.push(edge);
     }
+
+    this.defTemplateUI = (
+      <svg>
+        <marker
+          id="arrow"
+          viewBox="0 -5 10 10"
+          refX="8"
+          refY="0"
+          markerWidth="4"
+          markerHeight="4"
+          orient="auto"
+        >
+          <path d="M0,-5L10,0L0,5" className="arrow-head" />
+        </marker>
+      </svg>
+    );
   }
 
   render() {
     return (
       <ReactGraph
-        defsTemplate={<svg>assaf</svg>}
         nodes={this.nodes}
         links={this.links}
+        defsTemplate={() => this.defTemplateUI}
         nodeUI={(node: any) => this.nodeUI(node)}
-        layout={new DagreNodesOnlyLayout()}
-        curve={(line: any) => shape.curveLinear(line)}
+        layout={new DagreLayout()}
+        curve={shape.curveLinear}
         nodeWidth={150}
         nodeHeight={100}
         panningEnabled={true}

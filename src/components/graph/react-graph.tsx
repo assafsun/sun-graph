@@ -83,12 +83,12 @@ interface Props {
   zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   //
+  defsTemplate?: () => any;
   nodeUI?: (node: any) => any;
 
   nodeTemplate?: React.FunctionComponent<Node>;
   linkTemplate?: React.FunctionComponent<any>;
   clusterTemplate?: React.FunctionComponent<any>;
-  defsTemplate?: any;
 
   view?: [number, number];
 }
@@ -219,7 +219,16 @@ export class ReactGraph extends React.Component<Props, State> {
     for (let link of this.graph.edges) {
       links.push(
         <g className="link-group" id={link.id}>
-          <path className="edge" d={link.line} />
+          <svg>
+            <g className="edge">
+              <path
+                className="line"
+                strokeWidth="2"
+                markerEnd="url(#arrow)"
+                d={link.line}
+              ></path>
+            </g>
+          </svg>
         </g>
       );
     }
@@ -262,7 +271,7 @@ export class ReactGraph extends React.Component<Props, State> {
               style={{ transform: this.state.transform }}
               className="graph chart"
             >
-              {this.props.defsTemplate}
+              {this.props.defsTemplate()}
             </g>
             <g className="nodes">
               <g className="node-group">{items}</g>
@@ -272,99 +281,6 @@ export class ReactGraph extends React.Component<Props, State> {
         </div>
       )
     );
-
-    //   <svg:g
-    //   *ngIf="initialized && graph"
-    //   [attr.transform]="transform"
-    //   (touchstart)="onTouchStart($event)"
-    //   (touchend)="onTouchEnd($event)"
-    //   className="graph chart"
-    // >
-    //   <defs>
-    //     <ng-container *ngIf="defsTemplate" [ngTemplateOutlet]="defsTemplate"></ng-container>
-    //     <svg:path
-    //     className="text-path"
-    //       *ngFor="let link of graph.edges"
-    //       [attr.d]="link.textPath"
-    //       [attr.id]="link.id"
-    //     ></svg:path>
-    //   </defs>
-
-    //   <svg:rect
-    //     className="panning-rect"
-    //     [attr.width]="dims.width * 100"
-    //     [attr.height]="dims.height * 100"
-    //     [attr.transform]="'translate(' + (-dims.width || 0) * 50 + ',' + (-dims.height || 0) * 50 + ')'"
-    //     (mousedown)="isPanning = true"
-    //   />
-
-    //   <ng-content></ng-content>
-
-    //   <svg:g className="clusters">
-    //     <svg:g
-    //       #clusterElement
-    //       *ngFor="let node of graph.clusters; trackBy: trackNodeBy"
-    //       className="node-group"
-    //       [class.old-node]="animate && oldClusters.has(node.id)"
-    //       [id]="node.id"
-    //       [attr.transform]="node.transform"
-    //       (click)="onClick(node)"
-    //     >
-    //       <ng-container
-    //         *ngIf="clusterTemplate"
-    //         [ngTemplateOutlet]="clusterTemplate"
-    //         [ngTemplateOutletContext]="{ $implicit: node }"
-    //       ></ng-container>
-    //       <svg:g *ngIf="!clusterTemplate" className="node cluster">
-    //         <svg:rect
-    //           [attr.width]="node.dimension.width"
-    //           [attr.height]="node.dimension.height"
-    //           [attr.fill]="node.data?.color"
-    //         />
-    //         <svg:text alignment-baseline="central" [attr.x]="10" [attr.y]="node.dimension.height / 2">
-    //           {{ node.label }}
-    //         </svg:text>
-    //       </svg:g>
-    //     </svg:g>
-    //   </svg:g>
-
-    //   <svg:g className="links">
-    //     <svg:g #linkElement *ngFor="let link of graph.edges; trackBy: trackLinkBy" className="link-group" [id]="link.id">
-    //       <ng-container
-    //         *ngIf="linkTemplate"
-    //         [ngTemplateOutlet]="linkTemplate"
-    //         [ngTemplateOutletContext]="{ $implicit: link }"
-    //       ></ng-container>
-    //       <svg:path *ngIf="!linkTemplate" className="edge" [attr.d]="link.line" />
-    //     </svg:g>
-    //   </svg:g>
-
-    //   <svg:g className="nodes">
-    //     <svg:g
-    //       #nodeElement
-    //       *ngFor="let node of graph.nodes; trackBy: trackNodeBy"
-    //       className="node-group"
-    //       [class.old-node]="animate && oldNodes.has(node.id)"
-    //       [id]="node.id"
-    //       [attr.transform]="node.transform"
-    //       (click)="onClick(node)"
-    //       (mousedown)="onNodeMouseDown($event, node)"
-    //     >
-    //       <ng-container
-    //         *ngIf="nodeTemplate"
-    //         [ngTemplateOutlet]="nodeTemplate"
-    //         [ngTemplateOutletContext]="{ $implicit: node }"
-    //       ></ng-container>
-    //       <svg:circle
-    //         *ngIf="!nodeTemplate"
-    //         r="10"
-    //         [attr.cx]="node.dimension.width / 2"
-    //         [attr.cy]="node.dimension.height / 2"
-    //         [attr.fill]="node.data?.color"
-    //       />
-    //     </svg:g>
-    //   </svg:g>
-    // </svg:g>
   }
 
   /**
@@ -1377,33 +1293,3 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 }
-
-/////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////
-
-// @Component({
-//   selector: "ngx-graph",
-//   styleUrls: ["./graph.component.scss"],
-//   templateUrl: "graph.component.html",
-//   encapsulation: ViewEncapsulation.None,
-//   changeDetection: ChangeDetectionStrategy.OnPush
-// })
-// export class GraphComponent extends BaseChartComponent
-//   implements OnInit, OnChanges, OnDestroy, AfterViewInit {
-//   @ViewChild(ChartComponent, { read: ElementRef, static: true })
-//   chart: ElementRef;
-//   @ViewChildren("nodeElement") nodeElements: QueryList<ElementRef>;
-//   @ViewChildren("linkElement") linkElements: QueryList<ElementRef>;
-
-//   constructor(
-//     private el: ElementRef,
-//     public zone: NgZone,
-//     public cd: ChangeDetectorRef,
-//     private layoutService: LayoutService
-//   ) {
-//     super(el, zone, cd);
-//   }
-
-//   @Input()
-//   groupResultsBy: (node: any) => string = node => node.label;
-// }
