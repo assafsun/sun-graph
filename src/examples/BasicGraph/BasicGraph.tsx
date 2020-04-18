@@ -1,13 +1,11 @@
-import React, { ReactNode } from "react";
-import { Layout } from "../../components/models/layout.model";
+import React from "react";
 import { Node } from "../../components/models/node.model";
 import { Edge } from "../../components/models/edge.model";
-import { DagreNodesOnlyLayout } from "./customDagreNodesOnly";
 import * as shape from "d3-shape";
 
 import { ReactGraph } from "../../components/graph/react-graph";
 
-import "./ngx-graph-org-tree.component.scss";
+import "./BasicGraph.scss";
 import { DagreLayout } from "../../components/graph/layouts/dagre";
 
 export class Employee {
@@ -19,19 +17,15 @@ export class Employee {
   upperManagerId?: string;
 }
 
-export class NgxGraphOrgTreeComponent extends React.Component {
+export class BasicGraphComponent extends React.Component {
   public employees: Employee[] = [];
   public nodes: Node[] = [];
   public defTemplateUI: any;
   public links: Edge[] = [];
-  public layoutSettings = {
-    orientation: "TB",
-  };
   public curve: any = shape.curveLinear;
-  public layout: Layout = new DagreNodesOnlyLayout();
 
-  constructor() {
-    super({});
+  constructor(props: any) {
+    super(props);
     this.employees = [
       {
         id: "1",
@@ -120,6 +114,31 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         </marker>
       </svg>
     );
+
+    this.state = {};
+  }
+
+  public nodeUI(node: any) {
+    return (
+      <svg>
+        <g
+          className="node"
+          xmlns="http://www.w3.org/2000/xhtml"
+          width="150"
+          height="100"
+        >
+          <foreignObject
+            width="150"
+            height="100"
+            xmlns="http://www.w3.org/2000/xhtml"
+          >
+            <div className="cardContainer">
+              <label className="name">Node Text</label>
+            </div>
+          </foreignObject>
+        </g>
+      </svg>
+    );
   }
 
   render() {
@@ -138,80 +157,5 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         zoomSpeed={0.1}
       ></ReactGraph>
     );
-  }
-
-  public nodeUI(node: any) {
-    return (
-      <svg>
-        <g
-          className="node"
-          xmlns="http://www.w3.org/2000/xhtml"
-          width="150"
-          height="100"
-        >
-          <foreignObject
-            width="150"
-            height="100"
-            xmlns="http://www.w3.org/2000/xhtml"
-          >
-            <div className="cardContainer">
-              <label className="name">Label1</label>
-              <label>Role</label>
-              <label>test</label>
-            </div>
-          </foreignObject>
-        </g>
-      </svg>
-    );
-  }
-
-  // view={[800, 500]}
-  // links={this.links}
-  // [nodes]="nodes"
-  // [curve]="curve"
-  // [layout]="layout"
-  // [nodeWidth]=150
-  // [nodeHeight]=100
-  // [layoutSettings]="layoutSettings"
-  // [enableZoom]="true"
-  // [autoZoom]="true"
-
-  //   <ng-template #defsTemplate>
-  //   <svg:marker id="arrow" viewBox="0 -5 10 10" refX="8" refY="0" markerWidth="4" markerHeight="4" orient="auto">
-  //     <svg:path d="M0,-5L10,0L0,5" class="arrow-head" />
-  //   </svg:marker>
-  // </ng-template>
-
-  // <ng-template #nodeTemplate let-node>
-  //   <svg:g class="node" xmlns="http://www.w3.org/2000/xhtml" width="150" height="100">
-  //     <svg:foreignObject width="150" height="100">
-  //       <xhtml:div class="cardContainer" xmlns="http://www.w3.org/1999/xhtml" [ngStyle]=getStyles(node)>
-  //         <label class="name">{{node.label}}</label>
-  //         <label>{{node.data.role}}</label>
-  //         <label>{{node.data.office}}</label>
-  //       </xhtml:div>
-  //     </svg:foreignObject>
-  //   </svg:g>
-  // </ng-template>
-
-  // <ng-template #linkTemplate let-link>
-  //   <svg:g class="edge">
-  //     <svg:path class="line" stroke-width="2" marker-end="url(#arrow)">
-  //     </svg:path>
-  //     <svg:text class="edge-label" text-anchor="middle">
-  //       <textPath class="text-path" [attr.href]="'#' + link.id" [style.dominant-baseline]="link.dominantBaseline" startOffset="50%">{{link.label}}</textPath>
-  //     </svg:text>
-  //   </svg:g>
-  //   <svg:g class="linkMidpoint" *ngIf="link.midPoint"
-  //          [attr.transform]="'translate(' + (link.midPoint.x) + ',' + (link.midPoint.y) + ')'">
-  //     <ellipse rx="30" ry="10" />
-  //     <svg:text alignment-baseline="central">{{ link.data.linkText }}</svg:text>
-  // </svg:g>
-  // </ng-template>
-
-  public getStyles(node: Node): any {
-    return {
-      "background-color": node.data.backgroundColor,
-    };
   }
 }

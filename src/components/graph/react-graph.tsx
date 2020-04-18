@@ -205,7 +205,24 @@ export class ReactGraph extends React.Component<Props, State> {
     for (let node of this.graph.nodes) {
       let nodeTemplate = <rect r="10" width={150} height={100} fill="green" />;
       if (this.props.nodeUI) {
-        nodeTemplate = this.props.nodeUI(node);
+        nodeTemplate = (
+          <svg>
+            <g
+              className="node"
+              xmlns="http://www.w3.org/2000/xhtml"
+              width="150"
+              height="100"
+            >
+              <foreignObject
+                width="150"
+                height="100"
+                xmlns="http://www.w3.org/2000/xhtml"
+              >
+                {this.props.nodeUI(node)}
+              </foreignObject>
+            </g>
+          </svg>
+        );
       }
 
       items.push(
@@ -521,6 +538,7 @@ export class ReactGraph extends React.Component<Props, State> {
       }
       n.data.color = this.colors.getColor(this.groupResultsBy(n));
       oldNodes.add(n.id);
+      return n;
     });
 
     const oldClusters: Set<string> = new Set();
@@ -534,6 +552,7 @@ export class ReactGraph extends React.Component<Props, State> {
       }
       n.data.color = this.colors.getColor(this.groupResultsBy(n));
       oldClusters.add(n.id);
+      return n;
     });
 
     // Prevent animations on new nodes
@@ -657,8 +676,9 @@ export class ReactGraph extends React.Component<Props, State> {
           dims = nativeElement.getBBox();
         } catch (ex) {
           // Skip drawing if element is not displayed - Firefox would throw an error here
-          return;
+          return elem;
         }
+
         if (this.props.nodeHeight) {
           node.dimension.height =
             node.dimension.height && node.meta.forceDimensions
@@ -711,7 +731,7 @@ export class ReactGraph extends React.Component<Props, State> {
               }
             } catch (ex) {
               // Skip drawing if element is not displayed - Firefox would throw an error here
-              return;
+              return elem;
             }
             node.dimension.width =
               node.dimension.width && node.meta.forceDimensions
@@ -737,6 +757,7 @@ export class ReactGraph extends React.Component<Props, State> {
             this.props.nodeMinWidth
           );
         }
+        return elem;
       });
     }
   }
@@ -777,6 +798,8 @@ export class ReactGraph extends React.Component<Props, State> {
 
         this.updateMidpointOnEdge(linkEl, linkEl.points);
       }
+
+      return linkEl;
     });
   }
 
