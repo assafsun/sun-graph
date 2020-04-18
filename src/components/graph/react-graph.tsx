@@ -83,7 +83,7 @@ interface Props {
   zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   //
-  nodeUI?: () => any;
+  nodeUI?: (node: any) => any;
 
   nodeTemplate?: React.FunctionComponent<Node>;
   linkTemplate?: React.FunctionComponent<any>;
@@ -203,11 +203,14 @@ export class ReactGraph extends React.Component<Props, State> {
   render() {
     const items = [];
     for (let node of this.graph.nodes) {
+      let nodeTemplate = <rect r="10" width={150} height={100} fill="green" />;
+      if (this.props.nodeUI) {
+        nodeTemplate = this.props.nodeUI(node);
+      }
+
       items.push(
         <svg>
-          <g transform={node.transform}>
-            <rect r="10" width={150} height={100} fill="green" />
-          </g>
+          <g transform={node.transform}>{nodeTemplate}</g>
         </svg>
       );
     }

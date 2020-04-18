@@ -110,7 +110,7 @@ export class NgxGraphOrgTreeComponent extends React.Component {
         defsTemplate={<svg>assaf</svg>}
         nodes={this.nodes}
         links={this.links}
-        nodeUI={() => this.nodeUI()}
+        nodeUI={(node: any) => this.nodeUI(node)}
         layout={new DagreNodesOnlyLayout()}
         curve={(line: any) => shape.curveLinear(line)}
         nodeWidth={150}
@@ -122,8 +122,29 @@ export class NgxGraphOrgTreeComponent extends React.Component {
     );
   }
 
-  public nodeUI() {
-    return <div className="nodeUI"></div>;
+  public nodeUI(node: any) {
+    return (
+      <svg>
+        <g
+          className="node"
+          xmlns="http://www.w3.org/2000/xhtml"
+          width="150"
+          height="100"
+        >
+          <foreignObject
+            width="150"
+            height="100"
+            xmlns="http://www.w3.org/2000/xhtml"
+          >
+            <div className="cardContainer">
+              <label className="name">Label1</label>
+              <label>Role</label>
+              <label>test</label>
+            </div>
+          </foreignObject>
+        </g>
+      </svg>
+    );
   }
 
   // view={[800, 500]}
