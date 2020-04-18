@@ -84,7 +84,6 @@ interface Props {
   clickHandler?: (value: MouseEvent) => void;
   //
   defsTemplate?: () => any;
-  nodeUI?: (node: any) => any;
 
   nodeTemplate?: React.FunctionComponent<Node>;
   linkTemplate?: React.FunctionComponent<any>;
@@ -202,7 +201,7 @@ export class ReactGraph extends React.Component<Props, State> {
     let key: number = 1;
     for (let node of this.graph.nodes) {
       let nodeTemplate = <rect r="10" width={100} height={100} fill="green" />;
-      if (this.props.nodeUI) {
+      if (node.layout) {
         nodeTemplate = (
           <svg>
             <g
@@ -216,7 +215,7 @@ export class ReactGraph extends React.Component<Props, State> {
                 height="100"
                 xmlns="http://www.w3.org/2000/xhtml"
               >
-                {this.props.nodeUI(node)}
+                {node.layout(node)}
               </foreignObject>
             </g>
           </svg>

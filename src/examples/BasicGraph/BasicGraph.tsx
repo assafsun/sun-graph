@@ -78,6 +78,7 @@ export class BasicGraphComponent extends React.Component {
           role: employee.role,
           backgroundColor: employee.backgroundColor,
         },
+        layout: (node) => this.nodeUI(node),
       };
 
       this.nodes.push(node);
@@ -149,7 +150,6 @@ export class BasicGraphComponent extends React.Component {
         nodes={this.nodes}
         links={this.links}
         defsTemplate={() => this.defTemplateUI}
-        nodeUI={(node: any) => this.nodeUI(node)}
         layout={new DagreLayout()}
         curve={shape.curveLinear}
         nodeWidth={100}
