@@ -13,20 +13,22 @@ import {
   translate,
 } from "transformation-matrix";
 import { Layout } from "../models/layout.model";
-import { LayoutService } from "./utils/layout";
-import { Edge } from "../models/edge.model";
-import { Node, ClusterNode } from "../models/node.model";
-import { Graph } from "../models/graph.model";
+import { Graph, Node, Edge } from "../models/graph.model";
 import { id } from "../utils/id";
-import { PanningAxis } from "../enums/panning.enum";
 
-import { ColorHelper } from "./utils/color.helper";
 import {
   ViewDimensions,
   calculateViewDimensions,
-} from "./utils/view-dimensions.helper";
+} from "../utils/viewDimensionsHelper";
 
 import "./react-graph.scss";
+import { DagreLayout } from "../layouts/dagre";
+
+export enum PanningAxis {
+  Both = "both",
+  Horizontal = "horizontal",
+  Vertical = "vertical",
+}
 
 /**
  * Matrix
@@ -48,7 +50,6 @@ interface State {
 interface Props {
   legend?: boolean;
   nodes?: Node[];
-  clusters?: ClusterNode[];
   links?: Edge[];
   activeEntries?: any;
   curve?: any;
@@ -99,7 +100,6 @@ export class ReactGraph extends React.Component<Props, State> {
 
   public graphSubscription: Subscription = new Subscription();
   public subscriptions: Subscription[] = [];
-  public colors: ColorHelper;
   public dims: ViewDimensions;
   public margin = [0, 0, 0, 0];
   public results: any = [];
@@ -112,11 +112,9 @@ export class ReactGraph extends React.Component<Props, State> {
   public graphDims: any = { width: 0, height: 0 };
   public _oldLinks: Edge[] = [];
   public oldNodes: Set<string> = new Set();
-  public oldClusters: Set<string> = new Set();
   public transformationMatrix: Matrix = identity();
   public _touchLastX: any = null;
   public _touchLastY: any = null;
-  public layoutService: LayoutService = new LayoutService();
   public width: number;
   public height: number;
 
@@ -162,7 +160,7 @@ export class ReactGraph extends React.Component<Props, State> {
     }
 
     if (typeof this.props.layout === "string") {
-      currentLayout = this.layoutService.getLayout(this.props.layout);
+      currentLayout = new DagreLayout();
     }
 
     if (this.props.layoutSettings) {
@@ -416,7 +414,6 @@ export class ReactGraph extends React.Component<Props, State> {
     });
 
     this.seriesDomain = this.getSeriesDomain();
-    this.setColors();
     this.legendOptions = this.getLegendOptions();
 
     this.createGraph();
@@ -489,7 +486,6 @@ export class ReactGraph extends React.Component<Props, State> {
 
     this.graph = {
       nodes: [...(this.props.nodes || [])].map(initializeNode),
-      clusters: [...(this.props.clusters || [])].map(initializeNode),
       edges: [...(this.props.links || [])].map((e) => {
         if (!e.id) {
           e.id = id();
@@ -537,29 +533,13 @@ export class ReactGraph extends React.Component<Props, State> {
       if (!n.data) {
         n.data = {};
       }
-      n.data.color = this.colors.getColor(this.groupResultsBy(n));
       oldNodes.add(n.id);
-      return n;
-    });
-
-    const oldClusters: Set<string> = new Set();
-
-    (this.graph.clusters || []).map((n) => {
-      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${
-        n.position.y - n.dimension.height / 2 || 0
-      })`;
-      if (!n.data) {
-        n.data = {};
-      }
-      n.data.color = this.colors.getColor(this.groupResultsBy(n));
-      oldClusters.add(n.id);
       return n;
     });
 
     // Prevent animations on new nodes
     setTimeout(() => {
       this.oldNodes = oldNodes;
-      this.oldClusters = oldClusters;
     }, 500);
 
     // Update the labels to the new positions
@@ -1142,20 +1122,6 @@ export class ReactGraph extends React.Component<Props, State> {
   }
 
   /**
-   * Sets the colors the nodes
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  setColors(): void {
-    this.colors = new ColorHelper(
-      "cool" /*this.scheme*/,
-      "ordinal",
-      this.seriesDomain
-    );
-  }
-
-  /**
    * Gets the legend options
    *
    * @memberOf GraphComponent
@@ -1164,7 +1130,6 @@ export class ReactGraph extends React.Component<Props, State> {
     return {
       scaleType: "ordinal",
       domain: this.seriesDomain,
-      colors: this.colors,
     };
   }
 

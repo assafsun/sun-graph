@@ -1,12 +1,12 @@
 import React from "react";
-import { Node } from "../../components/models/node.model";
-import { Edge } from "../../components/models/edge.model";
+import { Node } from "../../models/graph.model";
+import { Edge } from "../../models/graph.model";
 import * as shape from "d3-shape";
 
-import { ReactGraph } from "../../components/graph/react-graph";
+import { ReactGraph } from "../../GraphComponent/react-graph";
 
 import "./BasicGraph.scss";
-import { DagreLayout } from "../../components/graph/layouts/dagre";
+import { DagreLayout } from "../../layouts/dagre";
 
 export class Employee {
   id: string;
