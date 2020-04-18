@@ -9,15 +9,11 @@ export interface NodePosition {
   y: number;
 }
 
-export interface NodeDimension {
-  width: number;
-  height: number;
-}
-
 export interface Node {
   id: string;
   position?: NodePosition;
-  dimension?: NodeDimension;
+  width: number;
+  height: number;
   transform?: string;
   label?: string;
   data?: any;

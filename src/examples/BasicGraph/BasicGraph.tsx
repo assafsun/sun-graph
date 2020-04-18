@@ -78,6 +78,8 @@ export class BasicGraphComponent extends React.Component {
           role: employee.role,
           backgroundColor: employee.backgroundColor,
         },
+        width: 100,
+        height: 100,
         layout: (node) => this.nodeUI(node),
       };
 
@@ -122,25 +124,10 @@ export class BasicGraphComponent extends React.Component {
 
   public nodeUI(node: any) {
     return (
-      <svg>
-        <g
-          className="node"
-          xmlns="http://www.w3.org/2000/xhtml"
-          width="100"
-          height="100"
-        >
-          <foreignObject
-            width="100"
-            height="100"
-            xmlns="http://www.w3.org/2000/xhtml"
-          >
-            <div className="container">
-              <label className="title">Title</label>
-              <img src={logo} alt="logo" height="60" width="60"></img>
-            </div>
-          </foreignObject>
-        </g>
-      </svg>
+      <div className="container">
+        <label className="title">Title</label>
+        <img src={logo} alt="logo" height="60" width="60"></img>
+      </div>
     );
   }
 
@@ -152,8 +139,6 @@ export class BasicGraphComponent extends React.Component {
         defsTemplate={() => this.defTemplateUI}
         layout={new DagreLayout()}
         curve={shape.curveLinear}
-        nodeWidth={100}
-        nodeHeight={100}
         panningEnabled={true}
         enableZoom={true}
         zoomSpeed={0.1}

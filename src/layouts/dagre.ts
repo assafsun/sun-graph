@@ -62,10 +62,8 @@ export class DagreLayout implements Layout {
         x: dagreNode.x,
         y: dagreNode.y,
       };
-      node.dimension = {
-        width: dagreNode.width,
-        height: dagreNode.height,
-      };
+      node.width = dagreNode.width;
+      node.height = dagreNode.height;
     }
 
     return graph;
@@ -79,11 +77,11 @@ export class DagreLayout implements Layout {
     const dir = sourceNode.position.y <= targetNode.position.y ? -1 : 1;
     const startingPoint = {
       x: sourceNode.position.x,
-      y: sourceNode.position.y - dir * (sourceNode.dimension.height / 2),
+      y: sourceNode.position.y - dir * (sourceNode.height / 2),
     };
     const endingPoint = {
       x: targetNode.position.x,
-      y: targetNode.position.y + dir * (targetNode.dimension.height / 2),
+      y: targetNode.position.y + dir * (targetNode.height / 2),
     };
 
     // generate new points
@@ -121,8 +119,8 @@ export class DagreLayout implements Layout {
 
     this.dagreNodes = graph.nodes.map((n) => {
       const node: any = Object.assign({}, n);
-      node.width = n.dimension.width;
-      node.height = n.dimension.height;
+      node.width = n.width;
+      node.height = n.height;
       node.x = n.position.x;
       node.y = n.position.y;
       return node;

@@ -200,19 +200,21 @@ export class ReactGraph extends React.Component<Props, State> {
     const items = [];
     let key: number = 1;
     for (let node of this.graph.nodes) {
-      let nodeTemplate = <rect r="10" width={100} height={100} fill="green" />;
+      let nodeTemplate = (
+        <rect r="10" width={node.width} height={node.height} fill="green" />
+      );
       if (node.layout) {
         nodeTemplate = (
           <svg>
             <g
               className="node"
               xmlns="http://www.w3.org/2000/xhtml"
-              width="100"
-              height="100"
+              width={node.width}
+              height={node.height}
             >
               <foreignObject
-                width="100"
-                height="100"
+                width={node.width}
+                height={node.height}
                 xmlns="http://www.w3.org/2000/xhtml"
               >
                 {node.layout(node)}
@@ -464,12 +466,9 @@ export class ReactGraph extends React.Component<Props, State> {
       if (!n.id) {
         n.id = id();
       }
-      if (!n.dimension) {
-        n.dimension = {
-          width: this.props.nodeWidth ? this.props.nodeWidth : 30,
-          height: this.props.nodeHeight ? this.props.nodeHeight : 30,
-        };
-
+      if (!n.width || !n.height) {
+        n.width = this.props.nodeWidth ? this.props.nodeWidth : 30;
+        n.height = this.props.nodeHeight ? this.props.nodeHeight : 30;
         n.meta.forceDimensions = false;
       } else {
         n.meta.forceDimensions =
@@ -526,8 +525,8 @@ export class ReactGraph extends React.Component<Props, State> {
     const oldNodes: Set<string> = new Set();
 
     this.graph.nodes.map((n) => {
-      n.transform = `translate(${n.position.x - n.dimension.width / 2 || 0}, ${
-        n.position.y - n.dimension.height / 2 || 0
+      n.transform = `translate(${n.position.x - n.width / 2 || 0}, ${
+        n.position.y - n.height / 2 || 0
       })`;
       if (!n.data) {
         n.data = {};
@@ -619,10 +618,10 @@ export class ReactGraph extends React.Component<Props, State> {
     // Calculate the height/width total, but only if we have any nodes
     if (this.graph.nodes && this.graph.nodes.length) {
       this.graphDims.width = Math.max(
-        ...this.graph.nodes.map((n) => n.position.x + n.dimension.width)
+        ...this.graph.nodes.map((n) => n.position.x + n.width)
       );
       this.graphDims.height = Math.max(
-        ...this.graph.nodes.map((n) => n.position.y + n.dimension.height)
+        ...this.graph.nodes.map((n) => n.position.y + n.height)
       );
     }
 
@@ -660,34 +659,28 @@ export class ReactGraph extends React.Component<Props, State> {
         }
 
         if (this.props.nodeHeight) {
-          node.dimension.height =
-            node.dimension.height && node.meta.forceDimensions
-              ? node.dimension.height
+          node.height =
+            node.height && node.meta.forceDimensions
+              ? node.height
               : this.props.nodeHeight;
         } else {
-          node.dimension.height =
-            node.dimension.height && node.meta.forceDimensions
-              ? node.dimension.height
+          node.height =
+            node.height && node.meta.forceDimensions
+              ? node.height
               : dims.height;
         }
 
         if (this.props.nodeMaxHeight) {
-          node.dimension.height = Math.max(
-            node.dimension.height,
-            this.props.nodeMaxHeight
-          );
+          node.height = Math.max(node.height, this.props.nodeMaxHeight);
         }
         if (this.props.nodeMinHeight) {
-          node.dimension.height = Math.min(
-            node.dimension.height,
-            this.props.nodeMinHeight
-          );
+          node.height = Math.min(node.height, this.props.nodeMinHeight);
         }
 
         if (this.props.nodeWidth) {
-          node.dimension.width =
-            node.dimension.width && node.meta.forceDimensions
-              ? node.dimension.width
+          node.width =
+            node.width && node.meta.forceDimensions
+              ? node.width
               : this.props.nodeWidth;
         } else {
           // calculate the width
@@ -713,29 +706,21 @@ export class ReactGraph extends React.Component<Props, State> {
               // Skip drawing if element is not displayed - Firefox would throw an error here
               return elem;
             }
-            node.dimension.width =
-              node.dimension.width && node.meta.forceDimensions
-                ? node.dimension.width
+            node.width =
+              node.width && node.meta.forceDimensions
+                ? node.width
                 : maxTextDims.width + 20;
           } else {
-            node.dimension.width =
-              node.dimension.width && node.meta.forceDimensions
-                ? node.dimension.width
-                : dims.width;
+            node.width =
+              node.width && node.meta.forceDimensions ? node.width : dims.width;
           }
         }
 
         if (this.props.nodeMaxWidth) {
-          node.dimension.width = Math.max(
-            node.dimension.width,
-            this.props.nodeMaxWidth
-          );
+          node.width = Math.max(node.width, this.props.nodeMaxWidth);
         }
         if (this.props.nodeMinWidth) {
-          node.dimension.width = Math.min(
-            node.dimension.width,
-            this.props.nodeMinWidth
-          );
+          node.width = Math.min(node.width, this.props.nodeMinWidth);
         }
         return elem;
       });
@@ -996,8 +981,8 @@ export class ReactGraph extends React.Component<Props, State> {
     node.position.y += event.movementY / this.zoomLevel;
 
     // move the node
-    const x = node.position.x - node.dimension.width / 2;
-    const y = node.position.y - node.dimension.height / 2;
+    const x = node.position.x - node.width / 2;
+    const y = node.position.y - node.height / 2;
     node.transform = `translate(${x}, ${y})`;
 
     for (const link of this.graph.edges) {
