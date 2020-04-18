@@ -1,6 +1,12 @@
-.cardContainer {
+.container {
   height: 100px;
-  width: 150px;
-  display: block;
-  background: green;
+  width: 100px;
+  display: flex;
+  flex-direction: column;
+  background: rgb(28, 65, 233);
+  align-items: center;
+
+  .title {
+    margin-top: 10px;
+  }
 }

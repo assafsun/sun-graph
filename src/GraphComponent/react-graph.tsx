@@ -193,26 +193,26 @@ export class ReactGraph extends React.Component<Props, State> {
   }
 
   divStyle = {
-    width: 800,
-    height: 400,
+    width: 700,
+    height: 700,
   };
 
   render() {
     const items = [];
     let key: number = 1;
     for (let node of this.graph.nodes) {
-      let nodeTemplate = <rect r="10" width={150} height={100} fill="green" />;
+      let nodeTemplate = <rect r="10" width={100} height={100} fill="green" />;
       if (this.props.nodeUI) {
         nodeTemplate = (
           <svg>
             <g
               className="node"
               xmlns="http://www.w3.org/2000/xhtml"
-              width="150"
+              width="100"
               height="100"
             >
               <foreignObject
-                width="150"
+                width="100"
                 height="100"
                 xmlns="http://www.w3.org/2000/xhtml"
               >

@@ -7,6 +7,7 @@ import { ReactGraph } from "../../GraphComponent/react-graph";
 
 import "./BasicGraph.scss";
 import { DagreLayout } from "../../layouts/dagre";
+const logo = require("./logo.svg") as string;
 
 export class Employee {
   id: string;
@@ -124,16 +125,17 @@ export class BasicGraphComponent extends React.Component {
         <g
           className="node"
           xmlns="http://www.w3.org/2000/xhtml"
-          width="150"
+          width="100"
           height="100"
         >
           <foreignObject
-            width="150"
+            width="100"
             height="100"
             xmlns="http://www.w3.org/2000/xhtml"
           >
-            <div className="cardContainer">
-              <label className="name">Node Text</label>
+            <div className="container">
+              <label className="title">Title</label>
+              <img src={logo} alt="logo" height="60" width="60"></img>
             </div>
           </foreignObject>
         </g>
@@ -150,7 +152,7 @@ export class BasicGraphComponent extends React.Component {
         nodeUI={(node: any) => this.nodeUI(node)}
         layout={new DagreLayout()}
         curve={shape.curveLinear}
-        nodeWidth={150}
+        nodeWidth={100}
         nodeHeight={100}
         panningEnabled={true}
         enableZoom={true}
