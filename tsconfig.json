@@ -15,7 +15,9 @@
     "noEmit": true,
     "jsx": "react",
     "strictPropertyInitialization": false,
-    "strictNullChecks": false
+    "strictNullChecks": false,
+    "declaration": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["node_modules", "dist"]
 }

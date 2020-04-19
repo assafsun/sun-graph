@@ -112,6 +112,7 @@ export class BasicGraphComponent extends React.Component {
   render() {
     return (
       <ReactGraph
+        view={[1500, 1500]}
         nodes={this.nodes}
         links={this.links}
         defsTemplate={() => this.defTemplateUI}

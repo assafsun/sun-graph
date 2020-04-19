@@ -36,6 +36,7 @@ interface Props {
   links?: Edge[];
   curve?: any;
   draggingEnabled?: boolean;
+  layout?: string | Layout | undefined;
   nodeHeight?: number;
   nodeWidth?: number;
   panningEnabled?: boolean;
@@ -45,16 +46,14 @@ interface Props {
   minZoomLevel?: number;
   maxZoomLevel?: number;
   autoZoom?: boolean;
-  panOnZoom?: boolean;
-  animate?: boolean;
+  panOnZoom?: boolean; // TODO - implement
   autoCenter?: boolean;
   update$?: Observable<any>;
   center$?: Observable<any>;
   zoomToFit$?: Observable<any>;
   panToNode$?: Observable<any>;
-  layout?: string | Layout | undefined;
   enableTrackpadSupport?: boolean;
-  //zoomChange?: (value: number) => void;
+  zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   defsTemplate?: () => any;
 }
@@ -67,7 +66,6 @@ export class ReactGraph extends React.Component<Props, State> {
   public subscriptions: Subscription[] = [];
   public dims: ViewDimensions;
   public margin = [0, 0, 0, 0];
-  public results: any = [];
   public isPanning = false;
   public isDragging = false;
   public draggingNode: Node;
@@ -88,6 +86,7 @@ export class ReactGraph extends React.Component<Props, State> {
     curve: shape.curveLinear,
     layout: new DagreLayout(),
     clickHandler: (value: MouseEvent) => {},
+    zoomChange: (value: number) => {},
   };
 
   constructor(props: Props) {
@@ -129,8 +128,6 @@ export class ReactGraph extends React.Component<Props, State> {
     this.draw();
   }
 
-  // static getDerivedStateFromProps(props: Props, state) {}
-
   componentDidUpdate() {
     requestAnimationFrame(() => this.draw());
   }
@@ -151,7 +148,7 @@ export class ReactGraph extends React.Component<Props, State> {
     height: this.props.view[1],
   };
 
-  render() {
+  public render() {
     const nodes = [];
     for (let node of this.graph.nodes) {
       let nodeTemplate = (
@@ -234,6 +231,7 @@ export class ReactGraph extends React.Component<Props, State> {
           ref={this.chartElement}
         >
           <svg className="svgGraph" transform={this.state.transform}>
+            <g className="defsTemplate">{this.props.defsTemplate()}</g>
             <g className="nodes">{nodes}</g>
             <g className="links">{links}</g>
           </svg>
@@ -242,160 +240,49 @@ export class ReactGraph extends React.Component<Props, State> {
     );
   }
 
-  /**
-   * Get the current zoom level
-   */
   get zoomLevel() {
     return this.transformationMatrix.a;
   }
 
-  /**
-   * Set the current zoom level
-   */
   set zoomLevel(level) {
     this.zoomTo(Number(level));
   }
 
-  /**
-   * Get the current `x` position of the graph
-   */
   get panOffsetX() {
     return this.transformationMatrix.e;
   }
 
-  /**
-   * Set the current `x` position of the graph
-   */
-  set panOffsetX(x) {
-    this.panTo(Number(x), null);
-  }
-
-  /**
-   * Get the current `y` position of the graph
-   */
   get panOffsetY() {
     return this.transformationMatrix.f;
   }
 
-  /**
-   * Set the current `y` position of the graph
-   */
-  set panOffsetY(y) {
-    this.panTo(null, Number(y));
-  }
-
-  groupResultsBy: (node: any) => string = (node) => node.label;
-
-  getContainerDims(): any {
-    let width;
-    let height;
-    const hostElem = this.chartElement.nativeElement;
-    if (!hostElem) {
-      return null;
-    }
-
-    if (hostElem.parentNode !== null) {
-      // Get the container dimensions
-      const dims = hostElem.parentNode.getBoundingClientRect();
-      width = dims.width;
-      height = dims.height;
-    }
-
-    if (width && height) {
-      return { width, height };
-    }
-
-    return null;
-  }
-
-  basicUpdate(): void {
-    if (this.results) {
-      this.results = this.cloneData(this.results);
-    } else {
-      this.results = [];
-    }
-
+  private basicUpdate(): void {
     if (this.props.view) {
       this.width = this.props.view[0];
       this.height = this.props.view[1];
     } else {
-      const dims = this.getContainerDims();
-      if (dims) {
-        this.width = dims.width;
-        this.height = dims.height;
-      }
+      this.width = 700;
+      this.height = 700;
     }
 
     // default values if width or height are 0 or undefined
-    if (!this.width) {
-      this.width = 600;
-    }
-
-    if (!this.height) {
-      this.height = 400;
-    }
-
     this.width = Math.floor(this.width);
     this.height = Math.floor(this.height);
-  }
-  /**
-   * Base class update implementation for the dag graph
-   *
-   * @memberOf GraphComponent
-   */
-  update(): void {
-    this.basicUpdate();
-    // if (!this.props.curve) {
-    //   this.props.curve = shape.curveBundle.beta(1);
-    // }
-
     this.dims = calculateViewDimensions({
       width: this.width,
       height: this.height,
       margins: this.margin,
       showLegend: false,
     });
+  }
 
+  private update(): void {
+    this.basicUpdate();
     this.createGraph();
     this.updateTransform();
   }
 
-  private cloneData(data: any): any {
-    const results = [];
-
-    for (const item of data) {
-      const copy: any = {
-        name: item["name"],
-      };
-
-      if (item["value"] !== undefined) {
-        copy["value"] = item["value"];
-      }
-
-      if (item["series"] !== undefined) {
-        copy["series"] = [];
-        for (const seriesItem of item["series"]) {
-          const seriesItemCopy = Object.assign({}, seriesItem);
-          copy["series"].push(seriesItemCopy);
-        }
-      }
-
-      if (item["extra"] !== undefined) {
-        copy["extra"] = JSON.parse(JSON.stringify(item["extra"]));
-      }
-
-      results.push(copy);
-    }
-
-    return results;
-  }
-
-  /**
-   * Creates the dagre graph engine
-   *
-   * @memberOf GraphComponent
-   */
-  createGraph(): void {
+  private createGraph(): void {
     this.graphSubscription.unsubscribe();
     this.graphSubscription = new Subscription();
     const initializeNode = (n: Node) => {
@@ -432,16 +319,11 @@ export class ReactGraph extends React.Component<Props, State> {
     };
   }
 
-  /**
-   * Draws the graph using dagre layouts
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  draw(): void {
+  private draw(): void {
     if (!this.props.layout || typeof this.props.layout === "string") {
       return;
     }
+
     // Calc view dims for the nodes
     this.applyNodeDimensions();
 
@@ -459,7 +341,7 @@ export class ReactGraph extends React.Component<Props, State> {
       .subscribe(() => this.applyNodeDimensions());
   }
 
-  tick() {
+  private tick() {
     // Transposes view options to the node
     const oldNodes: Set<string> = new Set();
 
@@ -576,12 +458,7 @@ export class ReactGraph extends React.Component<Props, State> {
     requestAnimationFrame(() => this.redrawLines());
   }
 
-  /**
-   * Measures the node element and applies the dimensions
-   *
-   * @memberOf GraphComponent
-   */
-  applyNodeDimensions(): void {
+  private applyNodeDimensions(): void {
     this.nodeElements = document.getElementsByName("nodeElement");
     if (this.nodeElements && this.nodeElements.length) {
       this.nodeElements.map((elem: any) => {
@@ -653,12 +530,7 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  /**
-   * Redraws the lines when dragged or viewport updated
-   *
-   * @memberOf GraphComponent
-   */
-  redrawLines(_animate = this.props.animate): void {
+  private redrawLines(): void {
     this.linkElements = document.getElementsByName("linkElement");
     // if (this.linkElements.length === 0) {
     //   return;
@@ -674,7 +546,6 @@ export class ReactGraph extends React.Component<Props, State> {
           .attr("d", linkEl.oldLine)
           // .transition()
           // .ease(ease.easeSinInOut)
-          //.duration(_animate ? 500 : 0)
           .attr("d", linkEl.line);
 
         const textPathSelection = select(
@@ -684,7 +555,6 @@ export class ReactGraph extends React.Component<Props, State> {
           .attr("d", linkEl.oldTextPath)
           // .transition()
           // .ease(ease.easeSinInOut)
-          //.duration(_animate ? 500 : 0)
           .attr("d", linkEl.textPath);
 
         this.updateMidpointOnEdge(linkEl, linkEl.points);
@@ -694,12 +564,7 @@ export class ReactGraph extends React.Component<Props, State> {
     });
   }
 
-  /**
-   * Calculate the text directions / flipping
-   *
-   * @memberOf GraphComponent
-   */
-  calcDominantBaseline(link: any): void {
+  private calcDominantBaseline(link: any): void {
     const firstPoint = link.points[0];
     const lastPoint = link.points[link.points.length - 1];
     link.oldTextPath = link.textPath;
@@ -715,12 +580,7 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  /**
-   * Generate the new line path
-   *
-   * @memberOf GraphComponent
-   */
-  generateLine(points: any): any {
+  private generateLine(points: any): any {
     const lineFunction = shape
       .line<any>()
       .x((d) => d.x)
@@ -729,12 +589,7 @@ export class ReactGraph extends React.Component<Props, State> {
     return lineFunction(points);
   }
 
-  /**
-   * Zoom was invoked from event
-   *
-   * @memberOf GraphComponent
-   */
-  onZoom($event: WheelEvent, direction: any): void {
+  private onZoom($event: WheelEvent, direction: any): void {
     if (this.props.enableTrackpadSupport && !$event.ctrlKey) {
       this.pan($event.deltaX * -1, $event.deltaY * -1);
       return;
@@ -762,31 +617,23 @@ export class ReactGraph extends React.Component<Props, State> {
       const mouseX = $event.clientX;
       const mouseY = $event.clientY;
 
-      // Transform the mouse X/Y into a SVG X/Y
-      const svg = this.chartElement.nativeElement.querySelector("svg");
-      const svgGroup = svg.querySelector("g.chart");
+      const svg = document.querySelector("svg");
+      const pt = svg.createSVGPoint(); // demo is an SVGElement
 
-      const point = svg.createSVGPoint();
-      point.x = mouseX;
-      point.y = mouseY;
-      const svgPoint = point.matrixTransform(svgGroup.getScreenCTM().inverse());
+      pt.x = mouseX;
+      pt.y = mouseY;
+      const svgGlobal = pt.matrixTransform(svg.getScreenCTM().inverse());
 
       // Panzoom
-      this.pan(svgPoint.x, svgPoint.y, true);
+      this.pan(svgGlobal.x, svgGlobal.y, true);
       this.zoom(zoomFactor);
-      this.pan(-svgPoint.x, -svgPoint.y, true);
+      this.pan(svgGlobal.x * -1, svgGlobal.y * -1, true);
     } else {
       this.zoom(zoomFactor);
     }
   }
 
-  /**
-   * Pan by x/y
-   *
-   * @param x
-   * @param y
-   */
-  pan(x: number, y: number, ignoreZoomLevel: boolean = false): void {
+  private pan(x: number, y: number, ignoreZoomLevel: boolean = false): void {
     const zoomLevel = ignoreZoomLevel ? 1 : this.zoomLevel;
 
     if (this.props.enableTrackpadSupport || ignoreZoomLevel) {
@@ -818,11 +665,7 @@ export class ReactGraph extends React.Component<Props, State> {
     this.updateTransform();
   }
 
-  /**
-   * Pan to a fixed x/y
-   *
-   */
-  panTo(x: number | null, y: number | null): void {
+  private panTo(x: number | null, y: number | null): void {
     if (
       x === null ||
       x === undefined ||
@@ -845,50 +688,32 @@ export class ReactGraph extends React.Component<Props, State> {
     this.updateTransform();
   }
 
-  /**
-   * Zoom by a factor
-   *
-   */
-  zoom(factor: number): void {
+  private zoom(factor: number): void {
     this.transformationMatrix = transform(
       this.transformationMatrix,
       scale(factor, factor)
     );
-    //this.props.zoomChange(this.zoomLevel);
+    this.props.zoomChange(this.zoomLevel);
     this.updateTransform();
   }
 
-  /**
-   * Zoom to a fixed level
-   *
-   */
-  zoomTo(level: number): void {
+  private zoomTo(level: number): void {
     this.transformationMatrix.a = isNaN(level)
       ? this.transformationMatrix.a
       : Number(level);
     this.transformationMatrix.d = isNaN(level)
       ? this.transformationMatrix.d
       : Number(level);
-    //this.props.zoomChange(this.zoomLevel);
+    this.props.zoomChange(this.zoomLevel);
     this.updateTransform();
     this.update();
   }
 
-  /**
-   * Pan was invoked from event
-   *
-   * @memberOf GraphComponent
-   */
-  onPan(event: MouseEvent): void {
+  private onPan(event: MouseEvent): void {
     this.pan(event.movementX, event.movementY);
   }
 
-  /**
-   * Drag was invoked from an event
-   *
-   * @memberOf GraphComponent
-   */
-  onDrag(event: MouseEvent): void {
+  private onDrag(event: MouseEvent): void {
     if (!this.props.draggingEnabled) {
       return;
     }
@@ -929,23 +754,17 @@ export class ReactGraph extends React.Component<Props, State> {
       }
     }
 
-    this.redrawLines(false);
+    this.redrawLines();
   }
 
-  redrawEdge(edge: Edge) {
+  private redrawEdge(edge: Edge) {
     const line = this.generateLine(edge.points);
     this.calcDominantBaseline(edge);
     edge.oldLine = edge.line;
     edge.line = line;
   }
 
-  /**
-   * Update the entire view for the new pan position
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  updateTransform(): void {
+  private updateTransform(): void {
     if (!this.state.initialized) {
       return;
     }
@@ -954,37 +773,7 @@ export class ReactGraph extends React.Component<Props, State> {
     });
   }
 
-  /**
-   * Node was clicked
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  onClick(event: any): void {
-    //this.props.select.emit(event);
-  }
-
-  /**
-   * Tracking for the link
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  trackLinkBy(index: number, link: Edge): any {
-    return link.id;
-  }
-
-  /**
-   * Tracking for the node
-   *
-   *
-   * @memberOf GraphComponent
-   */
-  trackNodeBy(index: number, node: Node): any {
-    return node.id;
-  }
-
-  onMouseMove($event: MouseEvent): void {
+  private onMouseMove($event: MouseEvent): void {
     this.isMouseMoveCalled = true;
     if (this.isPanning && this.props.panningEnabled) {
       this.checkEnum(this.props.panningAxis, $event);
@@ -993,63 +782,17 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  onMouseDown(event: MouseEvent): void {
+  private onMouseDown(event: MouseEvent): void {
     this.isMouseMoveCalled = false;
     this.isPanning = true;
     this.isMouseMoveCalled = false;
   }
 
-  //@HostListener("document:click", ["$event"])
-  graphClick(event: MouseEvent): void {
+  private graphClick(event: MouseEvent): void {
     if (!this.isMouseMoveCalled) this.props.clickHandler(event);
   }
 
-  /**
-   * On touch start event to enable panning.
-   *
-   * @memberOf GraphComponent
-   */
-  onTouchStart(event: any): void {
-    this._touchLastX = event.changedTouches[0].clientX;
-    this._touchLastY = event.changedTouches[0].clientY;
-
-    this.isPanning = true;
-  }
-
-  /**
-   * On touch move event, used for panning.
-   *
-   */
-  //@HostListener("document:touchmove", ["$event"])
-  onTouchMove($event: any): void {
-    if (this.isPanning && this.props.panningEnabled) {
-      const clientX = $event.changedTouches[0].clientX;
-      const clientY = $event.changedTouches[0].clientY;
-      const movementX = clientX - this._touchLastX;
-      const movementY = clientY - this._touchLastY;
-      this._touchLastX = clientX;
-      this._touchLastY = clientY;
-
-      this.pan(movementX, movementY);
-    }
-  }
-
-  /**
-   * On touch end event to disable panning.
-   *
-   * @memberOf GraphComponent
-   */
-  onTouchEnd(event: any) {
-    this.isPanning = false;
-  }
-
-  /**
-   * On mouse up event to disable panning/dragging.
-   *
-   * @memberOf GraphComponent
-   */
-  //@HostListener("document:mouseup", ["$event"])
-  onMouseUp(event: MouseEvent): void {
+  private onMouseUp(event: MouseEvent): void {
     this.isDragging = false;
     this.isPanning = false;
     if (
@@ -1061,12 +804,7 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  /**
-   * On node mouse down to kick off dragging
-   *
-   * @memberOf GraphComponent
-   */
-  onNodeMouseDown(event: MouseEvent, node: any): void {
+  private onNodeMouseDown(event: MouseEvent, node: any): void {
     if (!this.props.draggingEnabled) {
       return;
     }
@@ -1082,17 +820,11 @@ export class ReactGraph extends React.Component<Props, State> {
     }
   }
 
-  /**
-   * Center the graph in the viewport
-   */
-  center(): void {
+  private center(): void {
     this.panTo(this.graphDims.width / 2, this.graphDims.height / 2);
   }
 
-  /**
-   * Zooms to fit the entier graph
-   */
-  zoomToFit(): void {
+  private zoomToFit(): void {
     const heightZoom = this.dims.height / this.graphDims.height;
     const widthZoom = this.dims.width / this.graphDims.width;
     const zoomLevel = Math.min(heightZoom, widthZoom, 1);
@@ -1107,15 +839,11 @@ export class ReactGraph extends React.Component<Props, State> {
     if (zoomLevel !== this.zoomLevel) {
       this.zoomLevel = zoomLevel;
       this.updateTransform();
-      //this.props.zoomChange(this.zoomLevel);
+      this.props.zoomChange(this.zoomLevel);
     }
   }
 
-  /**
-   * Pans to the node
-   * @param nodeId
-   */
-  panToNodeId(nodeId: string): void {
+  private panToNodeId(nodeId: string): void {
     const node = this.graph.nodes.find((n) => n.id === nodeId);
     if (!node) {
       return;
