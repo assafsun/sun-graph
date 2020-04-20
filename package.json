@@ -1,16 +1,11 @@
 {
-  "name": "react-graph",
+  "name": "sun-graph",
   "version": "0.1.0",
   "private": true,
   "main": "dist/index.js",
   "dependencies": {
-    "d3-array": "^2.4.0",
-    "d3-dispatch": "^1.0.6",
-    "d3-force": "^2.0.1",
-    "d3-scale": "^3.2.1",
     "d3-selection": "^1.4.1",
     "d3-shape": "^1.3.7",
-    "d3-timer": "^1.0.10",
     "dagre": "^0.8.5",
     "node-sass": "^4.13.1",
     "react": "^16.13.0",

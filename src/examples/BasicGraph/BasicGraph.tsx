@@ -1,12 +1,10 @@
 import React from "react";
-import { Node } from "../../models/graph.model";
-import { Edge } from "../../models/graph.model";
+import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
-
-import { ReactGraph } from "../../GraphComponent/react-graph";
+import { SunGraph } from "SunGraph/SunGraph";
+import { DagreLayout } from "SunGraph/layouts/dagre";
 
 import "./BasicGraph.scss";
-import { DagreLayout } from "../../layouts/dagre";
 import Logo from "./logo.jpg";
 
 export class BasicGraphComponent extends React.Component {
@@ -23,7 +21,7 @@ export class BasicGraphComponent extends React.Component {
         label: "Node 1",
         width: 100,
         height: 100,
-        layout: (node) => this.nodeUI(node),
+        layout: (node: Node) => this.nodeUI(node),
       },
       {
         id: "2",
@@ -33,7 +31,7 @@ export class BasicGraphComponent extends React.Component {
         },
         width: 100,
         height: 100,
-        layout: (node) => this.nodeUI(node),
+        layout: (node: Node) => this.nodeUI(node),
       },
       {
         id: "3",
@@ -111,7 +109,7 @@ export class BasicGraphComponent extends React.Component {
 
   render() {
     return (
-      <ReactGraph
+      <SunGraph
         view={[1500, 1500]}
         nodes={this.nodes}
         links={this.links}
@@ -122,7 +120,7 @@ export class BasicGraphComponent extends React.Component {
         enableZoom={true}
         zoomSpeed={0.1}
         enableTrackpadSupport={true}
-      ></ReactGraph>
+      ></SunGraph>
     );
   }
 }

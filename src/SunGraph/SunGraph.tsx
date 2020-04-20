@@ -13,17 +13,17 @@ import {
   translate,
   Matrix,
 } from "transformation-matrix";
-import { Layout } from "../models/layout.model";
-import { Graph, Node, Edge, PanningAxis } from "../models/graph.model";
-import { id } from "../utils/id";
+import { Layout } from "SunGraph/models/layout.model";
+import { Graph, Node, Edge, PanningAxis } from "SunGraph/models/graph.model";
+import { id } from "SunGraph/utils/id";
 
 import {
   ViewDimensions,
   calculateViewDimensions,
-} from "../utils/viewDimensionsHelper";
+} from "./utils/viewDimensionsHelper";
 
-import "./react-graph.scss";
-import { DagreLayout } from "../layouts/dagre";
+import "./SunGraph.scss";
+import { DagreLayout } from "./layouts/dagre";
 
 interface State {
   initialized: boolean;
@@ -46,7 +46,7 @@ interface Props {
   minZoomLevel?: number;
   maxZoomLevel?: number;
   autoZoom?: boolean;
-  panOnZoom?: boolean; // TODO - implement
+  panOnZoom?: boolean; // TODO - fix state update
   autoCenter?: boolean;
   update$?: Observable<any>;
   center$?: Observable<any>;
@@ -58,7 +58,7 @@ interface Props {
   defsTemplate?: () => any;
 }
 
-export class ReactGraph extends React.Component<Props, State> {
+export class SunGraph extends React.Component<Props, State> {
   public chartElement: any;
   public nodeElements: any;
   public linkElements: any;

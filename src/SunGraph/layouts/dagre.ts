@@ -1,8 +1,8 @@
-import { Layout } from "../models/layout.model";
-import { Graph } from "../models/graph.model";
-import { id } from "../utils/id";
+import { Layout } from "SunGraph/models/layout.model";
+import { Graph } from "SunGraph/models/graph.model";
+import { id } from "SunGraph/utils/id";
 import * as dagre from "dagre";
-import { Edge } from "../models/graph.model";
+import { Edge } from "SunGraph/models/graph.model";
 
 export enum Orientation {
   LEFT_TO_RIGHT = "LR",

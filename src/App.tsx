@@ -1,6 +1,7 @@
 import React from "react";
+import { BasicGraphComponent } from "./Examples/BasicGraph/BasicGraph";
+
 import "./App.css";
-import { BasicGraphComponent } from "./examples/BasicGraph/BasicGraph";
 
 function App() {
   return (
