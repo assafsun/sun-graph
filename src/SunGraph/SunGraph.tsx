@@ -23,22 +23,22 @@ import {
 } from "./utils/viewDimensionsHelper";
 
 import "./SunGraph.scss";
-import { DagreLayout } from "./layouts/dagre";
+import { CustomDagreLayout } from "./layouts/customDagreLayout";
 
 interface State {
   initialized: boolean;
-  transform: string;
+  transform?: string;
 }
 
 interface Props {
   view?: [number, number];
-  nodes?: Node[];
-  links?: Edge[];
-  curve?: any;
-  draggingEnabled?: boolean;
+  nodes: Node[];
+  links: Edge[];
   layout?: string | Layout | undefined;
+  curve?: any;
   nodeHeight?: number;
   nodeWidth?: number;
+  draggingEnabled?: boolean;
   panningEnabled?: boolean;
   panningAxis?: PanningAxis;
   enableZoom?: boolean;
@@ -46,7 +46,6 @@ interface Props {
   minZoomLevel?: number;
   maxZoomLevel?: number;
   autoZoom?: boolean;
-  panOnZoom?: boolean; // TODO - fix state update
   autoCenter?: boolean;
   update$?: Observable<any>;
   center$?: Observable<any>;
@@ -56,6 +55,7 @@ interface Props {
   zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   defsTemplate?: () => any;
+  panOnZoom?: boolean; // TODO - fix state update
 }
 
 export class SunGraph extends React.Component<Props, State> {
@@ -78,13 +78,14 @@ export class SunGraph extends React.Component<Props, State> {
   public _touchLastY: any = null;
   public width: number;
   public height: number;
+  public initialTransform: string;
 
   private isMouseMoveCalled: boolean = false;
 
   static defaultProps = {
     view: [700, 700],
     curve: shape.curveLinear,
-    layout: new DagreLayout(),
+    layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
     zoomChange: (value: number) => {},
   };
@@ -122,14 +123,10 @@ export class SunGraph extends React.Component<Props, State> {
         })
       );
     }
-
-    this.state = { initialized: false, transform: "" };
+    this.state = { initialized: false };
     this.update();
     this.draw();
-  }
-
-  componentDidUpdate() {
-    requestAnimationFrame(() => this.draw());
+    this.state = { initialized: false, transform: this.initialTransform };
   }
 
   componentDidMount() {
@@ -148,7 +145,7 @@ export class SunGraph extends React.Component<Props, State> {
     height: this.props.view[1],
   };
 
-  public render() {
+  public render(): React.ReactNode {
     const nodes = [];
     for (let node of this.graph.nodes) {
       let nodeTemplate = (
@@ -162,6 +159,9 @@ export class SunGraph extends React.Component<Props, State> {
               xmlns="http://www.w3.org/2000/xhtml"
               width={node.width}
               height={node.height}
+              onMouseDown={(e: any) => {
+                this.onNodeMouseDown(e, node);
+              }}
             >
               <foreignObject
                 width={node.width}
@@ -755,6 +755,7 @@ export class SunGraph extends React.Component<Props, State> {
     }
 
     this.redrawLines();
+    this.forceUpdate();
   }
 
   private redrawEdge(edge: Edge) {
@@ -765,11 +766,14 @@ export class SunGraph extends React.Component<Props, State> {
   }
 
   private updateTransform(): void {
+    const transform = toSVG(smoothMatrix(this.transformationMatrix, 100));
     if (!this.state.initialized) {
+      this.initialTransform = transform;
       return;
     }
+
     this.setState({
-      transform: toSVG(smoothMatrix(this.transformationMatrix, 100)),
+      transform: transform,
     });
   }
 
@@ -808,6 +812,8 @@ export class SunGraph extends React.Component<Props, State> {
     if (!this.props.draggingEnabled) {
       return;
     }
+
+    event.stopPropagation();
     this.isDragging = true;
     this.draggingNode = node;
 

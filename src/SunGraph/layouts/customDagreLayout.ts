@@ -1,5 +1,5 @@
 import { Layout } from "SunGraph/models/layout.model";
-import { Graph } from "SunGraph/models/graph.model";
+import { Graph, Node } from "SunGraph/models/graph.model";
 import { id } from "SunGraph/utils/id";
 import * as dagre from "dagre";
 import { Edge } from "SunGraph/models/graph.model";
@@ -32,7 +32,7 @@ export interface DagreSettings {
   compound?: boolean;
 }
 
-export class DagreLayout implements Layout {
+export class CustomDagreLayout implements Layout {
   defaultSettings: DagreSettings = {
     orientation: Orientation.LEFT_TO_RIGHT,
     marginX: 20,
@@ -69,23 +69,43 @@ export class DagreLayout implements Layout {
     return graph;
   }
 
-  updateEdge(graph: Graph, edge: Edge): Graph {
+  public updateEdge(graph: Graph, edge: Edge): Graph {
     const sourceNode = graph.nodes.find((n) => n.id === edge.source);
-    const targetNode = graph.nodes.find((n) => n.id === edge.target);
-
+    const targetNode: Node = graph.nodes.find((n) => n.id === edge.target);
+    const rankAxis: "x" | "y" =
+      this.settings.orientation === "BT" || this.settings.orientation === "TB"
+        ? "y"
+        : "x";
+    const orderAxis: "x" | "y" = rankAxis === "y" ? "x" : "y";
+    const rankDimension = rankAxis === "y" ? "height" : "width";
     // determine new arrow position
-    const dir = sourceNode.position.y <= targetNode.position.y ? -1 : 1;
+    const dir =
+      sourceNode.position[rankAxis] <= targetNode.position[rankAxis] ? -1 : 1;
     const startingPoint = {
-      x: sourceNode.position.x,
-      y: sourceNode.position.y - dir * (sourceNode.height / 2),
+      [orderAxis]: sourceNode.position[orderAxis],
+      [rankAxis]:
+        sourceNode.position[rankAxis] -
+        dir *
+          ((rankDimension === "height" ? sourceNode.height : sourceNode.width) /
+            2),
     };
     const endingPoint = {
-      x: targetNode.position.x,
-      y: targetNode.position.y + dir * (targetNode.height / 2),
+      [orderAxis]: targetNode.position[orderAxis],
+      [rankAxis]:
+        targetNode.position[rankAxis] +
+        dir *
+          ((rankDimension === "height" ? sourceNode.height : sourceNode.width) /
+            2),
     };
-
     // generate new points
-    edge.points = [startingPoint, endingPoint];
+    edge.points = [
+      startingPoint,
+      {
+        [orderAxis]: endingPoint[orderAxis],
+        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
+      },
+      endingPoint,
+    ];
     return graph;
   }
 

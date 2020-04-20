@@ -2,7 +2,7 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
-import { DagreLayout } from "SunGraph/layouts/dagre";
+import { CustomDagreLayout } from "SunGraph/layouts/customDagreLayout";
 
 import "./BasicGraph.scss";
 import Logo from "./logo.jpg";
@@ -114,12 +114,13 @@ export class BasicGraphComponent extends React.Component {
         nodes={this.nodes}
         links={this.links}
         defsTemplate={() => this.defTemplateUI}
-        layout={new DagreLayout()}
+        layout={new CustomDagreLayout()}
         curve={shape.curveLinear}
         panningEnabled={true}
         enableZoom={true}
         zoomSpeed={0.1}
         enableTrackpadSupport={true}
+        draggingEnabled={true}
       ></SunGraph>
     );
   }
