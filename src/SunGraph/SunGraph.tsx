@@ -54,8 +54,8 @@ interface Props {
   clickHandler?: (value: MouseEvent) => void;
   defsTemplate?: () => any;
 
-  //Not tested props
-  panOnZoom?: boolean; // TODO - fix state update
+  //Not reviewed props
+  panOnZoom?: boolean;
   panningAxis?: PanningAxis;
 }
 
@@ -270,15 +270,9 @@ export class SunGraph extends React.Component<Props, State> {
   }
 
   private createGraph(): void {
-    if (this.props.view) {
-      this.width = this.props.view[0];
-      this.height = this.props.view[1];
-    } else {
-      this.width = 700;
-      this.height = 700;
-    }
+    this.width = this.props.view[0];
+    this.height = this.props.view[1];
 
-    // default values if width or height are 0 or undefined
     this.width = Math.floor(this.width);
     this.height = Math.floor(this.height);
     this.dims = calculateViewDimensions({
@@ -327,7 +321,6 @@ export class SunGraph extends React.Component<Props, State> {
       return;
     }
 
-    // Recalc the layout
     this.graph = this.props.layout.run(this.graph);
     this.handleDraw();
   }
@@ -343,7 +336,6 @@ export class SunGraph extends React.Component<Props, State> {
       return n;
     });
 
-    // Update the labels to the new positions
     const newLinks = [];
     for (const edgeLabelId in this.graph.edgeLabels) {
       const edgeLabel = this.graph.edgeLabels[edgeLabelId];
@@ -376,7 +368,6 @@ export class SunGraph extends React.Component<Props, State> {
         linkFromGraph.data &&
         JSON.stringify(oldLink.data) !== JSON.stringify(linkFromGraph.data)
       ) {
-        // Compare old link to new link and replace if not equal
         oldLink.data = linkFromGraph.data;
       }
 
@@ -409,7 +400,6 @@ export class SunGraph extends React.Component<Props, State> {
 
     this.graph.edges = newLinks;
 
-    // Map the old links for animations
     if (this.graph.edges) {
       this._oldLinks = this.graph.edges.map((l) => {
         const newL = Object.assign({}, l);
@@ -418,7 +408,6 @@ export class SunGraph extends React.Component<Props, State> {
       });
     }
 
-    // Calculate the height/width total, but only if we have any nodes
     if (this.graph.nodes && this.graph.nodes.length) {
       this.graphDims.width = Math.max(
         ...this.graph.nodes.map((n) => n.position.x + n.width)
@@ -433,7 +422,6 @@ export class SunGraph extends React.Component<Props, State> {
     }
 
     if (this.props.autoCenter) {
-      // Auto-center when rendering
       this.center();
     }
 
@@ -444,11 +432,7 @@ export class SunGraph extends React.Component<Props, State> {
     this.graph.edges.map((linkEl: any) => {
       if (linkEl) {
         const linkSelection = select(linkEl.nativeElement).select(".line");
-        linkSelection
-          .attr("d", linkEl.oldLine)
-          // .transition()
-          // .ease(ease.easeSinInOut)
-          .attr("d", linkEl.line);
+        linkSelection.attr("d", linkEl.oldLine).attr("d", linkEl.line);
 
         this.updateMidpointOnEdge(linkEl, linkEl.points);
       }
@@ -465,7 +449,6 @@ export class SunGraph extends React.Component<Props, State> {
     if (lastPoint.x < firstPoint.x) {
       link.dominantBaseline = "text-before-edge";
 
-      // reverse text path for when its flipped upside down
       link.textPath = this.generateLine([...link.points].reverse());
     } else {
       link.dominantBaseline = "text-after-edge";
@@ -491,7 +474,6 @@ export class SunGraph extends React.Component<Props, State> {
     const zoomFactor =
       1 + (direction === "in" ? this.props.zoomSpeed : -this.props.zoomSpeed);
 
-    // Check that zooming wouldn't put us out of bounds
     const newZoomLevel = this.zoomLevel * zoomFactor;
     if (
       newZoomLevel <= this.props.minZoomLevel ||
@@ -500,24 +482,21 @@ export class SunGraph extends React.Component<Props, State> {
       return;
     }
 
-    // Check if zooming is enabled or not
     if (!this.props.enableZoom) {
       return;
     }
 
     if (this.props.panOnZoom === true && $event) {
-      // Absolute mouse X/Y on the screen
       const mouseX = $event.clientX;
       const mouseY = $event.clientY;
 
       const svg = document.querySelector("svg");
-      const pt = svg.createSVGPoint(); // demo is an SVGElement
+      const pt = svg.createSVGPoint();
 
       pt.x = mouseX;
       pt.y = mouseY;
       const svgGlobal = pt.matrixTransform(svg.getScreenCTM().inverse());
 
-      // Panzoom
       this.pan(svgGlobal.x, svgGlobal.y, true);
       this.zoom(zoomFactor);
       this.pan(svgGlobal.x * -1, svgGlobal.y * -1, true);
@@ -623,7 +602,6 @@ export class SunGraph extends React.Component<Props, State> {
     node.position.x += event.movementX / this.zoomLevel;
     node.position.y += event.movementY / this.zoomLevel;
 
-    // move the node
     const x = node.position.x - node.width / 2;
     const y = node.position.y - node.height / 2;
     node.transform = `translate(${x}, ${y})`;
