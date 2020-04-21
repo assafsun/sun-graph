@@ -5,7 +5,6 @@ import { SunGraph } from "SunGraph/SunGraph";
 import { CustomDagreLayout } from "SunGraph/layouts/customDagreLayout";
 
 import "./BasicGraph.scss";
-import Logo from "./logo.jpg";
 
 export class BasicGraphComponent extends React.Component {
   public nodes: Node[] = [];
@@ -102,7 +101,6 @@ export class BasicGraphComponent extends React.Component {
     return (
       <div className="container">
         <label className="title">{node.label}</label>
-        <img src={Logo} alt="logo" height="60" width="60"></img>
       </div>
     );
   }
@@ -119,8 +117,8 @@ export class BasicGraphComponent extends React.Component {
         panningEnabled={true}
         enableZoom={true}
         zoomSpeed={0.1}
-        enableTrackpadSupport={true}
         draggingEnabled={true}
+        enableTrackpadSupport={true}
       ></SunGraph>
     );
   }

@@ -2,8 +2,7 @@ import React from "react";
 
 import { select } from "d3-selection";
 import * as shape from "d3-shape";
-import { Observable, Subscription, of } from "rxjs";
-import { first } from "rxjs/operators";
+import { Observable, Subscription } from "rxjs";
 import {
   identity,
   scale,
@@ -59,28 +58,25 @@ interface Props {
 }
 
 export class SunGraph extends React.Component<Props, State> {
-  public chartElement: any;
-  public nodeElements: any;
-  public linkElements: any;
-  public graphSubscription: Subscription = new Subscription();
-  public subscriptions: Subscription[] = [];
-  public dims: ViewDimensions;
-  public margin = [0, 0, 0, 0];
-  public isPanning = false;
-  public isDragging = false;
-  public draggingNode: Node;
-  public graph: Graph;
-  public graphDims: any = { width: 0, height: 0 };
-  public _oldLinks: Edge[] = [];
-  public oldNodes: Set<string> = new Set();
-  public transformationMatrix: Matrix = identity();
-  public _touchLastX: any = null;
-  public _touchLastY: any = null;
-  public width: number;
-  public height: number;
-  public initialTransform: string;
-
+  private width: number;
+  private height: number;
+  private subscriptions: Subscription[] = [];
+  private dims: ViewDimensions;
+  private isPanning = false;
+  private isDragging = false;
+  private draggingNode: Node;
+  private graph: Graph;
+  private graphDims: any = { width: 0, height: 0 };
+  private _oldLinks: Edge[] = [];
+  private oldNodes: Set<string> = new Set();
+  private transformationMatrix: Matrix = identity();
+  private initialTransform: string;
   private isMouseMoveCalled: boolean = false;
+
+  private graphStyle = {
+    width: this.props.view[0],
+    height: this.props.view[1],
+  };
 
   static defaultProps = {
     view: [700, 700],
@@ -92,7 +88,6 @@ export class SunGraph extends React.Component<Props, State> {
 
   constructor(props: Props) {
     super(props);
-    this.chartElement = React.createRef();
     if (this.props.update$) {
       this.subscriptions.push(
         this.props.update$.subscribe(() => {
@@ -123,27 +118,23 @@ export class SunGraph extends React.Component<Props, State> {
         })
       );
     }
+
     this.state = { initialized: false };
     this.update();
     this.draw();
     this.state = { initialized: false, transform: this.initialTransform };
   }
 
-  componentDidMount() {
+  public componentDidMount(): void {
     this.setState({ initialized: true });
   }
 
-  componentWillUnmount() {
+  public componentWillUnmount(): void {
     for (const sub of this.subscriptions) {
       sub.unsubscribe();
     }
     this.subscriptions = [];
   }
-
-  divStyle = {
-    width: this.props.view[0],
-    height: this.props.view[1],
-  };
 
   public render(): React.ReactNode {
     const nodes = [];
@@ -176,9 +167,9 @@ export class SunGraph extends React.Component<Props, State> {
       }
 
       nodes.push(
-        <svg key={node.id}>
+        <g key={node.id}>
           <g transform={node.transform}>{nodeTemplate}</g>
-        </svg>
+        </g>
       );
     }
 
@@ -186,7 +177,7 @@ export class SunGraph extends React.Component<Props, State> {
     for (let link of this.graph.edges) {
       links.push(
         <g className="link-group" id={link.id} key={link.id}>
-          <svg>
+          <g>
             <g className="edge">
               <path
                 className="line"
@@ -195,7 +186,7 @@ export class SunGraph extends React.Component<Props, State> {
                 d={link.line}
               ></path>
             </g>
-          </svg>
+          </g>
         </g>
       );
     }
@@ -203,7 +194,7 @@ export class SunGraph extends React.Component<Props, State> {
     return (
       this.state.initialized && (
         <div
-          style={this.divStyle}
+          style={this.graphStyle}
           className="graph"
           onClick={(e: any) => this.graphClick(e)}
           onMouseMove={(e: any) => this.onMouseMove(e)}
@@ -225,38 +216,44 @@ export class SunGraph extends React.Component<Props, State> {
             if (isWheelMouseUp) {
               this.onZoom(e, "in");
             } else {
-              this.onZoom(e, "down");
+              this.onZoom(e, "out");
             }
           }}
-          ref={this.chartElement}
         >
-          <svg className="svgGraph" transform={this.state.transform}>
-            <g className="defsTemplate">{this.props.defsTemplate()}</g>
-            <g className="nodes">{nodes}</g>
-            <g className="links">{links}</g>
+          <svg className="svgGraph">
+            <g transform={this.state.transform}>
+              <g className="defsTemplate">{this.props.defsTemplate()}</g>
+              <g className="nodes">{nodes}</g>
+              <g className="links">{links}</g>
+            </g>
           </svg>
         </div>
       )
     );
   }
 
-  get zoomLevel() {
+  private get zoomLevel() {
     return this.transformationMatrix.a;
   }
 
-  set zoomLevel(level) {
+  private set zoomLevel(level) {
     this.zoomTo(Number(level));
   }
 
-  get panOffsetX() {
+  private get panOffsetX() {
     return this.transformationMatrix.e;
   }
 
-  get panOffsetY() {
+  private get panOffsetY() {
     return this.transformationMatrix.f;
   }
 
-  private basicUpdate(): void {
+  private update(): void {
+    this.createGraph();
+    this.updateTransform();
+  }
+
+  private createGraph(): void {
     if (this.props.view) {
       this.width = this.props.view[0];
       this.height = this.props.view[1];
@@ -271,20 +268,10 @@ export class SunGraph extends React.Component<Props, State> {
     this.dims = calculateViewDimensions({
       width: this.width,
       height: this.height,
-      margins: this.margin,
+      margins: [0, 0, 0, 0],
       showLegend: false,
     });
-  }
 
-  private update(): void {
-    this.basicUpdate();
-    this.createGraph();
-    this.updateTransform();
-  }
-
-  private createGraph(): void {
-    this.graphSubscription.unsubscribe();
-    this.graphSubscription = new Subscription();
     const initializeNode = (n: Node) => {
       if (!n.meta) {
         n.meta = {};
@@ -324,24 +311,12 @@ export class SunGraph extends React.Component<Props, State> {
       return;
     }
 
-    // Calc view dims for the nodes
-    this.applyNodeDimensions();
-
     // Recalc the layout
-    const result = this.props.layout.run(this.graph);
-    const result$ = result instanceof Observable ? result : of(result);
-    this.graphSubscription.add(
-      result$.subscribe((graph) => {
-        this.graph = graph;
-        this.tick();
-      })
-    );
-    result$
-      .pipe(first((graph) => graph.nodes.length > 0))
-      .subscribe(() => this.applyNodeDimensions());
+    this.graph = this.props.layout.run(this.graph);
+    this.handleDraw();
   }
 
-  private tick() {
+  private handleDraw() {
     // Transposes view options to the node
     const oldNodes: Set<string> = new Set();
 
@@ -458,88 +433,8 @@ export class SunGraph extends React.Component<Props, State> {
     requestAnimationFrame(() => this.redrawLines());
   }
 
-  private applyNodeDimensions(): void {
-    this.nodeElements = document.getElementsByName("nodeElement");
-    if (this.nodeElements && this.nodeElements.length) {
-      this.nodeElements.map((elem: any) => {
-        const nativeElement = elem.nativeElement;
-        const node = this.graph.nodes.find((n) => n.id === nativeElement.id);
-
-        // calculate the height
-        let dims;
-        try {
-          dims = nativeElement.getBBox();
-        } catch (ex) {
-          // Skip drawing if element is not displayed - Firefox would throw an error here
-          return elem;
-        }
-
-        if (this.props.nodeHeight) {
-          node.height =
-            node.height && node.meta.forceDimensions
-              ? node.height
-              : this.props.nodeHeight;
-        } else {
-          node.height =
-            node.height && node.meta.forceDimensions
-              ? node.height
-              : dims.height;
-        }
-
-        if (this.props.nodeWidth) {
-          node.width =
-            node.width && node.meta.forceDimensions
-              ? node.width
-              : this.props.nodeWidth;
-        } else {
-          // calculate the width
-          if (nativeElement.getElementsByTagName("text").length) {
-            let maxTextDims;
-            try {
-              for (const textElem of nativeElement.getElementsByTagName(
-                "text"
-              )) {
-                const currentBBox = textElem.getBBox();
-                if (!maxTextDims) {
-                  maxTextDims = currentBBox;
-                } else {
-                  if (currentBBox.width > maxTextDims.width) {
-                    maxTextDims.width = currentBBox.width;
-                  }
-                  if (currentBBox.height > maxTextDims.height) {
-                    maxTextDims.height = currentBBox.height;
-                  }
-                }
-              }
-            } catch (ex) {
-              // Skip drawing if element is not displayed - Firefox would throw an error here
-              return elem;
-            }
-            node.width =
-              node.width && node.meta.forceDimensions
-                ? node.width
-                : maxTextDims.width + 20;
-          } else {
-            node.width =
-              node.width && node.meta.forceDimensions ? node.width : dims.width;
-          }
-        }
-
-        return elem;
-      });
-    }
-  }
-
   private redrawLines(): void {
-    this.linkElements = document.getElementsByName("linkElement");
-    // if (this.linkElements.length === 0) {
-    //   return;
-    // }
     this.graph.edges.map((linkEl: any) => {
-      // const edge = this.graph.edges.find(
-      //   (lin) => lin.id === linkEl.nativeElement.id
-      // );
-
       if (linkEl) {
         const linkSelection = select(linkEl.nativeElement).select(".line");
         linkSelection
@@ -547,15 +442,6 @@ export class SunGraph extends React.Component<Props, State> {
           // .transition()
           // .ease(ease.easeSinInOut)
           .attr("d", linkEl.line);
-
-        const textPathSelection = select(
-          this.chartElement.nativeElement
-        ).select(`#${linkEl.id}`);
-        textPathSelection
-          .attr("d", linkEl.oldTextPath)
-          // .transition()
-          // .ease(ease.easeSinInOut)
-          .attr("d", linkEl.textPath);
 
         this.updateMidpointOnEdge(linkEl, linkEl.points);
       }
@@ -649,9 +535,10 @@ export class SunGraph extends React.Component<Props, State> {
         return;
       }
       if (
+        newTempTransofrmationMetrix.e >
+          this.dims.width - this.graphDims.width * this.zoomLevel ||
         newTempTransofrmationMetrix.f >
-          this.dims.width - this.graphDims.width ||
-        newTempTransofrmationMetrix.e > this.dims.height - this.graphDims.height
+          this.dims.height - this.graphDims.height * this.zoomLevel
       ) {
         return;
       }
@@ -742,14 +629,8 @@ export class SunGraph extends React.Component<Props, State> {
         (link.source as any).id === node.id
       ) {
         if (this.props.layout && typeof this.props.layout !== "string") {
-          const result = this.props.layout.updateEdge(this.graph, link);
-          const result$ = result instanceof Observable ? result : of(result);
-          this.graphSubscription.add(
-            result$.subscribe((graph) => {
-              this.graph = graph;
-              this.redrawEdge(link);
-            })
-          );
+          this.graph = this.props.layout.updateEdge(this.graph, link);
+          this.redrawEdge(link);
         }
       }
     }
@@ -780,7 +661,7 @@ export class SunGraph extends React.Component<Props, State> {
   private onMouseMove($event: MouseEvent): void {
     this.isMouseMoveCalled = true;
     if (this.isPanning && this.props.panningEnabled) {
-      this.checkEnum(this.props.panningAxis, $event);
+      this.handlePanning(this.props.panningAxis, $event);
     } else if (this.isDragging && this.props.draggingEnabled) {
       this.onDrag($event);
     }
@@ -858,7 +739,7 @@ export class SunGraph extends React.Component<Props, State> {
     this.panTo(node.position.x, node.position.y);
   }
 
-  private checkEnum(key: string, event: MouseEvent) {
+  private handlePanning(key: string, event: MouseEvent) {
     switch (key) {
       case PanningAxis.Horizontal:
         this.pan(event.movementX, 0);
