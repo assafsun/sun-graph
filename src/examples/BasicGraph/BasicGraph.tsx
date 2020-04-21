@@ -2,7 +2,6 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
-import { CustomDagreLayout } from "SunGraph/layouts/customDagreLayout";
 
 import "./BasicGraph.scss";
 
@@ -91,18 +90,14 @@ export class BasicGraphComponent extends React.Component {
   render() {
     return (
       <SunGraph
-        view={[1500, 1500]}
+        view={[1200, 1200]}
         nodes={this.nodes}
         links={this.links}
-        layout={new CustomDagreLayout()}
-        curve={shape.curveLinear}
         panningEnabled={true}
         enableZoom={true}
-        zoomSpeed={0.1}
         draggingEnabled={true}
         enableTrackpadSupport={true}
         autoCenter={true}
-        autoZoom={true}
       ></SunGraph>
     );
   }

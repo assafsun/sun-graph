@@ -85,6 +85,7 @@ export class SunGraph extends React.Component<Props, State> {
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
     zoomChange: (value: number) => {},
+    zoomSpeed: 0.1,
     defsTemplate: () => (
       <svg>
         <marker
