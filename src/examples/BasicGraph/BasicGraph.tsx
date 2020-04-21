@@ -8,7 +8,6 @@ import "./BasicGraph.scss";
 
 export class BasicGraphComponent extends React.Component {
   public nodes: Node[] = [];
-  public defTemplateUI: any;
   public links: Edge[] = [];
   public curve: any = shape.curveLinear;
 
@@ -78,22 +77,6 @@ export class BasicGraphComponent extends React.Component {
       this.links.push(edge);
     }
 
-    this.defTemplateUI = (
-      <svg>
-        <marker
-          id="arrow"
-          viewBox="0 -5 10 10"
-          refX="8"
-          refY="0"
-          markerWidth="4"
-          markerHeight="4"
-          orient="auto"
-        >
-          <path d="M0,-5L10,0L0,5" className="arrow-head" />
-        </marker>
-      </svg>
-    );
-
     this.state = {};
   }
 
@@ -111,7 +94,6 @@ export class BasicGraphComponent extends React.Component {
         view={[1500, 1500]}
         nodes={this.nodes}
         links={this.links}
-        defsTemplate={() => this.defTemplateUI}
         layout={new CustomDagreLayout()}
         curve={shape.curveLinear}
         panningEnabled={true}
@@ -119,6 +101,8 @@ export class BasicGraphComponent extends React.Component {
         zoomSpeed={0.1}
         draggingEnabled={true}
         enableTrackpadSupport={true}
+        autoCenter={true}
+        autoZoom={true}
       ></SunGraph>
     );
   }

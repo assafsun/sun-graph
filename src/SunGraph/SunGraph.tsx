@@ -33,28 +33,30 @@ interface Props {
   view?: [number, number];
   nodes: Node[];
   links: Edge[];
-  layout?: string | Layout | undefined;
+  layout?: Layout;
   curve?: any;
   nodeHeight?: number;
   nodeWidth?: number;
   draggingEnabled?: boolean;
   panningEnabled?: boolean;
-  panningAxis?: PanningAxis;
   enableZoom?: boolean;
   zoomSpeed?: number;
   minZoomLevel?: number;
   maxZoomLevel?: number;
-  autoZoom?: boolean;
   autoCenter?: boolean;
   update$?: Observable<any>;
   center$?: Observable<any>;
   zoomToFit$?: Observable<any>;
   panToNode$?: Observable<any>;
   enableTrackpadSupport?: boolean;
+  autoZoom?: boolean;
   zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   defsTemplate?: () => any;
+
+  //Not tested props
   panOnZoom?: boolean; // TODO - fix state update
+  panningAxis?: PanningAxis;
 }
 
 export class SunGraph extends React.Component<Props, State> {
@@ -68,7 +70,6 @@ export class SunGraph extends React.Component<Props, State> {
   private graph: Graph;
   private graphDims: any = { width: 0, height: 0 };
   private _oldLinks: Edge[] = [];
-  private oldNodes: Set<string> = new Set();
   private transformationMatrix: Matrix = identity();
   private initialTransform: string;
   private isMouseMoveCalled: boolean = false;
@@ -84,6 +85,21 @@ export class SunGraph extends React.Component<Props, State> {
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
     zoomChange: (value: number) => {},
+    defsTemplate: () => (
+      <svg>
+        <marker
+          id="arrow"
+          viewBox="0 -5 10 10"
+          refX="8"
+          refY="0"
+          markerWidth="4"
+          markerHeight="4"
+          orient="auto"
+        >
+          <path d="M0,-5L10,0L0,5" className="arrow-head" />
+        </marker>
+      </svg>
+    ),
   };
 
   constructor(props: Props) {
@@ -317,9 +333,6 @@ export class SunGraph extends React.Component<Props, State> {
   }
 
   private handleDraw() {
-    // Transposes view options to the node
-    const oldNodes: Set<string> = new Set();
-
     this.graph.nodes.map((n) => {
       n.transform = `translate(${n.position.x - n.width / 2 || 0}, ${
         n.position.y - n.height / 2 || 0
@@ -327,14 +340,8 @@ export class SunGraph extends React.Component<Props, State> {
       if (!n.data) {
         n.data = {};
       }
-      oldNodes.add(n.id);
       return n;
     });
-
-    // Prevent animations on new nodes
-    setTimeout(() => {
-      this.oldNodes = oldNodes;
-    }, 500);
 
     // Update the labels to the new positions
     const newLinks = [];
