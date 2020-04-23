@@ -1,12 +1,12 @@
 import React from "react";
-import { BasicGraphComponent } from "./Examples/BasicGraph/BasicGraph";
+import { AppContainerComponent } from "Examples/AppContainer/AppContainer";
 
 import "./App.css";
 
 function App() {
   return (
     <div className="App">
-      <BasicGraphComponent></BasicGraphComponent>
+      <AppContainerComponent></AppContainerComponent>
     </div>
   );
 }

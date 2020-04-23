@@ -59,7 +59,76 @@ interface Props {
   panningAxis?: PanningAxis;
 }
 
-export class SunGraph extends React.Component<Props, State> {
+interface BasicState {
+  initialized: boolean;
+  graphWidth: number;
+  graphHeight: number;
+}
+
+export class SunGraph extends React.Component<Props, BasicState> {
+  constructor(props: Props) {
+    super(props);
+    this.state = { initialized: false, graphHeight: 0, graphWidth: 0 };
+  }
+
+  private graphContainerStyle = {
+    width: this.state ? this.state.graphWidth : 500,
+    height: this.state ? this.state.graphHeight : 500,
+  };
+
+  public render(): React.ReactNode {
+    return (
+      <div id="graphContainer" style={this.graphContainerStyle}>
+        {this.state.initialized && (
+          <SunGraphBase
+            {...this.props}
+            view={[this.state.graphWidth, this.state.graphHeight]}
+          ></SunGraphBase>
+        )}
+      </div>
+    );
+  }
+
+  public componentDidMount(): void {
+    if (this.props.view) {
+      this.setState({
+        initialized: true,
+        graphWidth: this.props.view[0],
+        graphHeight: this.props.view[1],
+      });
+    } else {
+      const graphElement = document.getElementById("graphContainer");
+      if (!graphElement) {
+        this.setState({
+          initialized: true,
+          graphWidth: 0,
+          graphHeight: 0,
+        });
+        return;
+      }
+
+      const parentGraphElement = graphElement.parentElement;
+      if (!parentGraphElement) {
+        this.setState({
+          initialized: true,
+          graphWidth: 0,
+          graphHeight: 0,
+        });
+        return;
+      }
+
+      const parentHeight: number = graphElement.parentElement.clientHeight;
+      const parentWidth: number = graphElement.parentElement.clientWidth;
+      this.setState({
+        initialized: true,
+        graphWidth: parentWidth,
+        graphHeight: parentHeight,
+      });
+    }
+  }
+}
+
+class SunGraphBase extends React.Component<Props, State> {
   private width: number;
   private height: number;
   private subscriptions: Subscription[] = [];
@@ -80,7 +149,7 @@ export class SunGraph extends React.Component<Props, State> {
   };
 
   static defaultProps = {
-    view: [700, 700],
+    view: [500, 500],
     curve: shape.curveLinear,
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
@@ -271,8 +340,13 @@ export class SunGraph extends React.Component<Props, State> {
   }
 
   private createGraph(): void {
-    this.width = this.props.view[0];
-    this.height = this.props.view[1];
+    if (this.props.view) {
+      this.width = this.props.view[0];
+      this.height = this.props.view[1];
+    } else {
+      this.width = 500;
+      this.height = 500;
+    }
 
     this.width = Math.floor(this.width);
     this.height = Math.floor(this.height);
@@ -509,26 +583,24 @@ export class SunGraph extends React.Component<Props, State> {
   private pan(x: number, y: number, ignoreZoomLevel: boolean = false): void {
     const zoomLevel = ignoreZoomLevel ? 1 : this.zoomLevel;
 
-    if (this.props.enableTrackpadSupport || ignoreZoomLevel) {
-      const newTempTransofrmationMetrix = transform(
-        this.transformationMatrix,
-        translate(x / zoomLevel, y / zoomLevel)
-      );
+    const newTempTransofrmationMetrix = transform(
+      this.transformationMatrix,
+      translate(x / zoomLevel, y / zoomLevel)
+    );
 
-      if (
-        newTempTransofrmationMetrix.f < 0 ||
-        newTempTransofrmationMetrix.e < 0
-      ) {
-        return;
-      }
-      if (
-        newTempTransofrmationMetrix.e >
-          this.dims.width - this.graphDims.width * this.zoomLevel ||
-        newTempTransofrmationMetrix.f >
-          this.dims.height - this.graphDims.height * this.zoomLevel
-      ) {
-        return;
-      }
+    if (
+      newTempTransofrmationMetrix.f < 0 ||
+      newTempTransofrmationMetrix.e < 0
+    ) {
+      return;
+    }
+    if (
+      newTempTransofrmationMetrix.e >
+        this.dims.width - this.graphDims.width * this.zoomLevel ||
+      newTempTransofrmationMetrix.f >
+        this.dims.height - this.graphDims.height * this.zoomLevel
+    ) {
+      return;
     }
 
     this.transformationMatrix = transform(

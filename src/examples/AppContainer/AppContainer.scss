@@ -1,0 +1,9 @@
+.appContainer {
+  display: flex;
+  height: 100vh;
+
+  .main {
+    flex: 1;
+    margin-top: 64px;
+  }
+}

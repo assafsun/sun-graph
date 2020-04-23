@@ -90,13 +90,11 @@ export class BasicGraphComponent extends React.Component {
   render() {
     return (
       <SunGraph
-        view={[1200, 1200]}
         nodes={this.nodes}
         links={this.links}
         panningEnabled={true}
         enableZoom={true}
         draggingEnabled={true}
-        enableTrackpadSupport={true}
         autoCenter={true}
       ></SunGraph>
     );
