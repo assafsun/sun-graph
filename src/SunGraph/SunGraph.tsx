@@ -24,6 +24,9 @@ import {
 import "./SunGraph.scss";
 import { CustomDagreLayout } from "./layouts/customDagreLayout";
 
+const DefaultGraphSize: number = 1000;
+const DefaultNodeSize: number = 60;
+
 interface State {
   initialized: boolean;
   transform?: string;
@@ -72,8 +75,8 @@ export class SunGraph extends React.Component<Props, BasicState> {
   }
 
   private graphContainerStyle = {
-    width: this.state ? this.state.graphWidth : 500,
-    height: this.state ? this.state.graphHeight : 500,
+    width: this.state ? this.state.graphWidth : DefaultGraphSize,
+    height: this.state ? this.state.graphHeight : DefaultGraphSize,
   };
 
   public render(): React.ReactNode {
@@ -149,7 +152,7 @@ class SunGraphBase extends React.Component<Props, State> {
   };
 
   static defaultProps = {
-    view: [500, 500],
+    view: [DefaultGraphSize, DefaultGraphSize],
     curve: shape.curveLinear,
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
@@ -226,7 +229,13 @@ class SunGraphBase extends React.Component<Props, State> {
     const nodes = [];
     for (let node of this.graph.nodes) {
       let nodeTemplate = (
-        <rect r="10" width={node.width} height={node.height} fill="green" />
+        <rect
+          rx="40"
+          ry="40"
+          width={node.width}
+          height={node.height}
+          fill="lightblue"
+        />
       );
       if (node.layout) {
         nodeTemplate = (
@@ -253,7 +262,7 @@ class SunGraphBase extends React.Component<Props, State> {
       }
 
       nodes.push(
-        <g key={node.id}>
+        <g key={node.id} width={node.width} height={node.height}>
           <g transform={node.transform}>{nodeTemplate}</g>
         </g>
       );
@@ -344,8 +353,8 @@ class SunGraphBase extends React.Component<Props, State> {
       this.width = this.props.view[0];
       this.height = this.props.view[1];
     } else {
-      this.width = 500;
-      this.height = 500;
+      this.width = DefaultGraphSize;
+      this.height = DefaultGraphSize;
     }
 
     this.width = Math.floor(this.width);
@@ -363,8 +372,10 @@ class SunGraphBase extends React.Component<Props, State> {
       }
 
       if (!n.width || !n.height) {
-        n.width = this.props.nodeWidth ? this.props.nodeWidth : 30;
-        n.height = this.props.nodeHeight ? this.props.nodeHeight : 30;
+        n.width = this.props.nodeWidth ? this.props.nodeWidth : DefaultNodeSize;
+        n.height = this.props.nodeHeight
+          ? this.props.nodeHeight
+          : DefaultNodeSize;
       }
 
       n.position = {

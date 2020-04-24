@@ -17,6 +17,7 @@ const drawerWidth = 240;
 
 export enum DrawerAction {
   GettingStarted = 0,
+  DefaultExample,
   BasicDemo,
 }
 
@@ -45,7 +46,7 @@ export function ClippedDrawerAppBar(props: any) {
     <>
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6">Sun-Graph</Typography>
+          <Typography variant="h6">Sun Graph</Typography>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -70,6 +71,19 @@ export function ClippedDrawerAppBar(props: any) {
                 <InfoIcon />
               </ListItemIcon>
               <ListItemText primary="Getting Started" />
+            </ListItem>
+            <ListItem
+              divider
+              button
+              key="DefaultExample"
+              onClick={() => {
+                props.handleDrawerClick(DrawerAction.DefaultExample);
+              }}
+            >
+              <ListItemIcon>
+                <AccountTreeIcon />
+              </ListItemIcon>
+              <ListItemText primary="Default Example" />
             </ListItem>
             <ListItem
               button

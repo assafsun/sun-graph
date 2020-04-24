@@ -4,6 +4,7 @@ import {
   DrawerAction,
 } from "../ClippedDrawerAppBar/ClippedDrawerAppBar";
 import { BasicGraphComponent } from "portal/BasicGraph/BasicGraph";
+import { DefaultGraph } from "portal/DefaultGraph/DefaultGraph";
 
 import "./AppContainer.scss";
 import { GettingStarted } from "../GettingStarted/GettingStarted";
@@ -35,6 +36,9 @@ export class AppContainerComponent extends React.Component<{}, State> {
     switch (this.state.drawerAction) {
       case DrawerAction.BasicDemo: {
         return <BasicGraphComponent></BasicGraphComponent>;
+      }
+      case DrawerAction.DefaultExample: {
+        return <DefaultGraph></DefaultGraph>;
       }
       case DrawerAction.GettingStarted:
       default: {

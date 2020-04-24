@@ -18,8 +18,8 @@ export interface NodePosition {
 export interface Node {
   id: string;
   layout?: (node: Node) => any;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   label?: string;
   transform?: string;
   data?: any;
