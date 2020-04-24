@@ -17,18 +17,13 @@ export interface NodePosition {
 
 export interface Node {
   id: string;
-  position?: NodePosition;
+  layout?: (node: Node) => any;
   width: number;
   height: number;
-  transform?: string;
   label?: string;
+  transform?: string;
   data?: any;
-  meta?: any;
-  layout?: (node: Node) => any;
-}
-
-export interface ClusterNode extends Node {
-  childNodeIds?: string[];
+  position?: NodePosition;
 }
 
 export interface Edge {

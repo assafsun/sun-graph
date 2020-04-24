@@ -3,22 +3,24 @@ import {
   AppBar,
   Toolbar,
   Typography,
-  makeStyles,
-  CssBaseline,
   Drawer,
   List,
   ListItemIcon,
   ListItem,
   ListItemText,
+  makeStyles,
 } from "@material-ui/core";
 import InfoIcon from "@material-ui/icons/Info";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
-import { BasicGraphComponent } from "Examples/BasicGraph/BasicGraph";
-
-import "./AppContainer.scss";
 
 const drawerWidth = 240;
-const useStyles = makeStyles((theme) => ({
+
+export enum DrawerAction {
+  GettingStarted = 0,
+  BasicDemo,
+}
+
+export const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
   },
@@ -37,19 +39,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-enum DrawerAction {
-  Introduction = 0,
-  BasicDemo,
-}
-
-function ClippedDrawerAppBar(props: any) {
+export function ClippedDrawerAppBar(props: any) {
   const classes = useStyles();
   return (
     <>
-      <CssBaseline />
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
-          <Typography variant="h6">Sun Graph</Typography>
+          <Typography variant="h6">Sun-Graph</Typography>
         </Toolbar>
       </AppBar>
       <Drawer
@@ -65,15 +61,15 @@ function ClippedDrawerAppBar(props: any) {
             <ListItem
               divider
               button
-              key="Introduction"
+              key="GettingStarted"
               onClick={() => {
-                props.handleDrawerClick(DrawerAction.Introduction);
+                props.handleDrawerClick(DrawerAction.GettingStarted);
               }}
             >
               <ListItemIcon>
                 <InfoIcon />
               </ListItemIcon>
-              <ListItemText primary="Introduction" />
+              <ListItemText primary="Getting Started" />
             </ListItem>
             <ListItem
               button
@@ -92,44 +88,4 @@ function ClippedDrawerAppBar(props: any) {
       </Drawer>
     </>
   );
-}
-
-interface AppState {
-  drawerAction: DrawerAction;
-}
-
-export class AppContainerComponent extends React.Component<{}, AppState> {
-  constructor(props: any) {
-    super(props);
-    this.state = { drawerAction: DrawerAction.Introduction };
-  }
-
-  render() {
-    return (
-      <div className="appContainer">
-        <ClippedDrawerAppBar
-          handleDrawerClick={(drawerAction: DrawerAction) =>
-            this.handleDrawerClick(drawerAction)
-          }
-        ></ClippedDrawerAppBar>
-        <div className="main">{this.loadDrawerAction()}</div>
-      </div>
-    );
-  }
-
-  public loadDrawerAction() {
-    switch (this.state.drawerAction) {
-      case DrawerAction.BasicDemo: {
-        return <BasicGraphComponent></BasicGraphComponent>;
-      }
-      case DrawerAction.Introduction:
-      default: {
-        return <div></div>;
-      }
-    }
-  }
-
-  public handleDrawerClick(drawerAction: DrawerAction): void {
-    this.setState({ drawerAction: drawerAction });
-  }
 }

@@ -1,5 +1,5 @@
 import React from "react";
-import { AppContainerComponent } from "Examples/AppContainer/AppContainer";
+import { AppContainerComponent } from "portal/AppContainer/AppContainer";
 
 import "./App.css";
 

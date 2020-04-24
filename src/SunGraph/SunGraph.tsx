@@ -358,20 +358,15 @@ class SunGraphBase extends React.Component<Props, State> {
     });
 
     const initializeNode = (n: Node) => {
-      if (!n.meta) {
-        n.meta = {};
-      }
       if (!n.id) {
         n.id = id();
       }
+
       if (!n.width || !n.height) {
         n.width = this.props.nodeWidth ? this.props.nodeWidth : 30;
         n.height = this.props.nodeHeight ? this.props.nodeHeight : 30;
-        n.meta.forceDimensions = false;
-      } else {
-        n.meta.forceDimensions =
-          n.meta.forceDimensions === undefined ? true : n.meta.forceDimensions;
       }
+
       n.position = {
         x: 0,
         y: 0,
