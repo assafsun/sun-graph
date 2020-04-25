@@ -10,9 +10,11 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 
+import "./GettingStarted.scss";
+
 const useStyles = makeStyles({
   table: {
-    width: 1200,
+    width: 1250,
     marginBottom: 60,
   },
 });
@@ -36,6 +38,16 @@ const rows = [
     "view",
     "Optional",
     "Array of two values for the graph width and height, the default value of the graph view is the size of the its parent container"
+  ),
+  createData(
+    "defaultNodeDisplay",
+    "Optional",
+    "Callback function which should return the node apperance, by default, the return node should return a proper HTML object. The node class can override this function for specipic node display"
+  ),
+  createData(
+    "isNodeDisplayHTML",
+    "Optional",
+    "If set to true, the expected return node display is a proper HTML element otherwise it will expect a proper SVG element. default value is true"
   ),
   createData(
     "layout",
@@ -78,7 +90,7 @@ const rows = [
     "Minimum zoom level, the value should between the range of 0 and 4"
   ),
   createData(
-    "minZoomLevel",
+    "maxZoomLevel",
     "Optional",
     "Maximum zoom level, the value should between the range of 0 and 4"
   ),
@@ -127,7 +139,7 @@ export function GettingStarted() {
           paragraph
           style={{ fontSize: 20, fontWeight: 600 }}
         >
-          ✳ Import Sun Graph to your project
+          Import Sun Graph to your project
         </Typography>
         <Typography paragraph style={{ width: 1200 }}>
           1. Install sun-graph package by running
@@ -143,7 +155,7 @@ export function GettingStarted() {
           paragraph
           style={{ fontSize: 20, fontWeight: 600 }}
         >
-          ✳ Build your graph data
+          Build your graph data
         </Typography>
         <Typography paragraph style={{ width: 1200 }}>
           The minimum input that SunGraph needs in order to load the graph is

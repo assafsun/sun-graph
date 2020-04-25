@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   AppBar,
   Toolbar,
@@ -16,10 +16,28 @@ import AccountTreeIcon from "@material-ui/icons/AccountTree";
 const drawerWidth = 240;
 
 export enum DrawerAction {
-  GettingStarted = 0,
-  DefaultExample,
-  BasicDemo,
+  GettingStarted = "GettingStarted",
+  DefaultExample = "DefaultExample",
+  BasicDemo = "BasicDemo",
 }
+
+const DrawerActionsItems = [
+  {
+    action: DrawerAction.GettingStarted,
+    text: "Getting Started",
+    icon: InfoIcon,
+  },
+  {
+    action: DrawerAction.DefaultExample,
+    text: "Default Example",
+    icon: AccountTreeIcon,
+  },
+  {
+    action: DrawerAction.BasicDemo,
+    text: "Basic Demo",
+    icon: AccountTreeIcon,
+  },
+];
 
 export const useStyles = makeStyles((theme) => ({
   root: {
@@ -42,6 +60,31 @@ export const useStyles = makeStyles((theme) => ({
 
 export function ClippedDrawerAppBar(props: any) {
   const classes = useStyles();
+  const [selectedDrawerAction, setSelectedDrawerAction] = useState(
+    DrawerAction.GettingStarted
+  );
+
+  const listItems = DrawerActionsItems.map((item) => {
+    const IconName = item.icon;
+    return (
+      <ListItem
+        divider
+        button
+        selected={selectedDrawerAction === item.action}
+        key={item.action}
+        onClick={() => {
+          setSelectedDrawerAction(item.action);
+          props.handleDrawerClick(item.action);
+        }}
+      >
+        <ListItemIcon>
+          <IconName />
+        </ListItemIcon>
+        <ListItemText primary={item.text} />
+      </ListItem>
+    );
+  });
+
   return (
     <>
       <AppBar position="fixed" className={classes.appBar}>
@@ -58,46 +101,7 @@ export function ClippedDrawerAppBar(props: any) {
       >
         <Toolbar />
         <div className={classes.drawerContainer}>
-          <List>
-            <ListItem
-              divider
-              button
-              key="GettingStarted"
-              onClick={() => {
-                props.handleDrawerClick(DrawerAction.GettingStarted);
-              }}
-            >
-              <ListItemIcon>
-                <InfoIcon />
-              </ListItemIcon>
-              <ListItemText primary="Getting Started" />
-            </ListItem>
-            <ListItem
-              divider
-              button
-              key="DefaultExample"
-              onClick={() => {
-                props.handleDrawerClick(DrawerAction.DefaultExample);
-              }}
-            >
-              <ListItemIcon>
-                <AccountTreeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Default Example" />
-            </ListItem>
-            <ListItem
-              button
-              key="BasicDemo"
-              onClick={() => {
-                props.handleDrawerClick(DrawerAction.BasicDemo);
-              }}
-            >
-              <ListItemIcon>
-                <AccountTreeIcon />
-              </ListItemIcon>
-              <ListItemText primary="Basic Demo" />
-            </ListItem>
-          </List>
+          <List>{listItems}</List>
         </div>
       </Drawer>
     </>

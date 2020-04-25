@@ -17,7 +17,7 @@ export interface NodePosition {
 
 export interface Node {
   id: string;
-  layout?: (node: Node) => any;
+  display?: (node: Node) => React.ReactNode;
   width?: number;
   height?: number;
   label?: string;

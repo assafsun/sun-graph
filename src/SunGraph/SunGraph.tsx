@@ -37,6 +37,8 @@ interface Props {
   nodes: Node[];
   links: Edge[];
   layout?: Layout;
+  defaultNodeDisplay?: (node: Node) => React.ReactNode;
+  isNodeDisplayHTML?: boolean;
   curve?: any;
   nodeHeight?: number;
   nodeWidth?: number;
@@ -154,6 +156,7 @@ class SunGraphBase extends React.Component<Props, State> {
   static defaultProps = {
     view: [DefaultGraphSize, DefaultGraphSize],
     curve: shape.curveLinear,
+    isNodeDisplayHTML: true,
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
     zoomChange: (value: number) => {},
@@ -228,7 +231,7 @@ class SunGraphBase extends React.Component<Props, State> {
   public render(): React.ReactNode {
     const nodes = [];
     for (let node of this.graph.nodes) {
-      let nodeTemplate = (
+      let nodeTemplate: any = (
         <rect
           rx="40"
           ry="40"
@@ -237,7 +240,11 @@ class SunGraphBase extends React.Component<Props, State> {
           fill="lightblue"
         />
       );
-      if (node.layout) {
+
+      if (
+        this.props.isNodeDisplayHTML &&
+        (node.display || this.props.defaultNodeDisplay)
+      ) {
         nodeTemplate = (
           <svg>
             <g
@@ -254,15 +261,34 @@ class SunGraphBase extends React.Component<Props, State> {
                 height={node.height}
                 xmlns="http://www.w3.org/2000/xhtml"
               >
-                {node.layout(node)}
+                {this.props.defaultNodeDisplay
+                  ? this.props.defaultNodeDisplay(node)
+                  : node.display(node)}
               </foreignObject>
             </g>
           </svg>
         );
       }
 
+      if (
+        !this.props.isNodeDisplayHTML &&
+        (node.display || this.props.defaultNodeDisplay)
+      ) {
+        nodeTemplate = this.props.defaultNodeDisplay
+          ? this.props.defaultNodeDisplay(node)
+          : node.display(node);
+      }
+
       nodes.push(
-        <g key={node.id} width={node.width} height={node.height}>
+        <g
+          className="node"
+          key={node.id}
+          width={node.width}
+          height={node.height}
+          onMouseDown={(e: any) => {
+            this.onNodeMouseDown(e, node);
+          }}
+        >
           <g transform={node.transform}>{nodeTemplate}</g>
         </g>
       );

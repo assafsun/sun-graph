@@ -18,7 +18,6 @@ export class BasicGraphComponent extends React.Component {
         label: "Node 1",
         width: 100,
         height: 100,
-        layout: (node: Node) => this.nodeUI(node),
       },
       {
         id: "2",
@@ -28,7 +27,6 @@ export class BasicGraphComponent extends React.Component {
         },
         width: 100,
         height: 100,
-        layout: (node: Node) => this.nodeUI(node),
       },
       {
         id: "3",
@@ -38,7 +36,6 @@ export class BasicGraphComponent extends React.Component {
         },
         width: 100,
         height: 100,
-        layout: (node) => this.nodeUI(node),
       },
       {
         id: "4",
@@ -48,7 +45,6 @@ export class BasicGraphComponent extends React.Component {
         },
         width: 100,
         height: 100,
-        layout: (node) => this.nodeUI(node),
       },
       {
         id: "5",
@@ -58,7 +54,6 @@ export class BasicGraphComponent extends React.Component {
         },
         width: 100,
         height: 100,
-        layout: (node) => this.nodeUI(node),
       },
     ];
 
@@ -96,6 +91,7 @@ export class BasicGraphComponent extends React.Component {
         enableZoom={true}
         draggingEnabled={true}
         autoCenter={true}
+        defaultNodeDisplay={(node) => this.nodeUI(node)}
       ></SunGraph>
     );
   }
