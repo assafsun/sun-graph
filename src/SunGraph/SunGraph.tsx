@@ -74,14 +74,14 @@ export class SunGraph extends React.Component<Props, BasicState> {
     this.state = { initialized: false, graphHeight: 0, graphWidth: 0 };
   }
 
-  private graphContainerStyle = {
-    width: this.state ? this.state.graphWidth : DefaultGraphSize,
-    height: this.state ? this.state.graphHeight : DefaultGraphSize,
-  };
-
   public render(): React.ReactNode {
+    const graphContainerStyle = {
+      width: this.state ? this.state.graphWidth : DefaultGraphSize,
+      height: this.state ? this.state.graphHeight : DefaultGraphSize,
+    };
+
     return (
-      <div id="graphContainer" style={this.graphContainerStyle}>
+      <div id="graphContainer" style={graphContainerStyle}>
         {this.state.initialized && (
           <SunGraphBase
             {...this.props}
@@ -300,6 +300,7 @@ class SunGraphBase extends React.Component<Props, State> {
             this.onMouseUp(e);
           }}
           onWheel={(e: any) => {
+            e.preventDefault();
             e.stopPropagation();
             const delta: number = Math.max(
               -1,

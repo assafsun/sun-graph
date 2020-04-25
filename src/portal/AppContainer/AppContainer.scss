@@ -6,9 +6,21 @@
     background-color: white;
     flex: 1;
     margin-top: 64px;
+
+    &.overflowHide {
+      overflow: hidden;
+    }
   }
 }
 
+.buildingGraph {
+  margin-left: 48px;
+}
+
 .gettingStartedContent {
+  margin: 12px 0 0 12px;
+}
+
+.graphDescription {
   margin: 12px 0 0 12px;
 }
