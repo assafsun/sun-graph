@@ -51,7 +51,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 variant="h4"
                 style={{ fontSize: 24, fontWeight: 600 }}
               >
-                Basic Graph
+                ❂ Basic Graph
               </Typography>
               <Typography paragraph style={{ width: 1200 }}>
                 The following graph display the basic graph that sun graph
@@ -81,7 +81,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 variant="h4"
                 style={{ fontSize: 24, fontWeight: 600 }}
               >
-                Advanced Graph
+                ❂ Advanced Graph
               </Typography>
               <Typography paragraph style={{ width: 1200 }}>
                 The following graph display more advanced graph which contains
@@ -114,7 +114,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 variant="h4"
                 style={{ fontSize: 24, fontWeight: 600 }}
               >
-                Default Graph
+                ❂ Default Graph
               </Typography>
               <Typography paragraph style={{ width: 1200 }}>
                 The following graph display the default graph that sun graph

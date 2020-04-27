@@ -34,10 +34,5 @@ export interface Edge {
   data?: any;
   points?: any;
   line?: string;
-  textTransform?: string;
-  textAngle?: number;
-  oldLine?: any;
-  oldTextPath?: string;
-  textPath?: string;
   midPoint?: NodePosition;
 }
