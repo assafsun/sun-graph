@@ -1,6 +1,5 @@
 import React from "react";
 
-import { select } from "d3-selection";
 import * as shape from "d3-shape";
 import { Observable, Subscription } from "rxjs";
 import {
@@ -143,7 +142,6 @@ class SunGraphBase extends React.Component<Props, State> {
   private draggingNode: Node;
   private graph: Graph;
   private graphDims: any = { width: 0, height: 0 };
-  private _oldLinks: Edge[] = [];
   private transformationMatrix: Matrix = identity();
   private initialTransform: string;
   private isMouseMoveCalled: boolean = false;
@@ -448,43 +446,10 @@ class SunGraphBase extends React.Component<Props, State> {
     for (const edgeLabelId in this.graph.edgeLabels) {
       const edgeLabel = this.graph.edgeLabels[edgeLabelId];
 
-      const normKey = edgeLabelId.replace(/[^\w-]*/g, "");
-
-      const isMultigraph =
-        this.props.layout &&
-        typeof this.props.layout !== "string" &&
-        this.props.layout.settings &&
-        this.props.layout.settings.multigraph;
-
-      let oldLink = isMultigraph
-        ? this._oldLinks.find(
-            (ol) => `${ol.source}${ol.target}${ol.id}` === normKey
-          )
-        : this._oldLinks.find((ol) => `${ol.source}${ol.target}` === normKey);
-
-      const linkFromGraph = isMultigraph
-        ? this.graph.edges.find(
-            (nl) => `${nl.source}${nl.target}${nl.id}` === normKey
-          )
-        : this.graph.edges.find((nl) => `${nl.source}${nl.target}` === normKey);
-
-      if (!oldLink) {
-        oldLink = linkFromGraph || edgeLabel;
-      } else if (
-        oldLink.data &&
-        linkFromGraph &&
-        linkFromGraph.data &&
-        JSON.stringify(oldLink.data) !== JSON.stringify(linkFromGraph.data)
-      ) {
-        oldLink.data = linkFromGraph.data;
-      }
-
-      oldLink.oldLine = oldLink.line;
-
       const points = edgeLabel.points;
       const line = this.generateLine(points);
 
-      const newLink = Object.assign({}, oldLink);
+      const newLink = Object.assign({}, edgeLabel);
       newLink.line = line;
       newLink.points = points;
 
@@ -498,24 +463,11 @@ class SunGraphBase extends React.Component<Props, State> {
       }
 
       newLink.textAngle = 0;
-      if (!newLink.oldLine) {
-        newLink.oldLine = newLink.line;
-      }
-
       this.calcDominantBaseline(newLink);
       newLinks.push(newLink);
     }
 
     this.graph.edges = newLinks;
-
-    if (this.graph.edges) {
-      this._oldLinks = this.graph.edges.map((l) => {
-        const newL = Object.assign({}, l);
-        newL.oldLine = l.line;
-        return newL;
-      });
-    }
-
     if (this.graph.nodes && this.graph.nodes.length) {
       this.graphDims.width = Math.max(
         ...this.graph.nodes.map((n) => n.position.x + n.width)
@@ -532,27 +484,11 @@ class SunGraphBase extends React.Component<Props, State> {
     if (this.props.autoCenter) {
       this.center();
     }
-
-    requestAnimationFrame(() => this.redrawLines());
-  }
-
-  private redrawLines(): void {
-    this.graph.edges.map((linkEl: any) => {
-      if (linkEl) {
-        const linkSelection = select(linkEl.nativeElement).select(".line");
-        linkSelection.attr("d", linkEl.oldLine).attr("d", linkEl.line);
-
-        this.updateMidpointOnEdge(linkEl, linkEl.points);
-      }
-
-      return linkEl;
-    });
   }
 
   private calcDominantBaseline(link: any): void {
     const firstPoint = link.points[0];
     const lastPoint = link.points[link.points.length - 1];
-    link.oldTextPath = link.textPath;
 
     if (lastPoint.x < firstPoint.x) {
       link.dominantBaseline = "text-before-edge";
@@ -726,14 +662,12 @@ class SunGraphBase extends React.Component<Props, State> {
       }
     }
 
-    this.redrawLines();
     this.forceUpdate();
   }
 
   private redrawEdge(edge: Edge) {
     const line = this.generateLine(edge.points);
     this.calcDominantBaseline(edge);
-    edge.oldLine = edge.line;
     edge.line = line;
   }
 
