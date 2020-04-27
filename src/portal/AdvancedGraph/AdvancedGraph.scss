@@ -1,0 +1,28 @@
+.container {
+  height: 96px;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid black;
+  align-items: center;
+  border-radius: 25px;
+  .title {
+    margin-top: 10px;
+  }
+}
+
+.singleNodeContainerOption1 {
+  height: 50px;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  background-color: #548d96;
+}
+
+.singleNodeContainerOption2 {
+  height: 75px;
+  width: 75px;
+  display: flex;
+  flex-direction: column;
+  background-color: #7aafb1;
+}

@@ -3,9 +3,10 @@ import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
 
-import "./BasicGraph.scss";
+import "./AdvancedGraph.scss";
+import { CustomLayout } from "./customLayout";
 
-export class BasicGraphComponent extends React.Component {
+export class AdvancedGraphComponent extends React.Component {
   public nodes: Node[] = [];
   public links: Edge[] = [];
   public curve: any = shape.curveLinear;
@@ -34,8 +35,9 @@ export class BasicGraphComponent extends React.Component {
         data: {
           sourceNode: "1",
         },
-        width: 100,
-        height: 100,
+        width: 50,
+        height: 50,
+        display: (node) => this.singleNodeUIOption1(node),
       },
       {
         id: "4",
@@ -51,6 +53,34 @@ export class BasicGraphComponent extends React.Component {
         label: "Node 5",
         data: {
           sourceNode: "4",
+        },
+        width: 75,
+        height: 75,
+        display: (node) => this.singleNodeUIOption2(node),
+      },
+      {
+        id: "6",
+        label: "Node 6",
+        data: {
+          sourceNode: "5",
+        },
+        width: 100,
+        height: 100,
+      },
+      {
+        id: "7",
+        label: "Node 7",
+        data: {
+          sourceNode: "5",
+        },
+        width: 100,
+        height: 100,
+      },
+      {
+        id: "8",
+        label: "Node 8",
+        data: {
+          sourceNode: "5",
         },
         width: 100,
         height: 100,
@@ -82,16 +112,27 @@ export class BasicGraphComponent extends React.Component {
     );
   }
 
+  public singleNodeUIOption1(node: Node) {
+    return <div className="singleNodeContainerOption1"></div>;
+  }
+
+  public singleNodeUIOption2(node: Node) {
+    return <div className="singleNodeContainerOption2"></div>;
+  }
+
   render() {
     return (
       <SunGraph
         nodes={this.nodes}
         links={this.links}
+        curve={shape.curveBundle.beta(1)}
+        layout={new CustomLayout()}
         panningEnabled={true}
         enableZoom={true}
         draggingEnabled={true}
         autoCenter={true}
         defaultNodeDisplay={(node) => this.basicNodeUI(node)}
+        clickHandler={() => alert("Graph was clicked")}
       ></SunGraph>
     );
   }

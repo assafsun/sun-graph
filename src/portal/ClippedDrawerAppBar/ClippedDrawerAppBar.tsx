@@ -17,8 +17,9 @@ const drawerWidth = 240;
 
 export enum DrawerAction {
   GettingStarted = "GettingStarted",
-  DefaultExample = "DefaultExample",
-  BasicDemo = "BasicDemo",
+  Default = "Deafult",
+  Basic = "BasicDemo",
+  Advanced = "Advanced",
 }
 
 const DrawerActionsItems = [
@@ -28,13 +29,18 @@ const DrawerActionsItems = [
     icon: InfoIcon,
   },
   {
-    action: DrawerAction.DefaultExample,
-    text: "Default Example",
+    action: DrawerAction.Default,
+    text: "Default Graph",
     icon: AccountTreeIcon,
   },
   {
-    action: DrawerAction.BasicDemo,
-    text: "Basic Demo",
+    action: DrawerAction.Basic,
+    text: "Basic Graph",
+    icon: AccountTreeIcon,
+  },
+  {
+    action: DrawerAction.Advanced,
+    text: "Advanced Graph",
     icon: AccountTreeIcon,
   },
 ];
@@ -45,6 +51,8 @@ export const useStyles = makeStyles((theme) => ({
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
+    backgroundColor: "#354356",
+    color: "#C3DBE3",
   },
   drawer: {
     width: drawerWidth,

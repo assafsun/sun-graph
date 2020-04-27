@@ -19,15 +19,15 @@ const useStyles = makeStyles({
   },
 });
 
-function createData(name: any, isRequired: any, Description: any) {
-  return { name, isRequired, Description };
+function createData(name: any, isRequired: any, description: any) {
+  return { name, isRequired, description };
 }
 
 const rows = [
   createData(
     "nodes",
     "Required",
-    "The nodes that are part of the graph, each node has its properties as defined in the Node Class"
+    "The nodes that are part of the graph, each node has its properties as defined in the Node class"
   ),
   createData(
     "links",
@@ -87,12 +87,12 @@ const rows = [
   createData(
     "minZoomLevel",
     "Optional",
-    "Minimum zoom level, the value should between the range of 0 and 4"
+    "Minimum zoom level, the value should be between the range of 0 and 4"
   ),
   createData(
     "maxZoomLevel",
     "Optional",
-    "Maximum zoom level, the value should between the range of 0 and 4"
+    "Maximum zoom level, the value should be between the range of 0 and 4"
   ),
   createData(
     "autoCenter",
@@ -201,7 +201,7 @@ export function GettingStarted() {
                   {row.name}
                 </TableCell>
                 <TableCell align="left">{row.isRequired}</TableCell>
-                <TableCell align="left">{row.Description}</TableCell>
+                <TableCell align="left">{row.description}</TableCell>
               </TableRow>
             ))}
           </TableBody>

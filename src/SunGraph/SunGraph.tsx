@@ -237,7 +237,7 @@ class SunGraphBase extends React.Component<Props, State> {
           ry="40"
           width={node.width}
           height={node.height}
-          fill="lightblue"
+          fill="#C3DBE3"
         />
       );
 
@@ -261,9 +261,9 @@ class SunGraphBase extends React.Component<Props, State> {
                 height={node.height}
                 xmlns="http://www.w3.org/2000/xhtml"
               >
-                {this.props.defaultNodeDisplay
-                  ? this.props.defaultNodeDisplay(node)
-                  : node.display(node)}
+                {node.display
+                  ? node.display(node)
+                  : this.props.defaultNodeDisplay(node)}
               </foreignObject>
             </g>
           </svg>
