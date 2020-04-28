@@ -1,4 +1,4 @@
-![sunGraph](https://user-images.githubusercontent.com/33118325/79642814-5cd25b00-81a8-11ea-959d-2ec638336294.jpg)
+![sunGraph](https://user-images.githubusercontent.com/33118325/80518993-f3183500-898f-11ea-895e-129903b66b9e.jpg)
 
 [![MIT license](http://img.shields.io/badge/license-MIT-brightgreen.svg)](http://opensource.org/licenses/MIT)
 [![npm version](http://img.shields.io/npm/v/sun-graph.svg?style=flat)](https://www.npmjs.com/package/sun-graph "View this project on npm")
