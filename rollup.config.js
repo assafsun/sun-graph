@@ -6,7 +6,7 @@ import { uglify } from "rollup-plugin-uglify";
 import pkg from "./package.json";
 
 export default {
-  input: "src/GraphComponent/react-graph.tsx",
+  input: "src/SunGraph/SunGraph.tsx",
   output: [
     {
       file: pkg.main,
