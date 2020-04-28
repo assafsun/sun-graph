@@ -7,23 +7,27 @@
 Inspired by swimlane/ngx-graph, 'sun graph' is a react component for creating beautiful graph visualization.<br>
 'sun graph' will help you to build beautiful graphs in a simple way and to create your own custom graph shapes with your data.
 
+### Status
+This project is under development so it's not taking any pull requests.
+
 ### Installation
 
 1. Install sun-graph package by running the following command: <br>
-```yarn add sun-graph``` or ```npm install sun-graph```
+``yarn add sun-graph``` or ```npm install sun-graph``
 
 2. Import SunGraph component into your react component from sun-graph.<br>
-```import { SunGraph } from "sun-graph";```
+``import { SunGraph } from "sun-graph";``
 
 ### Type Script Definitions
 
-1. Graph helper classes should be imported from graph.model
-```import { Node, Edge } from "sun-graph/graph.model";```
+1. Graph helper classes should be imported from graph.model<br>
+``import { Node, Edge } from "sun-graph/graph.model";``
 
 2. Layout class should be imported from layout.model
-```import { Layout } from "sun-graph/layout.model"'```
+``import { Layout } from "sun-graph/layout.model"'``
 
 ### Documentation & Demo Site
+Check out the demo site at https://assafsun.github.io/sun-graph/
 
 ### Run the project for the demo site
 Run "yarn install" and after that "yarn start"
