@@ -36,8 +36,8 @@ interface Props {
   nodes: Node[];
   links: Edge[];
   layout?: Layout;
-  defaultNodeDisplay?: (node: Node) => React.ReactNode;
-  isNodeDisplayHTML?: boolean;
+  defaultNodeTemplate?: (node: Node) => React.ReactNode;
+  isNodeTemplateHTML?: boolean;
   curve?: any;
   nodeHeight?: number;
   nodeWidth?: number;
@@ -154,7 +154,7 @@ class SunGraphBase extends React.Component<Props, State> {
   static defaultProps = {
     view: [DefaultGraphSize, DefaultGraphSize],
     curve: shape.curveLinear,
-    isNodeDisplayHTML: true,
+    isNodeTemplateHTML: true,
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
     zoomChange: (value: number) => {},
@@ -240,8 +240,8 @@ class SunGraphBase extends React.Component<Props, State> {
       );
 
       if (
-        this.props.isNodeDisplayHTML &&
-        (node.display || this.props.defaultNodeDisplay)
+        this.props.isNodeTemplateHTML &&
+        (node.template || this.props.defaultNodeTemplate)
       ) {
         nodeTemplate = (
           <svg>
@@ -259,9 +259,9 @@ class SunGraphBase extends React.Component<Props, State> {
                 height={node.height}
                 xmlns="http://www.w3.org/2000/xhtml"
               >
-                {node.display
-                  ? node.display(node)
-                  : this.props.defaultNodeDisplay(node)}
+                {node.template
+                  ? node.template(node)
+                  : this.props.defaultNodeTemplate(node)}
               </foreignObject>
             </g>
           </svg>
@@ -269,12 +269,12 @@ class SunGraphBase extends React.Component<Props, State> {
       }
 
       if (
-        !this.props.isNodeDisplayHTML &&
-        (node.display || this.props.defaultNodeDisplay)
+        !this.props.isNodeTemplateHTML &&
+        (node.template || this.props.defaultNodeTemplate)
       ) {
-        nodeTemplate = this.props.defaultNodeDisplay
-          ? this.props.defaultNodeDisplay(node)
-          : node.display(node);
+        nodeTemplate = this.props.defaultNodeTemplate
+          ? this.props.defaultNodeTemplate(node)
+          : node.template(node);
       }
 
       nodes.push(

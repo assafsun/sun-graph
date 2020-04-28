@@ -2,14 +2,14 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
+import { CustomLayout } from "./customLayout";
 
 import "./AdvancedGraph.scss";
-import { CustomLayout } from "./customLayout";
 
 export class AdvancedGraphComponent extends React.Component {
   public nodes: Node[] = [];
   public links: Edge[] = [];
-  public curve: any = shape.curveLinear;
+  public curve: any = shape.curveBundle.beta(1);
 
   constructor(props: any) {
     super(props);
@@ -37,7 +37,7 @@ export class AdvancedGraphComponent extends React.Component {
         },
         width: 50,
         height: 50,
-        display: (node) => this.singleNodeUIOption1(node),
+        template: (node) => this.singleNodeUIOption1(node),
       },
       {
         id: "4",
@@ -56,7 +56,7 @@ export class AdvancedGraphComponent extends React.Component {
         },
         width: 75,
         height: 75,
-        display: (node) => this.singleNodeUIOption2(node),
+        template: (node) => this.singleNodeUIOption2(node),
       },
       {
         id: "6",
@@ -95,7 +95,6 @@ export class AdvancedGraphComponent extends React.Component {
       const edge: Edge = {
         source: node.data.sourceNode,
         target: node.id,
-        label: "",
       };
 
       this.links.push(edge);
@@ -104,7 +103,7 @@ export class AdvancedGraphComponent extends React.Component {
     this.state = {};
   }
 
-  public basicNodeUI(node: Node) {
+  public defaultNodeUI(node: Node) {
     return (
       <div className="container">
         <label className="title">{node.label}</label>
@@ -125,13 +124,13 @@ export class AdvancedGraphComponent extends React.Component {
       <SunGraph
         nodes={this.nodes}
         links={this.links}
-        curve={shape.curveBundle.beta(1)}
+        curve={this.curve}
         layout={new CustomLayout()}
         panningEnabled={true}
         enableZoom={true}
         draggingEnabled={true}
         autoCenter={true}
-        defaultNodeDisplay={(node) => this.basicNodeUI(node)}
+        defaultNodeTemplate={(node) => this.defaultNodeUI(node)}
         clickHandler={() => alert("Graph was clicked")}
       ></SunGraph>
     );

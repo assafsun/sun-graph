@@ -94,7 +94,7 @@ export class CustomDagreLayout implements Layout {
       [rankAxis]:
         targetNode.position[rankAxis] +
         dir *
-          ((rankDimension === "height" ? sourceNode.height : sourceNode.width) /
+          ((rankDimension === "height" ? targetNode.height : targetNode.width) /
             2),
     };
     // generate new points

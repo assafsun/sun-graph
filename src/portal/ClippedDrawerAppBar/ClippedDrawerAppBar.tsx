@@ -18,7 +18,7 @@ const drawerWidth = 240;
 export enum DrawerAction {
   GettingStarted = "GettingStarted",
   Default = "Deafult",
-  Basic = "BasicDemo",
+  Basic = "Basic",
   Advanced = "Advanced",
 }
 

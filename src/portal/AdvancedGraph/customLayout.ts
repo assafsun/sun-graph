@@ -34,7 +34,7 @@ export interface DagreSettings {
 
 export class CustomLayout implements Layout {
   defaultSettings: DagreSettings = {
-    orientation: Orientation.TOP_TO_BOTTOM,
+    orientation: Orientation.LEFT_TO_RIGHT,
     marginX: 20,
     marginY: 20,
     edgePadding: 100,
@@ -66,6 +66,10 @@ export class CustomLayout implements Layout {
       node.height = dagreNode.height;
     }
 
+    for (const edge of graph.edges) {
+      this.updateEdge(graph, edge);
+    }
+
     return graph;
   }
 
@@ -78,6 +82,7 @@ export class CustomLayout implements Layout {
         : "x";
     const orderAxis: "x" | "y" = rankAxis === "y" ? "x" : "y";
     const rankDimension = rankAxis === "y" ? "height" : "width";
+
     // determine new arrow position
     const dir =
       sourceNode.position[rankAxis] <= targetNode.position[rankAxis] ? -1 : 1;
@@ -89,14 +94,16 @@ export class CustomLayout implements Layout {
           ((rankDimension === "height" ? sourceNode.height : sourceNode.width) /
             2),
     };
+
     const endingPoint = {
       [orderAxis]: targetNode.position[orderAxis],
       [rankAxis]:
         targetNode.position[rankAxis] +
         dir *
-          ((rankDimension === "height" ? sourceNode.height : sourceNode.width) /
+          ((rankDimension === "height" ? targetNode.height : targetNode.width) /
             2),
     };
+
     // generate new points
     edge.points = [
       startingPoint,

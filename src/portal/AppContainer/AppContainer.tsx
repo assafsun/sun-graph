@@ -5,11 +5,13 @@ import {
 } from "../ClippedDrawerAppBar/ClippedDrawerAppBar";
 import { BasicGraphComponent } from "portal/BasicGraph/BasicGraph";
 import { DefaultGraph } from "portal/DefaultGraph/DefaultGraph";
-
-import "./AppContainer.scss";
 import { GettingStarted } from "../GettingStarted/GettingStarted";
 import { Typography, Link } from "@material-ui/core";
 import { AdvancedGraphComponent } from "portal/AdvancedGraph/AdvancedGraph";
+
+import "./AppContainer.scss";
+
+const DefaultWidth: number = 1200;
 
 interface State {
   drawerAction: DrawerAction;
@@ -53,17 +55,20 @@ export class AppContainerComponent extends React.Component<{}, State> {
               >
                 ❂ Basic Graph
               </Typography>
-              <Typography paragraph style={{ width: 1200 }}>
-                The following graph display the basic graph that sun graph
-                produce with additonal such as: zoom, node drag, graph movement,
-                custom node UI.
+              <Typography paragraph style={{ width: DefaultWidth }}>
+                The basic graph that sun graph creates with additional features
+                to the default graph template.
+              </Typography>
+              <Typography paragraph style={{ width: DefaultWidth }}>
+                Additional features: zoom, node drag, graph movement, custom
+                node UI.
               </Typography>
               <Link
-                href="https://www.github.com"
+                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/BasicGraph/BasicGraph.tsx"
                 target="_blank"
                 variant="button"
                 paragraph
-                style={{ width: 1200 }}
+                style={{ width: DefaultWidth }}
               >
                 Go to code
               </Link>
@@ -83,20 +88,20 @@ export class AppContainerComponent extends React.Component<{}, State> {
               >
                 ❂ Advanced Graph
               </Typography>
-              <Typography paragraph style={{ width: 1200 }}>
-                The following graph display more advanced graph which contains
-                differnt UI and sizes in specific nodes.
+              <Typography paragraph style={{ width: DefaultWidth }}>
+                The advanced graph that sun graph creates with additional
+                features to the basic graph.
               </Typography>
-              <Typography paragraph style={{ width: 1200 }}>
-                In addition, the advanced graph is taken as an input a custom
-                layout for building the graph layout.
+              <Typography paragraph style={{ width: DefaultWidth }}>
+                Additional features: Layout as an input for building the graph
+                structure, different node shapes.
               </Typography>
               <Link
-                href="https://www.github.com"
+                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/AdvancedGraph/AdvancedGraph.tsx"
                 target="_blank"
                 variant="button"
                 paragraph
-                style={{ width: 1200 }}
+                style={{ width: DefaultWidth }}
               >
                 Go to code
               </Link>
@@ -116,16 +121,16 @@ export class AppContainerComponent extends React.Component<{}, State> {
               >
                 ❂ Default Graph
               </Typography>
-              <Typography paragraph style={{ width: 1200 }}>
-                The following graph display the default graph that sun graph
-                create after getting only the user nodes and links inputs.
+              <Typography paragraph style={{ width: DefaultWidth }}>
+                The default graph that sun graph creates after getting only the
+                user nodes and links inputs.
               </Typography>
               <Link
-                href="https://www.github.com"
+                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/DefaultGraph/DefaultGraph.tsx"
                 target="_blank"
                 variant="button"
                 paragraph
-                style={{ width: 1200 }}
+                style={{ width: DefaultWidth }}
               >
                 Go to code
               </Link>

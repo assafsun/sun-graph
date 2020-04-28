@@ -65,7 +65,6 @@ export class BasicGraphComponent extends React.Component {
       const edge: Edge = {
         source: node.data.sourceNode,
         target: node.id,
-        label: "",
       };
 
       this.links.push(edge);
@@ -91,7 +90,7 @@ export class BasicGraphComponent extends React.Component {
         enableZoom={true}
         draggingEnabled={true}
         autoCenter={true}
-        defaultNodeDisplay={(node) => this.basicNodeUI(node)}
+        defaultNodeTemplate={(node) => this.basicNodeUI(node)}
       ></SunGraph>
     );
   }

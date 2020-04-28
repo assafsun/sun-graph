@@ -1,7 +1,7 @@
 import React from "react";
 import { Typography } from "@material-ui/core";
-
 import { makeStyles } from "@material-ui/core/styles";
+
 import Table from "@material-ui/core/Table";
 import TableBody from "@material-ui/core/TableBody";
 import TableCell from "@material-ui/core/TableCell";
@@ -11,6 +11,8 @@ import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 
 import "./GettingStarted.scss";
+
+const DefaultWidth: number = 1200;
 
 const useStyles = makeStyles({
   table: {
@@ -27,37 +29,37 @@ const rows = [
   createData(
     "nodes",
     "Required",
-    "The nodes that are part of the graph, each node has its properties as defined in the Node class"
+    "The graph node's data, each node has its properties as defined in the node class, custom data should be inside the data attribute."
   ),
   createData(
     "links",
     "Required",
-    "The link that are part of the graph, each link must define its source and target"
+    "The graph link data, each link must define its source node id and target node id. Source and target id nodes must be defined."
   ),
   createData(
     "view",
     "Optional",
-    "Array of two values for the graph width and height, the default value of the graph view is the size of the its parent container"
+    "An array of two values for the graph width and height, the default value is the size of the its parent container"
   ),
   createData(
-    "defaultNodeDisplay",
+    "defaultNodeTemplate",
     "Optional",
-    "Callback function which should return the node apperance, by default, the return node should return a proper HTML object. The node class can override this function for specipic node display"
+    "Callback function which returns the node template UI, by default, the return node should return a proper HTML object. The node class can override this function for specific node template"
   ),
   createData(
-    "isNodeDisplayHTML",
+    "isNodeTemplateHTML",
     "Optional",
-    "If set to true, the expected return node display is a proper HTML element otherwise it will expect a proper SVG element. default value is true"
+    "If set to true, the expected return node template is a proper HTML element, otherwise it will expect a proper SVG element. default value: true"
   ),
   createData(
     "layout",
     "Optional",
-    "Layout object will follow the Layout interface, the layout object will define the position of the nodes and links."
+    "Layout object will implement the Layout interface, the layout object will define the position of the nodes and links."
   ),
   createData(
     "curve",
     "Optional",
-    "A line render function for drawing the line between the selected point from the layout."
+    "A line renders function for drawing the line between the selected point of the layout. sun graph works by default with d3-shape. For lines examples, please open http://bl.ocks.org/d3indepth/b6d4845973089bc1012dec1674d3aff8"
   ),
   createData(
     "nodeHeight",
@@ -77,12 +79,12 @@ const rows = [
   createData(
     "panningEnabled",
     "Optional",
-    "If set to true, the user will be able to move the graph position. default value: false"
+    "If set to true, the user will be able to position the graph. default value: false"
   ),
   createData(
     "enableZoom",
     "Optional",
-    "If set to true, the user will be able to zoom using the mouse wheel default value: false"
+    "If set to true, the user will be able to, zoom using the mouse wheel. default value: false"
   ),
   createData(
     "minZoomLevel",
@@ -97,12 +99,12 @@ const rows = [
   createData(
     "autoCenter",
     "Optional",
-    "If set to true, the graph will be render in the center of the view. default value: false"
+    "If set to true, the graph will be rendered in the center of the view. default value: false"
   ),
   createData(
     "clickHandler",
     "Optional",
-    "Callback function for listening to graph click events"
+    "Callback function for listening to graph click event"
   ),
 ];
 
@@ -118,13 +120,13 @@ export function GettingStarted() {
       >
         ➣ Introduction
       </Typography>
-      <Typography paragraph style={{ width: 1200 }}>
-        Inspired by swimlane/ngx-graph, sun-graph is a react component for
-        creating graph visualization.
+      <Typography paragraph style={{ width: DefaultWidth }}>
+        Inspired by swimlane/ngx-graph, 'sun graph' is a react component for
+        creating beautiful graph visualization.
       </Typography>
-      <Typography paragraph style={{ width: 1200 }}>
-        sun-graph will help you to build beautiful graphs in a simple way and to
-        create you own custom graph shapes with your own data.
+      <Typography paragraph style={{ width: DefaultWidth }}>
+        'sun graph' will help you to build beautiful graphs in a simple way and
+        to create your own custom graph shapes with your own data.
       </Typography>
       <Typography
         paragraph
@@ -139,39 +141,38 @@ export function GettingStarted() {
           paragraph
           style={{ fontSize: 20, fontWeight: 600 }}
         >
-          Import Sun Graph to your project
+          Import sun graph package to your project
         </Typography>
-        <Typography paragraph style={{ width: 1200 }}>
-          1. Install sun-graph package by running
+        <Typography paragraph style={{ width: DefaultWidth }}>
+          1. Install sun graph package by running the following command:
         </Typography>
-        <Typography paragraph style={{ width: 1200 }}>
-          2. Import SunGraph component into your react component
-        </Typography>
-        <Typography paragraph style={{ width: 1200 }}>
-          3. Load SunGraph component in your react component.
+        <Typography paragraph style={{ width: DefaultWidth }}>
+          2. Import sun graph component into your react component
         </Typography>
         <Typography
           variant="caption"
           paragraph
           style={{ fontSize: 20, fontWeight: 600 }}
         >
-          Build your graph data
+          Import your data and Build your graph.
         </Typography>
-        <Typography paragraph style={{ width: 1200 }}>
-          The minimum input that SunGraph needs in order to load the graph is
-          the information on the nodes and links.
+        <Typography paragraph style={{ width: DefaultWidth }}>
+          Load sun graph component in your React component.
         </Typography>
-        <Typography paragraph style={{ width: 1200 }}>
-          Graph Node - Repersent by the 'Node' class, we need to create the
-          amount of nodes which the required field is the id. Once all the nodes
-          objects are ready, pass them to the input props - nodes.
+        <Typography paragraph style={{ width: DefaultWidth }}>
+          The minimum input that sun graph require in order to load a graph is
+          the information on your nodes and links.
         </Typography>
-        <Typography paragraph style={{ width: 1200 }}>
-          Graph Link - Repersent by the 'Link' class, we need to create the
-          links which will connect existing nodes. Each link object must have
-          the 'source' attribute and 'destination' which contains the nodes ids.
-          Once all the link objects are ready, pass them to the input props -
-          link.
+        <Typography paragraph style={{ width: DefaultWidth }}>
+          Node - represented by the 'Node' class. We need to create an array of
+          nodes where each node must at least contain an id property. Once the
+          nodes array is ready, pass them to the nodes input props.
+        </Typography>
+        <Typography paragraph style={{ width: DefaultWidth }}>
+          Link - represented by the 'Link' class. We need to create an array of
+          links which will connect existing nodes. Each link object must have a
+          'source' property and 'destination' property with a node id. Once the
+          links array us ready, pass them to the links input props.
         </Typography>
       </section>
       <Typography
@@ -179,9 +180,9 @@ export function GettingStarted() {
         variant="h4"
         style={{ fontSize: 24, fontWeight: 600 }}
       >
-        ➣ SunGraph Component Inputs
+        ➣ Sun Graph Component Inputs
       </Typography>
-      <Typography paragraph style={{ width: 1200 }}>
+      <Typography paragraph style={{ width: DefaultWidth }}>
         Sun Graph can be customized and has a set of capabilities which reacher
         your graph experience.
       </Typography>
