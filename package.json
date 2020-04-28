@@ -37,7 +37,8 @@
     "eject": "react-scripts eject",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "buildPackage": "rollup -c"
+    "buildPackage": "rollup -c",
+    "buildDocs": "react-scripts build && rm -rf docs && mv build docs"
   },
   "peerDependencies": {
     "react": "^16.8.0",
