@@ -11,4 +11,3 @@ Inspired by swimlane/ngx-graph, 'sun graph' is a react component for creating be
 Run "yarn install" and after that "yarn start"
 
 **PROJECT NAME** © 2020 sun-graph. Released under the MIT License.<br>
-Authored and maintained by Assaf Shemesh.
