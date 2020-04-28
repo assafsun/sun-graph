@@ -8,7 +8,7 @@
     "url": "git+https://github.com/assafsun/sun-graph.git"
   },
   "license": "MIT",
-  "version": "0.0.4",
+  "version": "1.0.0",
   "private": false,
   "main": "index.js",
   "types": "SunGraph.d.ts",
