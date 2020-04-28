@@ -144,10 +144,11 @@ export function GettingStarted() {
           Import sun graph package to your project
         </Typography>
         <Typography paragraph style={{ width: DefaultWidth }}>
-          1. Install sun graph package by running the following command:
+          1. Install sun graph package by running the following command: 'yarn
+          add sun-graph' or 'npm install sun-graph'
         </Typography>
         <Typography paragraph style={{ width: DefaultWidth }}>
-          2. Import sun graph component into your react component
+          2. Import SunGraph component into your react component from sun-graph.
         </Typography>
         <Typography
           variant="caption"
