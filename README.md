@@ -13,7 +13,7 @@ This project is under development so it's not taking any pull requests.
 ### Installation
 
 1. Install sun-graph package by running the following command: <br>
-``yarn add sun-graph``` or ```npm install sun-graph``
+``yarn add sun-graph`` or ``npm install sun-graph``
 
 2. Import SunGraph component into your react component from sun-graph.<br>
 ``import { SunGraph } from "sun-graph";``
