@@ -6,5 +6,5 @@ Inspired by swimlane/ngx-graph, 'sun graph' is a react component for creating be
 
 'sun graph' will help you to build beautiful graphs in a simple way and to create your own custom graph shapes with your data.
 
-## Run the demo site.
+## Run the project for the demo site
 Run "yarn install" and after that "yarn start"
