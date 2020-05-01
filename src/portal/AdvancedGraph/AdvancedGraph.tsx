@@ -95,6 +95,13 @@ export class AdvancedGraphComponent extends React.Component {
       const edge: Edge = {
         source: node.data.sourceNode,
         target: node.id,
+        midPointTemplate: (link: Edge) => {
+          return (
+            <text x="0" y="0" fill="blue">
+              Edge
+            </text>
+          );
+        },
       };
 
       this.links.push(edge);

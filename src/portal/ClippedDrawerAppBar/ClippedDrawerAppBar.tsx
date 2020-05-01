@@ -13,6 +13,8 @@ import {
 import InfoIcon from "@material-ui/icons/Info";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
 
+import SungraphLogo from "../images/sungraph.svg";
+
 const drawerWidth = 240;
 
 export enum DrawerAction {
@@ -97,6 +99,13 @@ export function ClippedDrawerAppBar(props: any) {
     <>
       <AppBar position="fixed" className={classes.appBar}>
         <Toolbar>
+          <img
+            style={{ marginRight: 4 }}
+            src={SungraphLogo}
+            alt="sungraph"
+            width={40}
+            height={40}
+          />
           <Typography variant="h6">Sun Graph</Typography>
         </Toolbar>
       </AppBar>

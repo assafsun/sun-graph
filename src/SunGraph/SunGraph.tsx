@@ -305,6 +305,14 @@ class SunGraphBase extends React.Component<Props, State> {
                 d={link.line}
               ></path>
             </g>
+            <g
+              className="linkMidpoint"
+              transform={
+                "translate(" + link.midPoint.x + "," + link.midPoint.y + ")"
+              }
+            >
+              {link.midPointTemplate ? link.midPointTemplate(link) : <></>}
+            </g>
           </g>
         </g>
       );
@@ -659,6 +667,7 @@ class SunGraphBase extends React.Component<Props, State> {
           this.graph = this.props.layout.updateEdge(this.graph, link);
           this.redrawEdge(link);
         }
+        this.updateMidpointOnEdge(link, link.points);
       }
     }
 

@@ -37,9 +37,9 @@ export class CustomLayout implements Layout {
     orientation: Orientation.LEFT_TO_RIGHT,
     marginX: 20,
     marginY: 20,
-    edgePadding: 100,
-    rankPadding: 100,
-    nodePadding: 50,
+    edgePadding: 200,
+    rankPadding: 300,
+    nodePadding: 100,
     multigraph: true,
     compound: true,
   };

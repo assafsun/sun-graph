@@ -35,4 +35,5 @@ export interface Edge {
   points?: any;
   line?: string;
   midPoint?: NodePosition;
+  midPointTemplate?: (link: Edge) => React.ReactNode;
 }
