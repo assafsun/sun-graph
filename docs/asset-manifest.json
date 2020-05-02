@@ -1,22 +1,23 @@
 {
   "files": {
     "main.css": "/sun-graph/static/css/main.24360db0.chunk.css",
-    "main.js": "/sun-graph/static/js/main.09fa5595.chunk.js",
-    "main.js.map": "/sun-graph/static/js/main.09fa5595.chunk.js.map",
+    "main.js": "/sun-graph/static/js/main.a0faad3e.chunk.js",
+    "main.js.map": "/sun-graph/static/js/main.a0faad3e.chunk.js.map",
     "runtime-main.js": "/sun-graph/static/js/runtime-main.c95a480d.js",
     "runtime-main.js.map": "/sun-graph/static/js/runtime-main.c95a480d.js.map",
-    "static/js/2.ebaf24fb.chunk.js": "/sun-graph/static/js/2.ebaf24fb.chunk.js",
-    "static/js/2.ebaf24fb.chunk.js.map": "/sun-graph/static/js/2.ebaf24fb.chunk.js.map",
+    "static/js/2.2d37c443.chunk.js": "/sun-graph/static/js/2.2d37c443.chunk.js",
+    "static/js/2.2d37c443.chunk.js.map": "/sun-graph/static/js/2.2d37c443.chunk.js.map",
     "index.html": "/sun-graph/index.html",
-    "precache-manifest.f93ad6bc2ba612d9ebe25d9da52a4979.js": "/sun-graph/precache-manifest.f93ad6bc2ba612d9ebe25d9da52a4979.js",
+    "precache-manifest.25cebb0de7de82002a9d464ccd0aedae.js": "/sun-graph/precache-manifest.25cebb0de7de82002a9d464ccd0aedae.js",
     "service-worker.js": "/sun-graph/service-worker.js",
     "static/css/main.24360db0.chunk.css.map": "/sun-graph/static/css/main.24360db0.chunk.css.map",
-    "static/js/2.ebaf24fb.chunk.js.LICENSE.txt": "/sun-graph/static/js/2.ebaf24fb.chunk.js.LICENSE.txt"
+    "static/js/2.2d37c443.chunk.js.LICENSE.txt": "/sun-graph/static/js/2.2d37c443.chunk.js.LICENSE.txt",
+    "static/media/sungraph.svg": "/sun-graph/static/media/sungraph.77d9712d.svg"
   },
   "entrypoints": [
     "static/js/runtime-main.c95a480d.js",
-    "static/js/2.ebaf24fb.chunk.js",
+    "static/js/2.2d37c443.chunk.js",
     "static/css/main.24360db0.chunk.css",
-    "static/js/main.09fa5595.chunk.js"
+    "static/js/main.a0faad3e.chunk.js"
   ]
 }
