@@ -48,10 +48,6 @@ interface Props {
   minZoomLevel?: number;
   maxZoomLevel?: number;
   autoCenter?: boolean;
-  update$?: Observable<any>;
-  center$?: Observable<any>;
-  zoomToFit$?: Observable<any>;
-  panToNode$?: Observable<any>;
   enableTrackpadSupport?: boolean;
   autoZoom?: boolean;
   zoomChange?: (value: number) => void;
@@ -59,6 +55,10 @@ interface Props {
   defsTemplate?: () => any;
 
   //Not reviewed props
+  center$?: Observable<any>;
+  zoomToFit$?: Observable<any>;
+  panToNode$?: Observable<any>;
+  update$?: Observable<any>;
   panOnZoom?: boolean;
   panningAxis?: PanningAxis;
 }
@@ -67,6 +67,16 @@ interface BasicState {
   initialized: boolean;
   graphWidth: number;
   graphHeight: number;
+}
+
+export class LineShapes {
+  static BasisLine = shape.curveBasis;
+  static BundleLine = shape.curveBundle.beta(1);
+  static LinearLine = shape.curveLinear;
+  static StepLine = shape.curveStep;
+  static NaturalLine = shape.curveNatural;
+  static MonotoneXLine = shape.curveMonotoneX;
+  static MonotoneYLine = shape.curveMonotoneY;
 }
 
 export class SunGraph extends React.Component<Props, BasicState> {
