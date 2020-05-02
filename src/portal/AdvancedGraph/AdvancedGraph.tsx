@@ -1,6 +1,6 @@
 import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
-import { SunGraph, LineShapes } from "SunGraph/SunGraph";
+import { SunGraph, LineShape } from "SunGraph/SunGraph";
 import { CustomLayout } from "./customLayout";
 
 import "./AdvancedGraph.scss";
@@ -8,7 +8,7 @@ import "./AdvancedGraph.scss";
 export class AdvancedGraphComponent extends React.Component {
   public nodes: Node[] = [];
   public links: Edge[] = [];
-  public curve: any = LineShapes.BundleLine;
+  public curve: any = LineShape.BundleLine;
 
   constructor(props: any) {
     super(props);

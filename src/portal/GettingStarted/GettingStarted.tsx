@@ -34,7 +34,7 @@ const rows = [
   createData(
     "links",
     "Required",
-    "The graph link data, each link must define its source node id and target node id. Source and target id nodes must be defined."
+    "The graph link data, each link must define its source node id and target node id. Please note that each link may contain midPointTemplate for placing UI on the middle of the link."
   ),
   createData(
     "view",
@@ -59,7 +59,7 @@ const rows = [
   createData(
     "curve",
     "Optional",
-    "A line renders function for drawing the line between the selected point of the layout. sun graph works by default with d3-shape. For lines examples, please open http://bl.ocks.org/d3indepth/b6d4845973089bc1012dec1674d3aff8"
+    "A line render function for drawing the line between the selected points between two nodes sun graph works by default with d3-shape and you can import the LineShape class which will help you with your line selection. For line shapes examples, please open http://bl.ocks.org/d3indepth/b6d4845973089bc1012dec1674d3aff8"
   ),
   createData(
     "nodeHeight",

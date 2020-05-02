@@ -71,7 +71,7 @@ interface BasicState {
   graphHeight: number;
 }
 
-export class LineShapes {
+export class LineShape {
   static BasisLine = shape.curveBasis;
   static BundleLine = shape.curveBundle.beta(1);
   static LinearLine = shape.curveLinear;

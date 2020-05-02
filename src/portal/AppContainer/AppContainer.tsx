@@ -63,6 +63,10 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 Additional features: zoom, node drag, graph movement, custom
                 node UI.
               </Typography>
+              <Typography paragraph style={{ width: DefaultWidth }}>
+                The "update graph" button will update the graph structure with
+                new inputs.
+              </Typography>
               <Link
                 href="https://github.com/assafsun/sun-graph/blob/master/src/portal/BasicGraph/BasicGraph.tsx"
                 target="_blank"
@@ -94,7 +98,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
               </Typography>
               <Typography paragraph style={{ width: DefaultWidth }}>
                 Additional features: Layout as an input for building the graph
-                structure, different node shapes.
+                structure, different node shapes and custom template on links.
               </Typography>
               <Link
                 href="https://github.com/assafsun/sun-graph/blob/master/src/portal/AdvancedGraph/AdvancedGraph.tsx"
