@@ -23,6 +23,8 @@ import {
 import "./SunGraph.scss";
 import { CustomDagreLayout } from "./layouts/customDagreLayout";
 
+import { BehaviorSubject } from "rxjs";
+
 const DefaultGraphSize: number = 1000;
 const DefaultNodeSize: number = 60;
 
@@ -80,6 +82,7 @@ export class LineShapes {
 }
 
 export class SunGraph extends React.Component<Props, BasicState> {
+  public subject: BehaviorSubject<any> = new BehaviorSubject(false);
   constructor(props: Props) {
     super(props);
     this.state = { initialized: false, graphHeight: 0, graphWidth: 0 };
@@ -97,10 +100,15 @@ export class SunGraph extends React.Component<Props, BasicState> {
           <SunGraphBase
             {...this.props}
             view={[this.state.graphWidth, this.state.graphHeight]}
+            update$={this.subject.asObservable()}
           ></SunGraphBase>
         )}
       </div>
     );
+  }
+
+  public componentDidUpdate(): void {
+    this.subject.next(true);
   }
 
   public componentDidMount(): void {
@@ -190,8 +198,11 @@ class SunGraphBase extends React.Component<Props, State> {
     super(props);
     if (this.props.update$) {
       this.subscriptions.push(
-        this.props.update$.subscribe(() => {
-          this.update();
+        this.props.update$.subscribe((shouldUpdate: boolean) => {
+          if (!shouldUpdate) {
+            return;
+          }
+          this.recreateGraph();
         })
       );
     }
@@ -223,6 +234,13 @@ class SunGraphBase extends React.Component<Props, State> {
     this.update();
     this.draw();
     this.state = { initialized: false, transform: this.initialTransform };
+  }
+
+  public recreateGraph() {
+    this.update();
+    this.draw();
+    this.setState({ initialized: true, transform: this.state.transform });
+    this.handlePropsDraw();
   }
 
   public componentDidMount(): void {
@@ -315,14 +333,16 @@ class SunGraphBase extends React.Component<Props, State> {
                 d={link.line}
               ></path>
             </g>
-            <g
-              className="linkMidpoint"
-              transform={
-                "translate(" + link.midPoint.x + "," + link.midPoint.y + ")"
-              }
-            >
-              {link.midPointTemplate ? link.midPointTemplate(link) : <></>}
-            </g>
+            {link.midPoint && (
+              <g
+                className="linkMidpoint"
+                transform={
+                  "translate(" + link.midPoint.x + "," + link.midPoint.y + ")"
+                }
+              >
+                {link.midPointTemplate ? link.midPointTemplate(link) : <></>}
+              </g>
+            )}
           </g>
         </g>
       );
@@ -495,6 +515,10 @@ class SunGraphBase extends React.Component<Props, State> {
       );
     }
 
+    this.handlePropsDraw();
+  }
+
+  private handlePropsDraw(): void {
     if (this.props.autoZoom) {
       this.zoomToFit();
     }

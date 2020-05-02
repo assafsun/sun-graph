@@ -4,15 +4,73 @@ import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
 
 import "./BasicGraph.scss";
+import { Button } from "@material-ui/core";
 
-export class BasicGraphComponent extends React.Component {
-  public nodes: Node[] = [];
-  public links: Edge[] = [];
+interface State {
+  nodes: Node[];
+  links?: Edge[];
+  autoCenter?: boolean;
+}
+
+export class BasicGraphComponent extends React.Component<{}, State> {
   public curve: any = shape.curveLinear;
 
   constructor(props: any) {
     super(props);
-    this.nodes = [
+    let nodes = [
+      {
+        id: "1",
+        label: "Node 1",
+        width: 100,
+        height: 100,
+      },
+      {
+        id: "2",
+        label: "Node 2",
+        data: {
+          sourceNode: "1",
+        },
+        width: 100,
+        height: 100,
+      },
+      {
+        id: "3",
+        label: "Node 3",
+        data: {
+          sourceNode: "1",
+        },
+        width: 100,
+        height: 100,
+      },
+    ];
+
+    let links = [];
+    for (const node of nodes) {
+      if (!node.data) {
+        continue;
+      }
+
+      const edge: Edge = {
+        source: node.data.sourceNode,
+        target: node.id,
+      };
+
+      links.push(edge);
+    }
+
+    this.state = { nodes: nodes, links: links, autoCenter: false };
+  }
+
+  public basicNodeUI(node: Node) {
+    return (
+      <div className="container">
+        <label className="title">{node.label}</label>
+      </div>
+    );
+  }
+
+  public createNewGraph(): void {
+    let nodes = [
       {
         id: "1",
         label: "Node 1",
@@ -57,7 +115,8 @@ export class BasicGraphComponent extends React.Component {
       },
     ];
 
-    for (const node of this.nodes) {
+    let links = [];
+    for (const node of nodes) {
       if (!node.data) {
         continue;
       }
@@ -67,31 +126,40 @@ export class BasicGraphComponent extends React.Component {
         target: node.id,
       };
 
-      this.links.push(edge);
+      links.push(edge);
     }
 
-    this.state = {};
-  }
-
-  public basicNodeUI(node: Node) {
-    return (
-      <div className="container">
-        <label className="title">{node.label}</label>
-      </div>
-    );
+    links[0].midPointTemplate = (link: Edge) => {
+      return (
+        <text x="0" y="0" fill="blue">
+          Edge
+        </text>
+      );
+    };
+    this.setState({ nodes: nodes, links: links, autoCenter: true });
   }
 
   render() {
     return (
-      <SunGraph
-        nodes={this.nodes}
-        links={this.links}
-        panningEnabled={true}
-        enableZoom={true}
-        draggingEnabled={true}
-        autoCenter={true}
-        defaultNodeTemplate={(node) => this.basicNodeUI(node)}
-      ></SunGraph>
+      <>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => this.createNewGraph()}
+          style={{ marginLeft: 12, marginTop: 12 }}
+        >
+          Update Graph
+        </Button>
+        <SunGraph
+          nodes={this.state.nodes}
+          links={this.state.links}
+          panningEnabled={true}
+          enableZoom={true}
+          draggingEnabled={true}
+          autoCenter={this.state.autoCenter}
+          defaultNodeTemplate={(node) => this.basicNodeUI(node)}
+        ></SunGraph>
+      </>
     );
   }
 }
