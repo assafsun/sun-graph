@@ -19,6 +19,7 @@ const drawerWidth = 240;
 
 export enum DrawerAction {
   GettingStarted = "GettingStarted",
+  Props = "Props",
   Default = "Deafult",
   Basic = "Basic",
   Advanced = "Advanced",
@@ -28,6 +29,11 @@ const DrawerActionsItems = [
   {
     action: DrawerAction.GettingStarted,
     text: "Getting Started",
+    icon: InfoIcon,
+  },
+  {
+    action: DrawerAction.Props,
+    text: "Props",
     icon: InfoIcon,
   },
   {

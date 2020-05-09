@@ -7,6 +7,7 @@ import { Typography, Link } from "@material-ui/core";
 import { AdvancedGraphComponent } from "portal/AdvancedGraph";
 
 import styled from "styled-components";
+import { Inputs } from "./Inputs";
 
 const DefaultWidth: number = 1200;
 
@@ -19,13 +20,10 @@ interface MainProps {
   isGraphDemo: boolean;
 }
 
-const Main = styled.div.attrs((props: MainProps) => ({
-  isGraphDemo: props.isGraphDemo || false,
-}))`
+const Main = styled.div`
   background-color: white;
   flex: 1;
   margin-top: 64px;
-  overflow: ${(props) => (props.isGraphDemo ? "hidden" : undefined)};
 `;
 
 const GraphDescription = styled.section`
@@ -50,11 +48,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
             this.handleDrawerClick(drawerAction)
           }
         ></ClippedDrawerAppBar>
-        <Main
-          isGraphDemo={this.state.drawerAction !== DrawerAction.GettingStarted}
-        >
-          {this.loadDrawerAction()}
-        </Main>
+        <Main>{this.loadDrawerAction()}</Main>
       </Container>
     );
   }
@@ -85,7 +79,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 new inputs.
               </Typography>
               <Link
-                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/BasicGraph/BasicGraph.tsx"
+                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/BasicGraph.tsx"
                 target="_blank"
                 variant="button"
                 paragraph
@@ -118,7 +112,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 structure, different node shapes and custom template on links.
               </Typography>
               <Link
-                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/AdvancedGraph/AdvancedGraph.tsx"
+                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/AdvancedGraph.tsx"
                 target="_blank"
                 variant="button"
                 paragraph
@@ -147,7 +141,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
                 user nodes and links inputs.
               </Typography>
               <Link
-                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/DefaultGraph/DefaultGraph.tsx"
+                href="https://github.com/assafsun/sun-graph/blob/master/src/portal/DefaultGraph.tsx"
                 target="_blank"
                 variant="button"
                 paragraph
@@ -159,6 +153,9 @@ export class AppContainerComponent extends React.Component<{}, State> {
             <DefaultGraph></DefaultGraph>
           </>
         );
+      }
+      case DrawerAction.Props: {
+        return <Inputs></Inputs>;
       }
       case DrawerAction.GettingStarted:
       default: {
