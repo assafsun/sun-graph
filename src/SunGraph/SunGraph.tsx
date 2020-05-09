@@ -19,11 +19,25 @@ import {
   ViewDimensions,
   calculateViewDimensions,
 } from "./utils/viewDimensionsHelper";
-
-import "./SunGraph.scss";
 import { CustomDagreLayout } from "./layouts/customDagreLayout";
 
 import { BehaviorSubject } from "rxjs";
+
+import styled from "styled-components";
+
+const GraphContainer = styled.div`
+  user-select: none;
+`;
+
+const StyledEdge = styled.g`
+  stroke: black;
+  fill: none;
+`;
+
+const SvgGraph = styled.svg`
+  height: inherit;
+  width: inherit;
+`;
 
 const DefaultGraphSize: number = 1000;
 const DefaultNodeSize: number = 60;
@@ -325,14 +339,14 @@ class SunGraphBase extends React.Component<Props, State> {
       links.push(
         <g className="link-group" id={link.id} key={link.id}>
           <g>
-            <g className="edge">
+            <StyledEdge>
               <path
                 className="line"
                 strokeWidth="2"
                 markerEnd="url(#arrow)"
                 d={link.line}
               ></path>
-            </g>
+            </StyledEdge>
             {link.midPoint && (
               <g
                 className="linkMidpoint"
@@ -350,9 +364,8 @@ class SunGraphBase extends React.Component<Props, State> {
 
     return (
       this.state.initialized && (
-        <div
+        <GraphContainer
           style={this.graphStyle}
-          className="graph"
           onClick={(e: any) => this.graphClick(e)}
           onMouseMove={(e: any) => this.onMouseMove(e)}
           onMouseDown={(e: any) => {
@@ -378,14 +391,14 @@ class SunGraphBase extends React.Component<Props, State> {
             }
           }}
         >
-          <svg className="svgGraph">
+          <SvgGraph>
             <g transform={this.state.transform}>
               <g className="defsTemplate">{this.props.defsTemplate()}</g>
               <g className="nodes">{nodes}</g>
               <g className="links">{links}</g>
             </g>
-          </svg>
-        </div>
+          </SvgGraph>
+        </GraphContainer>
       )
     );
   }

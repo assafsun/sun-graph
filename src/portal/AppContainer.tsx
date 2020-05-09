@@ -1,17 +1,36 @@
 import React from "react";
-import {
-  ClippedDrawerAppBar,
-  DrawerAction,
-} from "../ClippedDrawerAppBar/ClippedDrawerAppBar";
-import { BasicGraphComponent } from "portal/BasicGraph/BasicGraph";
-import { DefaultGraph } from "portal/DefaultGraph/DefaultGraph";
-import { GettingStarted } from "../GettingStarted/GettingStarted";
+import { ClippedDrawerAppBar, DrawerAction } from "./ClippedDrawerAppBar";
+import { BasicGraphComponent } from "portal/BasicGraph";
+import { DefaultGraph } from "portal/DefaultGraph";
+import { GettingStarted } from "./GettingStarted";
 import { Typography, Link } from "@material-ui/core";
-import { AdvancedGraphComponent } from "portal/AdvancedGraph/AdvancedGraph";
+import { AdvancedGraphComponent } from "portal/AdvancedGraph";
 
-import "./AppContainer.scss";
+import styled from "styled-components";
 
 const DefaultWidth: number = 1200;
+
+const Container = styled.div`
+  display: flex;
+  height: 100vh;
+`;
+
+interface MainProps {
+  isGraphDemo: boolean;
+}
+
+const Main = styled.div.attrs((props: MainProps) => ({
+  isGraphDemo: props.isGraphDemo || false,
+}))`
+  background-color: white;
+  flex: 1;
+  margin-top: 64px;
+  overflow: ${(props) => (props.isGraphDemo ? "hidden" : undefined)};
+`;
+
+const GraphDescription = styled.section`
+  margin: 12px 0 0 12px;
+`;
 
 interface State {
   drawerAction: DrawerAction;
@@ -24,21 +43,19 @@ export class AppContainerComponent extends React.Component<{}, State> {
   }
 
   render() {
-    const mainClassName: string =
-      "main " +
-      (this.state.drawerAction !== DrawerAction.GettingStarted
-        ? "overflowHide"
-        : "");
-
     return (
-      <div className="appContainer">
+      <Container>
         <ClippedDrawerAppBar
           handleDrawerClick={(drawerAction: DrawerAction) =>
             this.handleDrawerClick(drawerAction)
           }
         ></ClippedDrawerAppBar>
-        <div className={mainClassName}>{this.loadDrawerAction()}</div>
-      </div>
+        <Main
+          isGraphDemo={this.state.drawerAction !== DrawerAction.GettingStarted}
+        >
+          {this.loadDrawerAction()}
+        </Main>
+      </Container>
     );
   }
 
@@ -47,7 +64,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
       case DrawerAction.Basic: {
         return (
           <>
-            <section className="graphDescription">
+            <GraphDescription>
               <Typography
                 paragraph
                 variant="h4"
@@ -76,7 +93,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
               >
                 Go to code
               </Link>
-            </section>
+            </GraphDescription>
             <BasicGraphComponent></BasicGraphComponent>
           </>
         );
@@ -84,7 +101,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
       case DrawerAction.Advanced: {
         return (
           <>
-            <section className="graphDescription">
+            <GraphDescription>
               <Typography
                 paragraph
                 variant="h4"
@@ -109,7 +126,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
               >
                 Go to code
               </Link>
-            </section>
+            </GraphDescription>
             <AdvancedGraphComponent></AdvancedGraphComponent>
           </>
         );
@@ -117,7 +134,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
       case DrawerAction.Default: {
         return (
           <>
-            <section className="graphDescription">
+            <GraphDescription>
               <Typography
                 paragraph
                 variant="h4"
@@ -138,7 +155,7 @@ export class AppContainerComponent extends React.Component<{}, State> {
               >
                 Go to code
               </Link>
-            </section>
+            </GraphDescription>
             <DefaultGraph></DefaultGraph>
           </>
         );

@@ -1,7 +1,5 @@
 import React from "react";
-import { AppContainerComponent } from "portal/AppContainer/AppContainer";
-
-import "./App.css";
+import { AppContainerComponent } from "portal/AppContainer";
 
 function App() {
   return (

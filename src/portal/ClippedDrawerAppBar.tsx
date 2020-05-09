@@ -13,7 +13,7 @@ import {
 import InfoIcon from "@material-ui/icons/Info";
 import AccountTreeIcon from "@material-ui/icons/AccountTree";
 
-import SungraphLogo from "../images/sungraph.svg";
+import SungraphLogo from "./images/sungraph.svg";
 
 const drawerWidth = 240;
 

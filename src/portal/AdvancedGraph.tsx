@@ -1,9 +1,39 @@
 import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
-import { CustomLayout } from "./customLayout";
+import { CustomLayout } from "./layouts/customLayout";
 
-import "./AdvancedGraph.scss";
+import styled from "styled-components";
+
+const Container = styled.div`
+  height: 96px;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid black;
+  align-items: center;
+  border-radius: 25px;
+`;
+
+const Title = styled.label`
+  margin-top: 10px;
+`;
+
+const NodeFirstOption = styled.div`
+  height: 50px;
+  width: 50px;
+  display: flex;
+  flex-direction: column;
+  background-color: #548d96;
+`;
+
+const NodeSecondOption = styled.div`
+  height: 75px;
+  width: 75px;
+  display: flex;
+  flex-direction: column;
+  background-color: #7aafb1;
+`;
 
 export class AdvancedGraphComponent extends React.Component {
   public nodes: Node[] = [];
@@ -111,18 +141,18 @@ export class AdvancedGraphComponent extends React.Component {
 
   public defaultNodeUI(node: Node) {
     return (
-      <div className="container">
-        <label className="title">{node.label}</label>
-      </div>
+      <Container>
+        <Title>{node.label}</Title>
+      </Container>
     );
   }
 
   public singleNodeUIOption1(node: Node) {
-    return <div className="singleNodeContainerOption1"></div>;
+    return <NodeFirstOption></NodeFirstOption>;
   }
 
   public singleNodeUIOption2(node: Node) {
-    return <div className="singleNodeContainerOption2"></div>;
+    return <NodeSecondOption></NodeSecondOption>;
   }
 
   render() {

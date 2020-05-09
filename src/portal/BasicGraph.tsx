@@ -2,9 +2,23 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
-
-import "./BasicGraph.scss";
 import { Button } from "@material-ui/core";
+
+import styled from "styled-components";
+
+const Container = styled.div`
+  height: 96px;
+  width: 96px;
+  display: flex;
+  flex-direction: column;
+  border: 2px solid black;
+  align-items: center;
+  border-radius: 25px;
+`;
+
+const Title = styled.label`
+  margin-top: 10px;
+`;
 
 interface State {
   nodes: Node[];
@@ -63,9 +77,9 @@ export class BasicGraphComponent extends React.Component<{}, State> {
 
   public basicNodeUI(node: Node) {
     return (
-      <div className="container">
-        <label className="title">{node.label}</label>
-      </div>
+      <Container>
+        <Title>{node.label}</Title>
+      </Container>
     );
   }
 

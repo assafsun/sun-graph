@@ -10,9 +10,17 @@ import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
 
-import "./GettingStarted.scss";
+import styled from "styled-components";
 
 const DefaultWidth: number = 1200;
+
+const GraphBuilding = styled.section`
+  margin-left: 48px;
+`;
+
+const GettingStartedContainer = styled.section`
+  margin: 12px 0 0 12px;
+`;
 
 const useStyles = makeStyles({
   table: {
@@ -112,7 +120,7 @@ export function GettingStarted() {
   const classes = useStyles();
 
   return (
-    <section className="gettingStartedContent">
+    <GettingStartedContainer>
       <Typography
         paragraph
         variant="h4"
@@ -135,7 +143,7 @@ export function GettingStarted() {
       >
         ➣ How to start building graphs?
       </Typography>
-      <section className="buildingGraph">
+      <GraphBuilding>
         <Typography
           variant="caption"
           paragraph
@@ -175,7 +183,7 @@ export function GettingStarted() {
           'source' property and 'destination' property with a node id. Once the
           links array us ready, pass them to the links input props.
         </Typography>
-      </section>
+      </GraphBuilding>
       <Typography
         paragraph
         variant="h4"
@@ -209,6 +217,6 @@ export function GettingStarted() {
           </TableBody>
         </Table>
       </TableContainer>
-    </section>
+    </GettingStartedContainer>
   );
 }
