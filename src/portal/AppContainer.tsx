@@ -20,10 +20,13 @@ interface MainProps {
   isGraphDemo: boolean;
 }
 
-const Main = styled.div`
+const Main = styled.div.attrs((props: MainProps) => ({
+  isGraphDemo: props.isGraphDemo || false,
+}))`
   background-color: white;
   flex: 1;
   margin-top: 64px;
+  overflow: ${(props) => (props.isGraphDemo ? "hidden" : undefined)};
 `;
 
 const GraphDescription = styled.section`
@@ -48,7 +51,14 @@ export class AppContainerComponent extends React.Component<{}, State> {
             this.handleDrawerClick(drawerAction)
           }
         ></ClippedDrawerAppBar>
-        <Main>{this.loadDrawerAction()}</Main>
+        <Main
+          isGraphDemo={
+            this.state.drawerAction !== DrawerAction.GettingStarted &&
+            this.state.drawerAction !== DrawerAction.Props
+          }
+        >
+          {this.loadDrawerAction()}
+        </Main>
       </Container>
     );
   }
