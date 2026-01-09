@@ -69,6 +69,25 @@ interface Props {
   zoomChange?: (value: number) => void;
   clickHandler?: (value: MouseEvent) => void;
   defsTemplate?: () => any;
+  
+  // Event callbacks
+  onNodeClick?: (node: Node, event: MouseEvent) => void;
+  onNodeHover?: (node: Node | null, event: MouseEvent) => void;
+  onNodeDoubleClick?: (node: Node, event: MouseEvent) => void;
+  onEdgeClick?: (edge: Edge, event: MouseEvent) => void;
+  onEdgeHover?: (edge: Edge | null, event: MouseEvent) => void;
+  onGraphClick?: (event: MouseEvent) => void;
+  
+  // Search and filtering
+  searchTerm?: string;
+  filteredNodeIds?: string[];
+  selectedNodeIds?: string[];
+  onSelectionChange?: (nodeIds: string[]) => void;
+
+  // Styling
+  highlightColor?: string;
+  selectedColor?: string;
+  dimmedOpacity?: number;
 
   //Not reviewed props
   center$?: Observable<any>;

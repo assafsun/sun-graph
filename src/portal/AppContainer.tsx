@@ -10,6 +10,7 @@ import { OrgChartGraph } from "portal/OrgChartGraph";
 import { NetworkGraph } from "portal/NetworkGraph";
 import { FlowchartGraph } from "portal/FlowchartGraph";
 import { DependencyGraph } from "portal/DependencyGraph";
+import { InteractiveSearchGraph } from "portal/InteractiveSearchGraph";
 import styled from "styled-components";
 import { Inputs } from "./Inputs";
 
@@ -446,6 +447,54 @@ export class AppContainerComponent extends React.Component<{}, State> {
               </DescriptionCard>
             </GraphDescription>
             <DependencyGraph></DependencyGraph>
+          </>
+        );
+      }
+      case DrawerAction.InteractiveSearch: {
+        return (
+          <>
+            <GraphDescription>
+              <DescriptionHeader>
+                <ExampleTitle>🔍 Interactive Search & Selection</ExampleTitle>
+              </DescriptionHeader>
+              <DescriptionCard>
+                <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+                  Overview
+                </Typography>
+                <Typography paragraph>
+                  An interactive example demonstrating search functionality, node selection, and event callbacks. Perfect for exploring and filtering large organizational structures or complex networks.
+                </Typography>
+
+                <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+                  Features Demonstrated
+                </Typography>
+                <FeaturesList>
+                  <li><strong>Real-time Search</strong> - Search by name, role, department, or skill</li>
+                  <li><strong>Node Selection</strong> - Click to select, Ctrl+Click to multi-select</li>
+                  <li><strong>Hover Effects</strong> - Visual feedback on hover</li>
+                  <li><strong>Department Filtering</strong> - Quick filter chips for common searches</li>
+                  <li><strong>Event Callbacks</strong> - onNodeClick, onNodeHover, onGraphClick</li>
+                  <li><strong>Dynamic Styling</strong> - Conditional styling based on state</li>
+                  <li><strong>Live Statistics</strong> - Count of visible and selected nodes</li>
+                </FeaturesList>
+
+                <Box style={{ marginTop: 16 }}>
+                  <Link
+                    href="https://github.com/assafsun/sun-graph/blob/master/src/portal/InteractiveSearchGraph.tsx"
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Chip
+                      icon={<GitHubIcon />}
+                      label="View Source Code"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Link>
+                </Box>
+              </DescriptionCard>
+            </GraphDescription>
+            <InteractiveSearchGraph></InteractiveSearchGraph>
           </>
         );
       }

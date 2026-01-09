@@ -31,6 +31,7 @@ export enum DrawerAction {
   Network = "Network",
   Flowchart = "Flowchart",
   Dependency = "Dependency",
+  InteractiveSearch = "InteractiveSearch",
 }
 
 const DrawerActionsItems = [
@@ -81,6 +82,12 @@ const DrawerActionsItems = [
     text: "Dependencies",
     icon: AccountTreeIcon,
     description: "Service graph",
+  },
+  {
+    action: DrawerAction.InteractiveSearch,
+    text: "Interactive Search",
+    icon: AccountTreeIcon,
+    description: "Search & select",
   },
   {
     action: DrawerAction.Props,
