@@ -307,7 +307,7 @@ const SunGraphBase: React.FC<SunGraphProps> = (props) => {
 
       if (newZoomLevel !== state.zoomLevel) {
         const zoomFactor = newZoomLevel / state.zoomLevel;
-        const newMatrix = scale(transformMatrixRef.current, zoomFactor, zoomFactor);
+        const newMatrix = scale(transformMatrixRef.current as any, zoomFactor, zoomFactor);
         transformMatrixRef.current = newMatrix;
 
         setState((prev) => ({
@@ -359,17 +359,12 @@ const SunGraphBase: React.FC<SunGraphProps> = (props) => {
    * Calculate graph layout
    */
   const calculatedDims = useMemo(() => {
-    return calculateViewDimensions(
-      props.nodes,
-      props.links,
+    return calculateViewDimensions({
       width,
       height,
-      {
-        nodeHeight: props.nodeHeight || DefaultNodeSize,
-        nodeWidth: props.nodeWidth || DefaultNodeSize,
-      }
-    );
-  }, [props.nodes, props.links, width, height, props.nodeHeight, props.nodeWidth]);
+      margins: [20, 20, 20, 20],
+    });
+  }, [width, height]);
 
   return (
     <GraphContainer>
@@ -401,11 +396,15 @@ const SunGraphBase: React.FC<SunGraphProps> = (props) => {
           </StyledEdge>
 
           {/* Render nodes */}
-          {props.nodes?.map((node) => (
-            <g key={node.id} transform={`translate(${node.x || 0}, ${node.y || 0})`}>
-              {props.defaultNodeTemplate && props.defaultNodeTemplate(node)}
-            </g>
-          ))}
+          {props.nodes?.map((node) => {
+            const x = node.position?.x || 0;
+            const y = node.position?.y || 0;
+            return (
+              <g key={node.id} transform={`translate(${x}, ${y})`}>
+                {props.defaultNodeTemplate && props.defaultNodeTemplate(node)}
+              </g>
+            );
+          })}
         </g>
       </SvgGraph>
     </GraphContainer>
