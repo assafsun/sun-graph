@@ -1,23 +1,14 @@
 {
   "files": {
-    "main.css": "/sun-graph/static/css/main.34de6062.chunk.css",
-    "main.js": "/sun-graph/static/js/main.5f7dd9bc.chunk.js",
-    "main.js.map": "/sun-graph/static/js/main.5f7dd9bc.chunk.js.map",
-    "runtime-main.js": "/sun-graph/static/js/runtime-main.dd0b736a.js",
-    "runtime-main.js.map": "/sun-graph/static/js/runtime-main.dd0b736a.js.map",
-    "static/js/2.033388ff.chunk.js": "/sun-graph/static/js/2.033388ff.chunk.js",
-    "static/js/2.033388ff.chunk.js.map": "/sun-graph/static/js/2.033388ff.chunk.js.map",
+    "main.css": "/sun-graph/static/css/main.e6c13ad2.css",
+    "main.js": "/sun-graph/static/js/main.8edc4812.js",
+    "static/media/sungraph.svg": "/sun-graph/static/media/sungraph.74d41d5592eef549943c8ed4f52540a3.svg",
     "index.html": "/sun-graph/index.html",
-    "precache-manifest.fad78bf471c7282b96bffc5057b88184.js": "/sun-graph/precache-manifest.fad78bf471c7282b96bffc5057b88184.js",
-    "service-worker.js": "/sun-graph/service-worker.js",
-    "static/css/main.34de6062.chunk.css.map": "/sun-graph/static/css/main.34de6062.chunk.css.map",
-    "static/js/2.033388ff.chunk.js.LICENSE.txt": "/sun-graph/static/js/2.033388ff.chunk.js.LICENSE.txt",
-    "static/media/sungraph.svg": "/sun-graph/static/media/sungraph.77d9712d.svg"
+    "main.e6c13ad2.css.map": "/sun-graph/static/css/main.e6c13ad2.css.map",
+    "main.8edc4812.js.map": "/sun-graph/static/js/main.8edc4812.js.map"
   },
   "entrypoints": [
-    "static/js/runtime-main.dd0b736a.js",
-    "static/js/2.033388ff.chunk.js",
-    "static/css/main.34de6062.chunk.css",
-    "static/js/main.5f7dd9bc.chunk.js"
+    "static/css/main.e6c13ad2.css",
+    "static/js/main.8edc4812.js"
   ]
 }
