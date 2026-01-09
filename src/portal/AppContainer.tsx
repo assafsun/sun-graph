@@ -451,9 +451,6 @@ export class AppContainerComponent extends React.Component<{}, State> {
           </>
         );
       }
-      case DrawerAction.Props: {
-        return <Inputs></Inputs>;
-      }
       case DrawerAction.GettingStarted:
       default: {
         return <GettingStarted></GettingStarted>;

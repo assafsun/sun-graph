@@ -163,7 +163,7 @@ export class NetworkGraph extends React.Component {
       <SunGraph
         nodes={this.nodes}
         links={this.links}
-        curve={LineShape.CurveCardinal}
+        curve={LineShape.BasisLine}
         panningEnabled={true}
         enableZoom={true}
         draggingEnabled={true}

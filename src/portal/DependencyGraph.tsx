@@ -268,7 +268,7 @@ export class DependencyGraph extends React.Component {
       <SunGraph
         nodes={this.nodes}
         links={this.links}
-        curve={LineShape.CurveLinear}
+        curve={LineShape.LinearLine}
         panningEnabled={true}
         enableZoom={true}
         draggingEnabled={true}
