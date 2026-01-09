@@ -32,6 +32,7 @@ export enum DrawerAction {
   Flowchart = "Flowchart",
   Dependency = "Dependency",
   InteractiveSearch = "InteractiveSearch",
+  CustomStyling = "CustomStyling",
 }
 
 const DrawerActionsItems = [
@@ -88,6 +89,12 @@ const DrawerActionsItems = [
     text: "Interactive Search",
     icon: AccountTreeIcon,
     description: "Search & select",
+  },
+  {
+    action: DrawerAction.CustomStyling,
+    text: "Custom Styling",
+    icon: AccountTreeIcon,
+    description: "Dynamic styles",
   },
   {
     action: DrawerAction.Props,

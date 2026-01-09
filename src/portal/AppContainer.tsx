@@ -11,6 +11,7 @@ import { NetworkGraph } from "portal/NetworkGraph";
 import { FlowchartGraph } from "portal/FlowchartGraph";
 import { DependencyGraph } from "portal/DependencyGraph";
 import { InteractiveSearchGraph } from "portal/InteractiveSearchGraph";
+import { CustomStylingGraph } from "portal/CustomStylingGraph";
 import styled from "styled-components";
 import { Inputs } from "./Inputs";
 
@@ -495,6 +496,55 @@ export class AppContainerComponent extends React.Component<{}, State> {
               </DescriptionCard>
             </GraphDescription>
             <InteractiveSearchGraph></InteractiveSearchGraph>
+          </>
+        );
+      }
+      case DrawerAction.CustomStyling: {
+        return (
+          <>
+            <GraphDescription>
+              <DescriptionHeader>
+                <ExampleTitle>🎨 Custom Styling & Dynamic Visualization</ExampleTitle>
+              </DescriptionHeader>
+              <DescriptionCard>
+                <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+                  Overview
+                </Typography>
+                <Typography paragraph>
+                  A comprehensive styling example showcasing dynamic node sizing, color coding, opacity control, and interactive visualization parameters. Perfect for data visualization where node properties determine visual appearance.
+                </Typography>
+
+                <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+                  Features Demonstrated
+                </Typography>
+                <FeaturesList>
+                  <li><strong>Dynamic Node Sizing</strong> - Size based on importance/priority values</li>
+                  <li><strong>Color-by-Type Styling</strong> - Different colors for different roles</li>
+                  <li><strong>Opacity Control</strong> - Adjustable transparency for nodes</li>
+                  <li><strong>Edge Width Styling</strong> - Adjustable edge thickness</li>
+                  <li><strong>Conditional Stroke Width</strong> - Thicker strokes for senior roles</li>
+                  <li><strong>Live Preview</strong> - Real-time styling updates with sliders</li>
+                  <li><strong>Interactive Controls</strong> - Size range, opacity, and edge width adjustments</li>
+                  <li><strong>Legend Support</strong> - Visual legend for color-coded types</li>
+                </FeaturesList>
+
+                <Box style={{ marginTop: 16 }}>
+                  <Link
+                    href="https://github.com/assafsun/sun-graph/blob/master/src/portal/CustomStylingGraph.tsx"
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Chip
+                      icon={<GitHubIcon />}
+                      label="View Source Code"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Link>
+                </Box>
+              </DescriptionCard>
+            </GraphDescription>
+            <CustomStylingGraph></CustomStylingGraph>
           </>
         );
       }
