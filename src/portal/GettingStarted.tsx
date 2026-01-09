@@ -401,37 +401,3 @@ function MyGraph() {
     </GettingStartedContainer>
   );
 }
-          add sun-graph' or 'npm install sun-graph'
-        </Typography>
-        <Typography paragraph style={{ width: DefaultWidth }}>
-          2. Import SunGraph component into your react component from sun-graph.
-        </Typography>
-        <Typography
-          variant="caption"
-          paragraph
-          style={{ fontSize: 20, fontWeight: 600 }}
-        >
-          Import your data and Build your graph.
-        </Typography>
-        <Typography paragraph style={{ width: DefaultWidth }}>
-          Load sun graph component in your React component.
-        </Typography>
-        <Typography paragraph style={{ width: DefaultWidth }}>
-          The minimum input that sun graph require in order to load a graph is
-          the information on your nodes and links.
-        </Typography>
-        <Typography paragraph style={{ width: DefaultWidth }}>
-          Node - represented by the 'Node' class. We need to create an array of
-          nodes where each node must at least contain an id property. Once the
-          nodes array is ready, pass them to the nodes input props.
-        </Typography>
-        <Typography paragraph style={{ width: DefaultWidth }}>
-          Link - represented by the 'Link' class. We need to create an array of
-          links which will connect existing nodes. Each link object must have a
-          'source' property and 'destination' property with a node id. Once the
-          links array us ready, pass them to the links input props.
-        </Typography>
-      </GraphBuilding>
-    </GettingStartedContainer>
-  );
-}

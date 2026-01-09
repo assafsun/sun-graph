@@ -202,6 +202,7 @@ export class AdvancedGraphComponent extends React.Component {
         ),
       };
 
+      // eslint-disable-next-line react/no-direct-mutation-state
       this.links.push(edge);
     }
 

@@ -16,8 +16,6 @@ import {
   Info as InfoIcon,
   AccountTree as AccountTreeIcon,
   Settings as SettingsIcon,
-  GetApp as GetAppIcon,
-  GitHub as GitHubIcon,
 } from "@material-ui/icons";
 import SungraphLogo from "./images/sungraph.svg";
 
