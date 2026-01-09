@@ -27,6 +27,10 @@ export enum DrawerAction {
   Default = "Default",
   Basic = "Basic",
   Advanced = "Advanced",
+  OrgChart = "OrgChart",
+  Network = "Network",
+  Flowchart = "Flowchart",
+  Dependency = "Dependency",
 }
 
 const DrawerActionsItems = [
@@ -53,6 +57,30 @@ const DrawerActionsItems = [
     text: "Advanced Graph",
     icon: AccountTreeIcon,
     description: "Complex example",
+  },
+  {
+    action: DrawerAction.OrgChart,
+    text: "Org Chart",
+    icon: AccountTreeIcon,
+    description: "Hierarchy example",
+  },
+  {
+    action: DrawerAction.Network,
+    text: "Network Graph",
+    icon: AccountTreeIcon,
+    description: "Social network",
+  },
+  {
+    action: DrawerAction.Flowchart,
+    text: "Flowchart",
+    icon: AccountTreeIcon,
+    description: "Process flow",
+  },
+  {
+    action: DrawerAction.Dependency,
+    text: "Dependencies",
+    icon: AccountTreeIcon,
+    description: "Service graph",
   },
   {
     action: DrawerAction.Props,

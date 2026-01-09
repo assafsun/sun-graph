@@ -6,6 +6,10 @@ import { GettingStarted } from "./GettingStarted";
 import { Typography, Link, Paper, Box, Chip } from "@material-ui/core";
 import { GitHub as GitHubIcon } from "@material-ui/icons";
 import { AdvancedGraphComponent } from "portal/AdvancedGraph";
+import { OrgChartGraph } from "portal/OrgChartGraph";
+import { NetworkGraph } from "portal/NetworkGraph";
+import { FlowchartGraph } from "portal/FlowchartGraph";
+import { DependencyGraph } from "portal/DependencyGraph";
 import styled from "styled-components";
 import { Inputs } from "./Inputs";
 
@@ -259,6 +263,191 @@ export class AppContainerComponent extends React.Component<{}, State> {
               </DescriptionCard>
             </GraphDescription>
             <DefaultGraph></DefaultGraph>
+          </>
+        );
+      }
+      case DrawerAction.Props: {
+        return <Inputs></Inputs>;
+      }
+      case DrawerAction.OrgChart: {
+        return (
+          <>
+            <GraphDescription>
+              <DescriptionHeader>
+                <ExampleTitle>👥 Organization Chart</ExampleTitle>
+              </DescriptionHeader>
+              <DescriptionCard>
+                <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+                  Overview
+                </Typography>
+                <Typography paragraph>
+                  A typical organizational hierarchy showing reporting relationships between employees.
+                </Typography>
+
+                <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+                  Features Demonstrated
+                </Typography>
+                <FeaturesList>
+                  <li><strong>Hierarchical Layout</strong> - Tree-like structure from top to bottom</li>
+                  <li><strong>Role-Based Coloring</strong> - Different colors for different roles</li>
+                  <li><strong>Reporting Relationships</strong> - Clear chain of command</li>
+                  <li><strong>Custom Templates</strong> - Color-coded node types</li>
+                </FeaturesList>
+
+                <Box style={{ marginTop: 16 }}>
+                  <Link
+                    href="https://github.com/assafsun/sun-graph/blob/master/src/portal/OrgChartGraph.tsx"
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Chip
+                      icon={<GitHubIcon />}
+                      label="View Source Code"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Link>
+                </Box>
+              </DescriptionCard>
+            </GraphDescription>
+            <OrgChartGraph></OrgChartGraph>
+          </>
+        );
+      }
+      case DrawerAction.Network: {
+        return (
+          <>
+            <GraphDescription>
+              <DescriptionHeader>
+                <ExampleTitle>🌐 Network Graph</ExampleTitle>
+              </DescriptionHeader>
+              <DescriptionCard>
+                <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+                  Overview
+                </Typography>
+                <Typography paragraph>
+                  A social network graph showing interconnected users with hub nodes (highly connected users).
+                </Typography>
+
+                <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+                  Features Demonstrated
+                </Typography>
+                <FeaturesList>
+                  <li><strong>Hub Nodes</strong> - Central nodes with many connections (circular)</li>
+                  <li><strong>Regular Nodes</strong> - Standard nodes with fewer connections</li>
+                  <li><strong>Multiple Relationships</strong> - Various connection types</li>
+                  <li><strong>Curved Edges</strong> - Smooth cardinal curves for organic look</li>
+                </FeaturesList>
+
+                <Box style={{ marginTop: 16 }}>
+                  <Link
+                    href="https://github.com/assafsun/sun-graph/blob/master/src/portal/NetworkGraph.tsx"
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Chip
+                      icon={<GitHubIcon />}
+                      label="View Source Code"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Link>
+                </Box>
+              </DescriptionCard>
+            </GraphDescription>
+            <NetworkGraph></NetworkGraph>
+          </>
+        );
+      }
+      case DrawerAction.Flowchart: {
+        return (
+          <>
+            <GraphDescription>
+              <DescriptionHeader>
+                <ExampleTitle>📊 Flowchart</ExampleTitle>
+              </DescriptionHeader>
+              <DescriptionCard>
+                <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+                  Overview
+                </Typography>
+                <Typography paragraph>
+                  A process flowchart showing decision points, process steps, and flow direction.
+                </Typography>
+
+                <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+                  Features Demonstrated
+                </Typography>
+                <FeaturesList>
+                  <li><strong>Start/End Nodes</strong> - Rounded nodes for begin/end</li>
+                  <li><strong>Process Nodes</strong> - Rectangular nodes for actions</li>
+                  <li><strong>Decision Nodes</strong> - Diamond shapes for decisions</li>
+                  <li><strong>Flow Direction</strong> - Clear top-to-bottom flow</li>
+                  <li><strong>Multiple Paths</strong> - Yes/No branches from decisions</li>
+                </FeaturesList>
+
+                <Box style={{ marginTop: 16 }}>
+                  <Link
+                    href="https://github.com/assafsun/sun-graph/blob/master/src/portal/FlowchartGraph.tsx"
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Chip
+                      icon={<GitHubIcon />}
+                      label="View Source Code"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Link>
+                </Box>
+              </DescriptionCard>
+            </GraphDescription>
+            <FlowchartGraph></FlowchartGraph>
+          </>
+        );
+      }
+      case DrawerAction.Dependency: {
+        return (
+          <>
+            <GraphDescription>
+              <DescriptionHeader>
+                <ExampleTitle>⚙️ Dependency Graph</ExampleTitle>
+              </DescriptionHeader>
+              <DescriptionCard>
+                <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+                  Overview
+                </Typography>
+                <Typography paragraph>
+                  A service dependency graph showing microservices, databases, caches, and external integrations.
+                </Typography>
+
+                <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+                  Features Demonstrated
+                </Typography>
+                <FeaturesList>
+                  <li><strong>Service Nodes</strong> - Purple nodes with status indicators</li>
+                  <li><strong>Database Nodes</strong> - Pink nodes for data stores</li>
+                  <li><strong>External Services</strong> - Dashed border for third-party APIs</li>
+                  <li><strong>Status Indicators</strong> - Green (running), Yellow (warning), Red (error)</li>
+                  <li><strong>Complex Dependencies</strong> - Multiple interconnected services</li>
+                </FeaturesList>
+
+                <Box style={{ marginTop: 16 }}>
+                  <Link
+                    href="https://github.com/assafsun/sun-graph/blob/master/src/portal/DependencyGraph.tsx"
+                    target="_blank"
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Chip
+                      icon={<GitHubIcon />}
+                      label="View Source Code"
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Link>
+                </Box>
+              </DescriptionCard>
+            </GraphDescription>
+            <DependencyGraph></DependencyGraph>
           </>
         );
       }
