@@ -8,15 +8,15 @@ import {
   ListItemIcon,
   ListItem,
   ListItemText,
-  makeStyles,
   Divider,
   Box,
-} from "@material-ui/core";
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 import {
   Info as InfoIcon,
   AccountTree as AccountTreeIcon,
   Settings as SettingsIcon,
-} from "@material-ui/icons";
+} from "@mui/icons-material";
 import SungraphLogo from "./images/sungraph.svg";
 
 const drawerWidth = 260;
@@ -90,51 +90,29 @@ const DrawerActionsItems = [
   },
 ];
 
-export const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
-    background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    color: "#fff",
-    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
-  },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
+const AppBarStyled = styled(AppBar)(({ theme }) => ({
+  zIndex: theme.zIndex.drawer + 1,
+  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  color: "#fff",
+  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.15)",
+}));
+
+const DrawerStyled = styled(Drawer)(() => ({
+  width: drawerWidth,
+  flexShrink: 0,
+  "& .MuiDrawer-paper": {
     width: drawerWidth,
     background: "#f8f9fa",
     borderRight: "1px solid #e0e0e0",
   },
-  drawerContainer: {
-    overflow: "auto",
-    padding: "8px 0",
-  },
-  listItem: {
-    margin: "4px 8px",
-    borderRadius: "8px",
-    transition: "all 0.2s ease",
-    "&:hover": {
-      backgroundColor: "#e8e8ff",
-    },
-    "&.Mui-selected": {
-      backgroundColor: "#667eea",
-      color: "white",
-      "&:hover": {
-        backgroundColor: "#764ba2",
-      },
-    },
-  },
-  listItemIcon: {
-    minWidth: 40,
-  },
+}));
+
+const DrawerContainer = styled(Box)(() => ({
+  overflow: "auto",
+  padding: "8px 0",
 }));
 
 export function ClippedDrawerAppBar(props: any) {
-  const classes = useStyles();
   const [selectedDrawerAction, setSelectedDrawerAction] = useState(
     DrawerAction.GettingStarted
   );
@@ -152,15 +130,26 @@ export function ClippedDrawerAppBar(props: any) {
           setSelectedDrawerAction(item.action);
           props.handleDrawerClick(item.action);
         }}
-        className={classes.listItem}
-        style={{
+        sx={{
+          margin: "4px 8px",
+          borderRadius: "8px",
+          transition: "all 0.2s ease",
           backgroundColor: isSelected ? "#667eea" : "transparent",
           color: isSelected ? "white" : "inherit",
+          "&:hover": {
+            backgroundColor: isSelected ? "#764ba2" : "#e8e8ff",
+          },
+          "&.Mui-selected": {
+            backgroundColor: "#667eea",
+            color: "white",
+            "&:hover": {
+              backgroundColor: "#764ba2",
+            },
+          },
         }}
       >
         <ListItemIcon
-          className={classes.listItemIcon}
-          style={{ color: isSelected ? "white" : "inherit" }}
+          sx={{ minWidth: 40, color: isSelected ? "white" : "inherit" }}
         >
           <IconName />
         </ListItemIcon>
@@ -184,7 +173,7 @@ export function ClippedDrawerAppBar(props: any) {
 
   return (
     <>
-      <AppBar position="fixed" className={classes.appBar}>
+      <AppBarStyled position="fixed">
         <Toolbar>
           <img
             style={{ marginRight: 12 }}
@@ -200,13 +189,9 @@ export function ClippedDrawerAppBar(props: any) {
             <InfoIcon style={{ fontSize: 20, opacity: 0.8 }} />
           </Box>
         </Toolbar>
-      </AppBar>
-      <Drawer
-        className={classes.drawer}
+      </AppBarStyled>
+      <DrawerStyled
         variant="permanent"
-        classes={{
-          paper: classes.drawerPaper,
-        }}
       >
         <Toolbar />
         <Box style={{ padding: "16px 12px" }}>
@@ -214,9 +199,9 @@ export function ClippedDrawerAppBar(props: any) {
             EXAMPLES
           </Typography>
         </Box>
-        <div className={classes.drawerContainer}>
+        <DrawerContainer>
           <List style={{ paddingTop: 0 }}>{listItems}</List>
-        </div>
+        </DrawerContainer>
         
         <Divider style={{ margin: "16px 0" }} />
         
@@ -225,7 +210,7 @@ export function ClippedDrawerAppBar(props: any) {
             v0.0.0 • MIT License
           </Typography>
         </Box>
-      </Drawer>
+      </DrawerStyled>
     </>
   );
 }

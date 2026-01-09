@@ -1,6 +1,6 @@
 import React from "react";
-import { Typography, Button, Box, Paper, Card, CardContent, Link } from "@material-ui/core";
-import { GitHub as GitHubIcon, GetApp as GetAppIcon, Launch as LaunchIcon } from "@material-ui/icons";
+import { Typography, Button, Box, Paper, Card, CardContent, Link } from "@mui/material";
+import { GitHub as GitHubIcon, Launch as LaunchIcon } from "@mui/icons-material";
 import styled from "styled-components";
 
 const DefaultWidth: number = 1200;
@@ -337,7 +337,7 @@ function MyGraph() {
                 target="_blank"
                 style={{ textDecoration: 'none' }}
               >
-                <Button size="small" variant="outlined" startIcon={<GetAppIcon />}>
+                <Button size="small" variant="outlined" startIcon={<LaunchIcon />}>
                   Install
                 </Button>
               </Link>
@@ -390,7 +390,7 @@ function MyGraph() {
               <Button 
                 variant="contained"
                 style={{ backgroundColor: 'white', color: '#667eea', fontWeight: 600 }}
-                startIcon={<GetAppIcon />}
+                startIcon={<LaunchIcon />}
               >
                 Install Package
               </Button>

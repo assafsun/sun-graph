@@ -14,7 +14,7 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
-import { Button } from "@material-ui/core";
+import { Button } from "@mui/material";
 import styled from "styled-components";
 
 /**

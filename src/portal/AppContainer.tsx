@@ -3,8 +3,8 @@ import { ClippedDrawerAppBar, DrawerAction } from "./ClippedDrawerAppBar";
 import { BasicGraphComponent } from "portal/BasicGraph";
 import { DefaultGraph } from "portal/DefaultGraph";
 import { GettingStarted } from "./GettingStarted";
-import { Typography, Link, Paper, Box, Chip } from "@material-ui/core";
-import { GitHub as GitHubIcon } from "@material-ui/icons";
+import { Typography, Link, Paper, Box, Chip } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
 import { AdvancedGraphComponent } from "portal/AdvancedGraph";
 import { OrgChartGraph } from "portal/OrgChartGraph";
 import { NetworkGraph } from "portal/NetworkGraph";
@@ -21,12 +21,10 @@ const Container = styled.div`
 `;
 
 interface MainProps {
-  isGraphDemo: boolean;
+  isGraphDemo?: boolean;
 }
 
-const Main = styled.div.attrs((props: MainProps) => ({
-  isGraphDemo: props.isGraphDemo || false,
-}))`
+const Main = styled.div<MainProps>`
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   flex: 1;
   margin-top: 64px;

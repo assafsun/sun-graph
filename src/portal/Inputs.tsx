@@ -1,15 +1,6 @@
 import React from "react";
-import { Typography } from "@material-ui/core";
-import { makeStyles } from "@material-ui/core/styles";
-
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
-import Paper from "@material-ui/core/Paper";
-
+import { Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import { styled as muiStyled } from "@mui/material/styles";
 import styled from "styled-components";
 
 const DefaultWidth: number = 1200;
@@ -105,16 +96,12 @@ const rows = [
   ),
 ];
 
-const useStyles = makeStyles({
-  table: {
-    width: 1250,
-    marginBottom: 60,
-  },
-});
+const StyledTable = muiStyled(Table)(({ theme }) => ({
+  width: 1250,
+  marginBottom: 60,
+}));
 
 export function Inputs() {
-  const classes = useStyles();
-
   return (
     <InputsContainer>
       <Typography
@@ -129,7 +116,7 @@ export function Inputs() {
         your graph experience.
       </Typography>
       <TableContainer component={Paper}>
-        <Table stickyHeader className={classes.table}>
+        <StyledTable stickyHeader>
           <TableHead>
             <TableRow>
               <TableCell>Input</TableCell>
@@ -148,7 +135,7 @@ export function Inputs() {
               </TableRow>
             ))}
           </TableBody>
-        </Table>
+        </StyledTable>
       </TableContainer>
     </InputsContainer>
   );
