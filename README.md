@@ -4,6 +4,9 @@
 [![npm version](http://img.shields.io/npm/v/sun-graph.svg?style=flat)](https://www.npmjs.com/package/sun-graph "View this project on npm")
 ![CI](https://github.com/assafsun/sun-graph/workflows/CI/badge.svg?branch=master) 
 [![style: styled-components](https://img.shields.io/badge/style-%F0%9F%92%85%20styled--components-orange.svg?colorB=daa357&colorA=db748e)](https://github.com/styled-components/styled-components)
+[![React](https://img.shields.io/badge/React-18+-61dafb.svg?logo=react&logoColor=61dafb)](https://react.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178c6.svg?logo=typescript&logoColor=3178c6)](https://www.typescriptlang.org)
+[![D3.js](https://img.shields.io/badge/D3.js-7+-f77f00.svg?logo=d3dotjs&logoColor=f77f00)](https://d3js.org)
 
 # SunGraph - Beautiful Graph Visualization for React
 

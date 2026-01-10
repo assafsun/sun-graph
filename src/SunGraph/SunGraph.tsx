@@ -1,7 +1,7 @@
 import React from "react";
-
+import styled from "styled-components";
 import * as shape from "d3-shape";
-import { Observable, Subscription } from "rxjs";
+import { Observable, Subscription, BehaviorSubject } from "rxjs";
 import {
   identity,
   scale,
@@ -11,19 +11,28 @@ import {
   translate,
   Matrix,
 } from "transformation-matrix";
+
+// Models
 import { Layout } from "SunGraph/models/layout.model";
 import { Graph, Node, Edge, PanningAxis } from "SunGraph/models/graph.model";
-import { id } from "SunGraph/utils/id";
 
+// Utils
+import { id } from "SunGraph/utils/id";
 import {
   ViewDimensions,
   calculateViewDimensions,
 } from "./utils/viewDimensionsHelper";
+
+// Layouts
 import { CustomDagreLayout } from "./layouts/customDagreLayout";
 
-import { BehaviorSubject } from "rxjs";
-
-import styled from "styled-components";
+// Constants
+import {
+  DEFAULT_GRAPH_SIZE,
+  DEFAULT_NODE_SIZE,
+  DEFAULT_ZOOM_SPEED,
+  ARROW_MARKER_CONFIG,
+} from "./constants";
 
 const GraphContainer = styled.div`
   user-select: none;
@@ -39,46 +48,56 @@ const SvgGraph = styled.svg`
   width: inherit;
 `;
 
-const DefaultGraphSize: number = 1000;
-const DefaultNodeSize: number = 60;
-
 interface State {
   initialized: boolean;
   transform?: string;
 }
 
 interface Props {
+  // Core
   view?: [number, number];
   nodes: Node[];
   links: Edge[];
   layout?: Layout;
+
+  // Node Rendering
   defaultNodeTemplate?: (node: Node) => React.ReactNode;
   isNodeTemplateHTML?: boolean;
-  curve?: any;
   nodeHeight?: number;
   nodeWidth?: number;
+
+  // Edge Rendering
+  curve?: any;
+  defsTemplate?: () => any;
+
+  // Interactions
   draggingEnabled?: boolean;
   panningEnabled?: boolean;
   enableZoom?: boolean;
+  enableTrackpadSupport?: boolean;
+
+  // Zoom Controls
   zoomSpeed?: number;
   minZoomLevel?: number;
   maxZoomLevel?: number;
-  autoCenter?: boolean;
-  enableTrackpadSupport?: boolean;
   autoZoom?: boolean;
-  zoomChange?: (value: number) => void;
+
+  // Layout
+  autoCenter?: boolean;
+
+  // Legacy Callbacks
   clickHandler?: (value: MouseEvent) => void;
-  defsTemplate?: () => any;
-  
-  // Event callbacks
+  zoomChange?: (value: number) => void;
+
+  // Event Callbacks
   onNodeClick?: (node: Node, event: MouseEvent) => void;
   onNodeHover?: (node: Node | null, event: MouseEvent) => void;
   onNodeDoubleClick?: (node: Node, event: MouseEvent) => void;
   onEdgeClick?: (edge: Edge, event: MouseEvent) => void;
   onEdgeHover?: (edge: Edge | null, event: MouseEvent) => void;
   onGraphClick?: (event: MouseEvent) => void;
-  
-  // Search and filtering
+
+  // Filtering & Selection
   searchTerm?: string;
   filteredNodeIds?: string[];
   selectedNodeIds?: string[];
@@ -89,7 +108,7 @@ interface Props {
   selectedColor?: string;
   dimmedOpacity?: number;
 
-  //Not reviewed props
+  // Observable Streams (for advanced control)
   center$?: Observable<any>;
   zoomToFit$?: Observable<any>;
   panToNode$?: Observable<any>;
@@ -123,8 +142,8 @@ export class SunGraph extends React.Component<Props, BasicState> {
 
   public render(): React.ReactNode {
     const graphContainerStyle = {
-      width: this.state ? this.state.graphWidth : DefaultGraphSize,
-      height: this.state ? this.state.graphHeight : DefaultGraphSize,
+      width: this.state ? this.state.graphWidth : DEFAULT_GRAPH_SIZE,
+      height: this.state ? this.state.graphHeight : DEFAULT_GRAPH_SIZE,
     };
 
     return (
@@ -203,25 +222,25 @@ class SunGraphBase extends React.Component<Props, State> {
   };
 
   static defaultProps = {
-    view: [DefaultGraphSize, DefaultGraphSize],
+    view: [DEFAULT_GRAPH_SIZE, DEFAULT_GRAPH_SIZE],
     curve: shape.curveLinear,
     isNodeTemplateHTML: true,
     layout: new CustomDagreLayout(),
     clickHandler: (value: MouseEvent) => {},
     zoomChange: (value: number) => {},
-    zoomSpeed: 0.1,
+    zoomSpeed: DEFAULT_ZOOM_SPEED,
     defsTemplate: () => (
       <svg>
         <marker
-          id="arrow"
-          viewBox="0 -5 10 10"
-          refX="8"
-          refY="0"
-          markerWidth="4"
-          markerHeight="4"
-          orient="auto"
+          id={ARROW_MARKER_CONFIG.id}
+          viewBox={ARROW_MARKER_CONFIG.viewBox}
+          refX={ARROW_MARKER_CONFIG.refX}
+          refY={ARROW_MARKER_CONFIG.refY}
+          markerWidth={ARROW_MARKER_CONFIG.markerWidth}
+          markerHeight={ARROW_MARKER_CONFIG.markerHeight}
+          orient={ARROW_MARKER_CONFIG.orient}
         >
-          <path d="M0,-5L10,0L0,5" className="arrow-head" />
+          <path d={ARROW_MARKER_CONFIG.path} className="arrow-head" />
         </marker>
       </svg>
     ),
@@ -448,8 +467,8 @@ class SunGraphBase extends React.Component<Props, State> {
       this.width = this.props.view[0];
       this.height = this.props.view[1];
     } else {
-      this.width = DefaultGraphSize;
-      this.height = DefaultGraphSize;
+      this.width = DEFAULT_GRAPH_SIZE;
+      this.height = DEFAULT_GRAPH_SIZE;
     }
 
     this.width = Math.floor(this.width);
@@ -467,10 +486,10 @@ class SunGraphBase extends React.Component<Props, State> {
       }
 
       if (!n.width || !n.height) {
-        n.width = this.props.nodeWidth ? this.props.nodeWidth : DefaultNodeSize;
+        n.width = this.props.nodeWidth ? this.props.nodeWidth : DEFAULT_NODE_SIZE;
         n.height = this.props.nodeHeight
           ? this.props.nodeHeight
-          : DefaultNodeSize;
+          : DEFAULT_NODE_SIZE;
       }
 
       n.position = {

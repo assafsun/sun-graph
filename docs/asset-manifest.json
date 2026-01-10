@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/sun-graph/static/css/main.e6c13ad2.css",
-    "main.js": "/sun-graph/static/js/main.8edc4812.js",
+    "main.js": "/sun-graph/static/js/main.b64bbda6.js",
     "static/media/sungraph.svg": "/sun-graph/static/media/sungraph.74d41d5592eef549943c8ed4f52540a3.svg",
     "index.html": "/sun-graph/index.html",
     "main.e6c13ad2.css.map": "/sun-graph/static/css/main.e6c13ad2.css.map",
-    "main.8edc4812.js.map": "/sun-graph/static/js/main.8edc4812.js.map"
+    "main.b64bbda6.js.map": "/sun-graph/static/js/main.b64bbda6.js.map"
   },
   "entrypoints": [
     "static/css/main.e6c13ad2.css",
-    "static/js/main.8edc4812.js"
+    "static/js/main.b64bbda6.js"
   ]
 }

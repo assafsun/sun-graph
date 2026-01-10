@@ -1,6 +1,7 @@
 import { Layout } from "SunGraph/models/layout.model";
 import { Graph, Node } from "SunGraph/models/graph.model";
 import { id } from "SunGraph/utils/id";
+import { DEFAULT_DAGRE_CONFIG } from "SunGraph/constants";
 import * as dagre from "dagre";
 import { Edge } from "SunGraph/models/graph.model";
 
@@ -37,9 +38,9 @@ export class CustomDagreLayout implements Layout {
     orientation: Orientation.LEFT_TO_RIGHT,
     marginX: 20,
     marginY: 20,
-    edgePadding: 100,
-    rankPadding: 100,
-    nodePadding: 50,
+    edgePadding: DEFAULT_DAGRE_CONFIG.edgePadding,
+    rankPadding: DEFAULT_DAGRE_CONFIG.rankPadding,
+    nodePadding: DEFAULT_DAGRE_CONFIG.nodePadding,
     multigraph: true,
     compound: true,
   };
