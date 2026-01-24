@@ -4,6 +4,10 @@ import { id } from "SunGraph/utils/id";
 import { DEFAULT_DAGRE_CONFIG } from "SunGraph/constants";
 import * as dagre from "dagre";
 import { Edge } from "SunGraph/models/graph.model";
+import {
+  calculateEdgePath,
+  NodeShape,
+} from "SunGraph/utils/edgeAnchorPoint";
 
 export enum Orientation {
   LEFT_TO_RIGHT = "LR",
@@ -31,6 +35,9 @@ export interface DagreSettings {
   ranker?: "network-simplex" | "tight-tree" | "longest-path";
   multigraph?: boolean;
   compound?: boolean;
+  useDagreEdgePoints?: boolean; // Use Dagre's computed edge paths
+  nodeShape?: NodeShape; // Shape for anchor point calculation
+  isHTMLTemplate?: boolean; // Whether nodes use HTML template (foreignObject) vs SVG shapes
 }
 
 export class CustomDagreLayout implements Layout {
@@ -43,6 +50,9 @@ export class CustomDagreLayout implements Layout {
     nodePadding: DEFAULT_DAGRE_CONFIG.nodePadding,
     multigraph: true,
     compound: true,
+    useDagreEdgePoints: true, // Use Dagre's edge routing by default
+    nodeShape: "rectangle",
+    isHTMLTemplate: true, // Default to HTML template for backward compatibility
   };
   settings: DagreSettings = {};
 
@@ -56,6 +66,7 @@ export class CustomDagreLayout implements Layout {
 
     graph.edgeLabels = this.dagreGraph._edgeLabels;
 
+    // Update node positions from Dagre
     for (const dagreNodeId in this.dagreGraph._nodes) {
       const dagreNode = this.dagreGraph._nodes[dagreNodeId];
       const node = graph.nodes.find((n) => n.id === dagreNode.id);
@@ -67,46 +78,54 @@ export class CustomDagreLayout implements Layout {
       node.height = dagreNode.height;
     }
 
+    // Update edges with proper anchor points
+    for (const edge of graph.edges) {
+      this.updateEdge(graph, edge);
+    }
+
     return graph;
   }
 
   public updateEdge(graph: Graph, edge: Edge): Graph {
     const sourceNode = graph.nodes.find((n) => n.id === edge.source);
     const targetNode: Node = graph.nodes.find((n) => n.id === edge.target);
-    const rankAxis: "x" | "y" =
-      this.settings.orientation === "BT" || this.settings.orientation === "TB"
-        ? "y"
-        : "x";
-    const orderAxis: "x" | "y" = rankAxis === "y" ? "x" : "y";
-    const rankDimension = rankAxis === "y" ? "height" : "width";
-    // determine new arrow position
-    const dir =
-      sourceNode.position[rankAxis] <= targetNode.position[rankAxis] ? -1 : 1;
-    const startingPoint = {
-      [orderAxis]: sourceNode.position[orderAxis],
-      [rankAxis]:
-        sourceNode.position[rankAxis] -
-        dir *
-          ((rankDimension === "height" ? sourceNode.height : sourceNode.width) /
-            2),
-    };
-    const endingPoint = {
-      [orderAxis]: targetNode.position[orderAxis],
-      [rankAxis]:
-        targetNode.position[rankAxis] +
-        dir *
-          ((rankDimension === "height" ? targetNode.height : targetNode.width) /
-            2),
-    };
-    // generate new points
-    edge.points = [
-      startingPoint,
-      {
-        [orderAxis]: endingPoint[orderAxis],
-        [rankAxis]: (startingPoint[rankAxis] + endingPoint[rankAxis]) / 2,
-      },
-      endingPoint,
-    ];
+    
+    if (!sourceNode || !targetNode) {
+      return graph;
+    }
+
+    const settings = Object.assign({}, this.defaultSettings, this.settings);
+    const nodeShape = settings.nodeShape || "rectangle";
+    
+    // Try to get Dagre's computed edge points
+    let dagrePoints: any[] | undefined;
+    
+    if (settings.useDagreEdgePoints && this.dagreGraph) {
+      // Dagre stores edge labels with composite key: source + target + edge.id
+      const edgeKey = `${edge.source}\x01${edge.target}\x01${edge.id}`;
+      let dagreEdge = this.dagreGraph._edgeLabels[edgeKey];
+      
+      // If not found, try without the edge.id (for non-multigraph)
+      if (!dagreEdge) {
+        const simpleKey = `${edge.source}\x01${edge.target}`;
+        dagreEdge = this.dagreGraph._edgeLabels[simpleKey];
+      }
+      
+      if (dagreEdge && dagreEdge.points && dagreEdge.points.length > 0) {
+        dagrePoints = dagreEdge.points;
+      }
+    }
+    
+    // Calculate edge path with proper anchor points
+    edge.points = calculateEdgePath(
+      sourceNode,
+      targetNode,
+      dagrePoints,
+      nodeShape,
+      nodeShape,
+      settings.isHTMLTemplate ?? true
+    );
+    
     return graph;
   }
 

@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
-import * as shape from "d3-shape";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
+import { CustomDagreLayout } from "SunGraph/layouts/customDagreLayout";
 import { TextField, Paper, Box, Typography, Chip, Button } from "@mui/material";
 import styled from "styled-components";
 
@@ -38,11 +38,6 @@ const Stats = styled.div`
   flex-wrap: wrap;
 `;
 
-const RoleIcon = styled.span`
-  font-size: 16px;
-  margin-right: 4px;
-`;
-
 // Role configuration with colors and icons
 const roleConfig = {
   Executive: { color: "#667eea", icon: "👑", bgColor: "#e8eaf6" },
@@ -50,6 +45,15 @@ const roleConfig = {
   Engineer: { color: "#4facfe", icon: "⚙️", bgColor: "#e3f2fd" },
   Designer: { color: "#f093fb", icon: "🎨", bgColor: "#f3e5f5" },
   Specialist: { color: "#43e97b", icon: "⭐", bgColor: "#e8f5e9" },
+};
+
+// Create layout with circle node shape for proper edge anchoring
+const circleLayout = new CustomDagreLayout();
+circleLayout.settings = {
+  nodeShape: "circle",
+  rankPadding: 120,
+  nodePadding: 80,
+  isHTMLTemplate: false, // Using SVG templates (not foreignObject)
 };
 
 /**
@@ -68,7 +72,7 @@ export function InteractiveSearchGraph() {
   const [hoveredNodeId, setHoveredNodeId] = useState<string | null>(null);
 
   // Sample data: Tech company organizational structure with skills
-  const baseNodes: Node[] = [
+  const baseNodes: Node[] = useMemo(() => [
     { id: "ceo", label: "Alice Johnson", data: { role: "Executive", dept: "Leadership", abbr: "AJ" } },
     { id: "cto", label: "Bob Smith", data: { role: "Executive", dept: "Leadership", abbr: "BS" } },
     { id: "cfo", label: "Carol White", data: { role: "Executive", dept: "Finance", abbr: "CW" } },
@@ -89,9 +93,9 @@ export function InteractiveSearchGraph() {
     // Finance team
     { id: "accountant1", label: "Mia Jackson", data: { role: "Specialist", dept: "Finance", abbr: "MJ" } },
     { id: "accountant2", label: "Nathan Garcia", data: { role: "Specialist", dept: "Finance", abbr: "NG" } },
-  ];
+  ], []);
 
-  const edges: Edge[] = [
+  const edges: Edge[] = useMemo(() => [
     // CEO reports
     { source: "ceo", target: "cto", label: "reports to" },
     { source: "ceo", target: "cfo", label: "reports to" },
@@ -121,7 +125,7 @@ export function InteractiveSearchGraph() {
     // Finance
     { source: "cfo", target: "accountant1", label: "manages" },
     { source: "cfo", target: "accountant2", label: "manages" },
-  ];
+  ], []);
 
   // Calculate filtered nodes based on search
   const filteredNodeIds = useMemo(() => {
@@ -288,6 +292,10 @@ export function InteractiveSearchGraph() {
         <SunGraph
           nodes={styledNodes}
           links={styledEdges}
+          layout={circleLayout}
+          nodeWidth={64}
+          nodeHeight={64}
+          draggingEnabled={true}
           onNodeClick={handleNodeClick}
           onNodeHover={(node, event) => {
             setHoveredNodeId(node?.id || null);
@@ -297,7 +305,6 @@ export function InteractiveSearchGraph() {
             const role = node.data?.role || "Engineer";
             const config = roleConfig[role as keyof typeof roleConfig] || roleConfig.Engineer;
             const abbr = node.data?.abbr || "?";
-            const isFiltered = !filteredNodeIds.includes(node.id);
 
             return (
               <g style={{ cursor: "pointer" }}>

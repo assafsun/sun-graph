@@ -30,3 +30,4 @@ export const DEFAULT_DAGRE_CONFIG = {
   edgePadding: 100,
   rankPadding: 100,
 };
+

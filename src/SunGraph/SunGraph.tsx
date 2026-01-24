@@ -535,7 +535,14 @@ class SunGraphBase extends React.Component<Props, State> {
     for (const edgeLabelId in this.graph.edgeLabels) {
       const edgeLabel = this.graph.edgeLabels[edgeLabelId];
 
-      const points = edgeLabel.points;
+      // edgeLabel already has source and target properties from Dagre
+      // Find the corresponding edge with corrected anchor points from layout
+      const correctedEdge = this.graph.edges.find(
+        (e) => e.source === edgeLabel.source && e.target === edgeLabel.target
+      );
+      
+      // Use corrected points from layout if available, otherwise use Dagre's points  
+      const points = correctedEdge?.points || edgeLabel.points;
       const line = this.generateLine(points);
 
       const newLink = Object.assign({}, edgeLabel);
