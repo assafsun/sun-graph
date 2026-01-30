@@ -16,6 +16,19 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
 import styled from "styled-components";
+import { Typography, Link, Box, Chip } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { ExampleLayout } from "./layouts/ExampleLayout";
+
+const FeaturesList = styled.ul`
+  margin: 12px 0;
+  padding-left: 20px;
+  
+  li {
+    margin: 8px 0;
+    color: #666;
+  }
+`;
 
 const ServiceNode = styled.div`
   width: 100%;
@@ -264,16 +277,59 @@ export class DependencyGraph extends React.Component {
   }
 
   render() {
+    const description = (
+      <>
+        <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+          Overview
+        </Typography>
+        <Typography paragraph>
+          Visualizing package or module dependencies in a software project.
+        </Typography>
+
+        <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+          Features Demonstrated
+        </Typography>
+        <FeaturesList>
+          <li><strong>DAG Layout</strong> - Directed Acyclic Graph structure</li>
+          <li><strong>Depth Visualization</strong> - Layers indicating dependency depth</li>
+          <li><strong>Critical Paths</strong> - Highlighting key dependency chains</li>
+          <li><strong>Package Sizing</strong> - Node size based on complexity/size</li>
+        </FeaturesList>
+
+        <Box style={{ marginTop: 16 }}>
+          <Link
+            href="https://github.com/assafsun/sun-graph/blob/master/src/portal/DependencyGraph.tsx"
+            target="_blank"
+            style={{ textDecoration: 'none' }}
+          >
+            <Chip
+              icon={<GitHubIcon />}
+              label="View Source Code"
+              variant="outlined"
+              color="primary"
+            />
+          </Link>
+        </Box>
+      </>
+    );
+
     return (
-      <SunGraph
-        nodes={this.nodes}
-        links={this.links}
-        curve={LineShape.LinearLine}
-        panningEnabled={true}
-        enableZoom={true}
-        draggingEnabled={true}
-        autoCenter={true}
-      />
+      <ExampleLayout
+        title="📦 Dependency Graph"
+        description={description}
+      >
+        <SunGraph
+          nodes={this.nodes}
+          links={this.links}
+          curve={LineShape.LinearLine}
+          panningEnabled={true}
+          enableZoom={true}
+          draggingEnabled={true}
+          autoCenter={true}
+          autoZoom={true}
+          requireModifierToZoom={true}
+        />
+      </ExampleLayout>
     );
   }
 }

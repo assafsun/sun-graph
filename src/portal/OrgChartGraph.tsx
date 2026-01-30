@@ -17,6 +17,19 @@ import { Node, Edge } from "SunGraph/models/graph.model";
 import { SunGraph } from "SunGraph/SunGraph";
 import { CustomDagreLayout } from "SunGraph/layouts/customDagreLayout";
 import styled from "styled-components";
+import { Typography, Link, Box, Chip } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { ExampleLayout } from "./layouts/ExampleLayout";
+
+const FeaturesList = styled.ul`
+  margin: 12px 0;
+  padding-left: 20px;
+  
+  li {
+    margin: 8px 0;
+    color: #666;
+  }
+`;
 
 // Role-based color scheme
 const roleColors: { [key: string]: string } = {
@@ -162,16 +175,59 @@ export class OrgChartGraph extends React.Component {
   }
 
   render() {
+    const description = (
+      <>
+        <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+          Overview
+        </Typography>
+        <Typography paragraph>
+          A typical organizational hierarchy showing reporting relationships between employees.
+        </Typography>
+
+        <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+          Features Demonstrated
+        </Typography>
+        <FeaturesList>
+          <li><strong>Hierarchical Layout</strong> - Tree-like structure from top to bottom</li>
+          <li><strong>Role-Based Coloring</strong> - Different colors for different roles</li>
+          <li><strong>Reporting Relationships</strong> - Clear chain of command</li>
+          <li><strong>Custom Templates</strong> - Color-coded node types</li>
+        </FeaturesList>
+
+        <Box style={{ marginTop: 16 }}>
+          <Link
+            href="https://github.com/assafsun/sun-graph/blob/master/src/portal/OrgChartGraph.tsx"
+            target="_blank"
+            style={{ textDecoration: 'none' }}
+          >
+            <Chip
+              icon={<GitHubIcon />}
+              label="View Source Code"
+              variant="outlined"
+              color="primary"
+            />
+          </Link>
+        </Box>
+      </>
+    );
+
     return (
-      <SunGraph
-        nodes={this.nodes}
-        links={this.links}
-        layout={new CustomDagreLayout()}
-        panningEnabled={true}
-        enableZoom={true}
-        draggingEnabled={true}
-        autoCenter={true}
-      />
+      <ExampleLayout
+        title="👥 Organization Chart"
+        description={description}
+      >
+        <SunGraph
+          nodes={this.nodes}
+          links={this.links}
+          layout={new CustomDagreLayout()}
+          panningEnabled={true}
+          enableZoom={true}
+          draggingEnabled={true}
+          autoCenter={true}
+          autoZoom={true}
+          requireModifierToZoom={true}
+        />
+      </ExampleLayout>
     );
   }
 }

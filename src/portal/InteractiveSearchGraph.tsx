@@ -2,16 +2,19 @@ import React, { useState, useMemo } from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
 import { CustomDagreLayout } from "SunGraph/layouts/customDagreLayout";
-import { TextField, Paper, Box, Typography, Chip, Button } from "@mui/material";
+import { TextField, Paper, Box, Typography, Chip, Button, Link } from "@mui/material";
 import styled from "styled-components";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { ExampleLayout } from "./layouts/ExampleLayout";
 
-const Container = styled.div`
-  height: 96vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
+const FeaturesList = styled.ul`
+  margin: 12px 0;
+  padding-left: 20px;
+  
+  li {
+    margin: 8px 0;
+    color: #666;
+  }
 `;
 
 const SearchBar = styled.div`
@@ -19,15 +22,6 @@ const SearchBar = styled.div`
   gap: 12px;
   align-items: center;
   flex-wrap: wrap;
-`;
-
-const GraphWrapper = styled.div`
-  flex: 1;
-  border: 2px solid #667eea;
-  border-radius: 12px;
-  overflow: hidden;
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 `;
 
 const Stats = styled.div`
@@ -216,9 +210,44 @@ export function InteractiveSearchGraph() {
   const selectedCount = selectedNodeIds.length;
   const visibleCount = filteredNodeIds.length;
 
-  return (
-    <Container>
-      <Paper elevation={3} style={{ padding: "20px" }}>
+  const description = (
+    <>
+      <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+        Overview
+      </Typography>
+      <Typography paragraph>
+        An example showing how to programmatically control the graph focus using external inputs.
+      </Typography>
+
+      <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+        Features Demonstrated
+      </Typography>
+      <FeaturesList>
+        <li><strong>External Controls</strong> - Search box outside the graph</li>
+        <li><strong>Center on Node</strong> - Programmatically pan to specific node</li>
+        <li><strong>Zoom Control</strong> - Adjust zoom level via code</li>
+        <li><strong>Selection Highlight</strong> - Visual feedback for selected nodes</li>
+      </FeaturesList>
+
+      <Box style={{ marginTop: 16 }}>
+        <Link
+          href="https://github.com/assafsun/sun-graph/blob/master/src/portal/InteractiveSearchGraph.tsx"
+          target="_blank"
+          style={{ textDecoration: 'none' }}
+        >
+          <Chip
+            icon={<GitHubIcon />}
+            label="View Source Code"
+            variant="outlined"
+            color="primary"
+          />
+        </Link>
+      </Box>
+    </>
+  );
+
+  const controls = (
+    <Box style={{ width: '100%' }}>
         <Typography variant="h5" style={{ marginBottom: "16px", fontWeight: 700, color: "#667eea" }}>
           🔍 Interactive Search & Selection - Live Filtering
         </Typography>
@@ -286,15 +315,26 @@ export function InteractiveSearchGraph() {
             </span>
           )}
         </Stats>
-      </Paper>
+    </Box>
+  );
 
-      <GraphWrapper>
+  return (
+    <ExampleLayout
+      title="🔍 Interactive Search"
+      description={description}
+      actions={controls}
+    >
         <SunGraph
           nodes={styledNodes}
           links={styledEdges}
           layout={circleLayout}
           nodeWidth={64}
           nodeHeight={64}
+          panningEnabled={true}
+          enableZoom={true}
+          autoZoom={true}
+          autoCenter={true}
+          requireModifierToZoom={true}
           draggingEnabled={true}
           onNodeClick={handleNodeClick}
           onNodeHover={(node, event) => {
@@ -404,21 +444,16 @@ export function InteractiveSearchGraph() {
           }}
           isNodeTemplateHTML={false}
           curve={LineShape.BasisLine}
-          panningEnabled={true}
-          enableZoom={true}
-          autoCenter={true}
         />
-      </GraphWrapper>
-
-      <Paper elevation={1} style={{ padding: "16px", backgroundColor: "#f8f9fa" }}>
-        <Typography variant="caption" style={{ color: "#555", lineHeight: "1.6" }}>
-          <strong>💡 How it works:</strong> Type in the search box to filter the graph in real-time.
-          Nodes that don't match will dim out. Click nodes to select them. Use Ctrl+Click (Cmd+Click on Mac) 
-          for multi-select. Hover over nodes to see details. Quick filter buttons let you filter by department.
-          <br />
-          <strong>Try searching:</strong> "Engineer" or "Leadership" or specific names like "Emma"
-        </Typography>
-      </Paper>
-    </Container>
+        <Paper elevation={1} style={{ padding: "16px", backgroundColor: "#f8f9fa", marginTop: 16 }}>
+          <Typography variant="caption" style={{ color: "#555", lineHeight: "1.6" }}>
+            <strong>💡 How it works:</strong> Type in the search box to filter the graph in real-time.
+            Nodes that don't match will dim out. Click nodes to select them. Use Ctrl+Click (Cmd+Click on Mac) 
+            for multi-select. Hover over nodes to see details. Quick filter buttons let you filter by department.
+            <br />
+            <strong>Try searching:</strong> "Engineer" or "Leadership" or specific names like "Emma"
+          </Typography>
+        </Paper>
+    </ExampleLayout>
   );
 }

@@ -36,6 +36,8 @@ import {
 
 const GraphContainer = styled.div`
   user-select: none;
+  width: 100%;
+  height: 100%;
 `;
 
 const StyledEdge = styled.g`
@@ -115,6 +117,7 @@ interface Props {
   update$?: Observable<any>;
   panOnZoom?: boolean;
   panningAxis?: PanningAxis;
+  requireModifierToZoom?: boolean;
 }
 
 interface BasicState {
@@ -413,6 +416,16 @@ class SunGraphBase extends React.Component<Props, State> {
             this.onMouseUp(e);
           }}
           onWheel={(e: any) => {
+            const isModifierPressed = e.metaKey || e.ctrlKey;
+            
+            // Check if zoom requires interaction
+            if (this.props.requireModifierToZoom && !isModifierPressed) {
+                // If modifier is required but not pressed:
+                // Do NOT preventDefault/stopPropagation -> Allow page scroll
+                // Do NOT call onZoom
+                return;
+            }
+
             e.preventDefault();
             e.stopPropagation();
             const delta: number = Math.max(

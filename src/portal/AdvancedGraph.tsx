@@ -16,6 +16,19 @@ import { Node, Edge } from "SunGraph/models/graph.model";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
 import { CustomLayout } from "./layouts/customLayout";
 import styled from "styled-components";
+import { Typography, Link, Box, Chip } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { ExampleLayout } from "./layouts/ExampleLayout";
+
+const FeaturesList = styled.ul`
+  margin: 12px 0;
+  padding-left: 20px;
+  
+  li {
+    margin: 8px 0;
+    color: #666;
+  }
+`;
 
 /**
  * Default node container - simple bordered box
@@ -254,19 +267,73 @@ export class AdvancedGraphComponent extends React.Component {
   }
 
   render() {
+    const description = (
+      <>
+        <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+          Overview
+        </Typography>
+        <Typography paragraph>
+          This example showcases advanced SunGraph capabilities including custom layouts,
+          mixed node styles, and bundled edge curves.
+        </Typography>
+        
+        <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+          Features Demonstrated
+        </Typography>
+        <FeaturesList>
+          <li><strong>Custom Layout Algorithms</strong> - Custom node positioning</li>
+          <li><strong>Multiple Node Styles</strong> - Different templates and sizes</li>
+          <li><strong>Bundled Edge Curves</strong> - Smooth, flowing connections</li>
+          <li><strong>Edge Labels</strong> - Custom templates on edge midpoints</li>
+          <li><strong>Complex Graphs</strong> - 8+ nodes with multiple connections</li>
+        </FeaturesList>
+
+        <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+          Key Differences from Basic
+        </Typography>
+        <Typography paragraph>
+          This example uses <code>CustomLayout</code> for custom positioning instead of the default
+          Dagre layout. Notice how nodes are arranged differently and how the bundled curves create
+          a more organic appearance for complex relationships.
+        </Typography>
+
+        <Box style={{ marginTop: 16 }}>
+          <Link
+            href="https://github.com/assafsun/sun-graph/blob/master/src/portal/AdvancedGraph.tsx"
+            target="_blank"
+            style={{ textDecoration: 'none' }}
+          >
+            <Chip
+              icon={<GitHubIcon />}
+              label="View Source Code"
+              variant="outlined"
+              color="primary"
+            />
+          </Link>
+        </Box>
+      </>
+    );
+
     return (
-      <SunGraph
-        nodes={this.nodes}
-        links={this.links}
-        curve={this.curve}                              // Use bundled line curves
-        layout={new CustomLayout()}                      // Custom layout algorithm
-        panningEnabled={true}                            // Allow canvas dragging
-        enableZoom={true}                                // Allow mouse wheel zoom
-        draggingEnabled={true}                           // Allow node dragging
-        autoCenter={true}                                // Auto-center on load
-        defaultNodeTemplate={(node) => this.defaultNodeUI(node)}
-        clickHandler={() => console.log("Graph interaction detected")}
-      />
+      <ExampleLayout
+        title="🚀 Advanced Graph"
+        description={description}
+      >
+        <SunGraph
+          nodes={this.nodes}
+          links={this.links}
+          curve={this.curve}
+          layout={new CustomLayout()}
+          panningEnabled={true}
+          enableZoom={true}
+          draggingEnabled={true}
+          autoCenter={true}
+          defaultNodeTemplate={(node) => this.defaultNodeUI(node)}
+          clickHandler={() => console.log("Graph interaction detected")}
+          autoZoom={true}
+          requireModifierToZoom={true}
+        />
+      </ExampleLayout>
     );
   }
 }

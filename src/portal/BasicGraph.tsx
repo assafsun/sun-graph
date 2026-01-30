@@ -14,8 +14,10 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import * as shape from "d3-shape";
 import { SunGraph } from "SunGraph/SunGraph";
-import { Button } from "@mui/material";
+import { Button, Typography, Link, Chip, Box } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
 import styled from "styled-components";
+import { ExampleLayout } from "./layouts/ExampleLayout";
 
 /**
  * Container for the default node template
@@ -68,7 +70,7 @@ export class BasicGraphComponent extends React.Component<{}, State> {
     this.state = { 
       nodes, 
       links, 
-      autoCenter: false 
+      autoCenter: true 
     };
   }
 
@@ -202,29 +204,75 @@ export class BasicGraphComponent extends React.Component<{}, State> {
   }
 
   render() {
-    return (
+    const description = (
       <>
-        {/* Button to dynamically update the graph */}
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => this.createNewGraph()}
-          style={{ marginLeft: 12, marginTop: 12 }}
-        >
-          Update Graph
-        </Button>
+        <Typography paragraph>
+          This example demonstrates the fundamental features of SunGraph with custom node
+          templates and basic interactivity.
+        </Typography>
+        
+        <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+          Features Demonstrated
+        </Typography>
+        <ul style={{ paddingLeft: 20, marginTop: 0 }}>
+          <li><strong>Custom Node Templates</strong> - Styled containers with labels</li>
+          <li><strong>Parent-Child Relationships</strong> - Automatic edge generation</li>
+          <li><strong>Graph Updates</strong> - Dynamic graph modification with button clicks</li>
+          <li><strong>Zoom & Pan</strong> - Interactive canvas navigation</li>
+          <li><strong>Node Dragging</strong> - Reposition nodes freely</li>
+        </ul>
 
-        {/* The main graph component */}
+        <Typography variant="body2" color="textSecondary" style={{ marginTop: 12, fontStyle: 'italic' }}>
+          💡 Try zooming with your mouse wheel (use Ctrl+Scroll), dragging the canvas, or moving nodes.
+        </Typography>
+
+        <Box style={{ marginTop: 16 }}>
+          <Link
+            href="https://github.com/assafsun/sun-graph/blob/master/src/portal/BasicGraph.tsx"
+            target="_blank"
+            style={{ textDecoration: 'none' }}
+          >
+            <Chip
+              icon={<GitHubIcon />}
+              label="View Source Code"
+              variant="outlined"
+              size="small"
+              color="primary"
+            />
+          </Link>
+        </Box>
+      </>
+    );
+
+    const actions = (
+      <Button
+        variant="contained"
+        color="primary"
+        onClick={() => this.createNewGraph()}
+        size="small"
+      >
+        Update Graph
+      </Button>
+    );
+
+    return (
+      <ExampleLayout
+        title="🎯 Basic Graph"
+        description={description}
+        actions={actions}
+      >
         <SunGraph
           nodes={this.state.nodes}
           links={this.state.links}
-          panningEnabled={true}      // Allow dragging the canvas
-          enableZoom={true}            // Allow mouse wheel zoom
-          draggingEnabled={true}       // Allow dragging nodes
-          autoCenter={this.state.autoCenter}  // Center graph when updated
+          panningEnabled={true}
+          enableZoom={true}
+          draggingEnabled={true}
+          autoCenter={this.state.autoCenter}
+          autoZoom={true} // FIT TO WINDOW
+          requireModifierToZoom={true} // FIX SCROLL
           defaultNodeTemplate={(node) => this.basicNodeUI(node)}
         />
-      </>
+      </ExampleLayout>
     );
   }
 }

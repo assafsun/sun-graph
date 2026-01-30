@@ -1,17 +1,19 @@
 import React, { useState, useMemo } from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
-import * as shape from "d3-shape";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
-import { Paper, Box, Typography, Slider, FormControlLabel, Switch } from "@mui/material";
+import { Paper, Box, Typography, Slider, FormControlLabel, Switch, Chip, Link } from "@mui/material";
 import styled from "styled-components";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { ExampleLayout } from "./layouts/ExampleLayout";
 
-const Container = styled.div`
-  height: 96vh;
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 12px;
+const FeaturesList = styled.ul`
+  margin: 12px 0;
+  padding-left: 20px;
+  
+  li {
+    margin: 8px 0;
+    color: #666;
+  }
 `;
 
 const ControlPanel = styled.div`
@@ -29,19 +31,18 @@ const ControlGroup = styled.div`
   min-width: 200px;
 `;
 
-const GraphWrapper = styled.div`
-  flex: 1;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
-  background: white;
-`;
-
 const Legend = styled.div`
+  position: absolute;
+  bottom: 16px;
+  right: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 8px;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
 `;
 
 const LegendItem = styled.div`
@@ -201,9 +202,44 @@ export function CustomStylingGraph() {
     [edges, edgeWidth]
   );
 
-  return (
-    <Container>
-      <Paper elevation={2} style={{ padding: "16px" }}>
+  const description = (
+    <>
+      <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+        Overview
+      </Typography>
+      <Typography paragraph>
+        Demonstrating the extensive styling capabilities of SunGraph through CSS and custom renderers.
+      </Typography>
+
+      <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+        Features Demonstrated
+      </Typography>
+      <FeaturesList>
+        <li><strong>CSS Modules</strong> - Scoped styling for nodes</li>
+        <li><strong>Dynamic Classes</strong> - State-based style changes</li>
+        <li><strong>Custom Shapes</strong> - Non-rectangular node boundaries</li>
+        <li><strong>Hover Effects</strong> - Interactive visual feedback</li>
+      </FeaturesList>
+
+      <Box style={{ marginTop: 16 }}>
+        <Link
+          href="https://github.com/assafsun/sun-graph/blob/master/src/portal/CustomStylingGraph.tsx"
+          target="_blank"
+          style={{ textDecoration: 'none' }}
+        >
+          <Chip
+            icon={<GitHubIcon />}
+            label="View Source Code"
+            variant="outlined"
+            color="primary"
+          />
+        </Link>
+      </Box>
+    </>
+  );
+
+  const controls = (
+        <React.Fragment>
         <Typography variant="h5" style={{ marginBottom: "16px", fontWeight: 600 }}>
           🎨 Custom Styling & Visualization Controls
         </Typography>
@@ -295,9 +331,15 @@ export function CustomStylingGraph() {
             ))}
           </Legend>
         )}
-      </Paper>
+        </React.Fragment>
+  );
 
-      <GraphWrapper>
+  return (
+    <ExampleLayout
+      title="🎨 Custom Styling"
+      description={description}
+      actions={controls}
+    >
         <SunGraph
           nodes={styledNodes}
           links={styledEdges}
@@ -329,19 +371,20 @@ export function CustomStylingGraph() {
           isNodeTemplateHTML={false}
           curve={LineShape.BasisLine}
           panningEnabled={true}
+          draggingEnabled={true}
           enableZoom={true}
           autoCenter={true}
+          autoZoom={true}
+          requireModifierToZoom={true}
         />
-      </GraphWrapper>
-
-      <Paper elevation={1} style={{ padding: "12px" }}>
-        <Typography variant="caption" style={{ color: "#666" }}>
-          💡 <strong>Features:</strong> Node size is proportional to importance (1-10 scale).
-          Stroke width indicates seniority. Try adjusting the sliders above to see dynamic styling
-          in action. Toggle &quot;Color by Type&quot; to switch between role-based coloring and
-          uniform colors.
-        </Typography>
-      </Paper>
-    </Container>
+        <Paper elevation={1} style={{ padding: "12px", marginTop: 16 }}>
+          <Typography variant="caption" style={{ color: "#666" }}>
+            💡 <strong>Features:</strong> Node size is proportional to importance (1-10 scale).
+            Stroke width indicates seniority. Try adjusting the sliders above to see dynamic styling
+            in action. Toggle &quot;Color by Type&quot; to switch between role-based coloring and
+            uniform colors.
+          </Typography>
+        </Paper>
+    </ExampleLayout>
   );
 }

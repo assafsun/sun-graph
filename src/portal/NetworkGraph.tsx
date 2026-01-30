@@ -16,6 +16,19 @@ import React from "react";
 import { Node, Edge } from "SunGraph/models/graph.model";
 import { SunGraph, LineShape } from "SunGraph/SunGraph";
 import styled from "styled-components";
+import { Typography, Link, Box, Chip } from "@mui/material";
+import { GitHub as GitHubIcon } from "@mui/icons-material";
+import { ExampleLayout } from "./layouts/ExampleLayout";
+
+const FeaturesList = styled.ul`
+  margin: 12px 0;
+  padding-left: 20px;
+  
+  li {
+    margin: 8px 0;
+    color: #666;
+  }
+`;
 
 const HubNode = styled.div`
   width: 100%;
@@ -159,16 +172,59 @@ export class NetworkGraph extends React.Component {
   }
 
   render() {
+    const description = (
+      <>
+        <Typography variant="h6" style={{ fontWeight: 600, marginBottom: 12 }}>
+          Overview
+        </Typography>
+        <Typography paragraph>
+          A social network graph showing interconnected users with hub nodes (highly connected users).
+        </Typography>
+
+        <Typography variant="h6" style={{ fontWeight: 600, marginTop: 16, marginBottom: 8 }}>
+          Features Demonstrated
+        </Typography>
+        <FeaturesList>
+          <li><strong>Hub Nodes</strong> - Central nodes with many connections (circular)</li>
+          <li><strong>Regular Nodes</strong> - Standard nodes with fewer connections</li>
+          <li><strong>Multiple Relationships</strong> - Various connection types</li>
+          <li><strong>Curved Edges</strong> - Smooth cardinal curves for organic look</li>
+        </FeaturesList>
+
+        <Box style={{ marginTop: 16 }}>
+          <Link
+            href="https://github.com/assafsun/sun-graph/blob/master/src/portal/NetworkGraph.tsx"
+            target="_blank"
+            style={{ textDecoration: 'none' }}
+          >
+            <Chip
+              icon={<GitHubIcon />}
+              label="View Source Code"
+              variant="outlined"
+              color="primary"
+            />
+          </Link>
+        </Box>
+      </>
+    );
+
     return (
-      <SunGraph
-        nodes={this.nodes}
-        links={this.links}
-        curve={LineShape.BasisLine}
-        panningEnabled={true}
-        enableZoom={true}
-        draggingEnabled={true}
-        autoCenter={true}
-      />
+      <ExampleLayout
+        title="🌐 Network Graph"
+        description={description}
+      >
+        <SunGraph
+          nodes={this.nodes}
+          links={this.links}
+          curve={LineShape.BasisLine}
+          panningEnabled={true}
+          enableZoom={true}
+          draggingEnabled={true}
+          autoCenter={true}
+          autoZoom={true}
+          requireModifierToZoom={true}
+        />
+      </ExampleLayout>
     );
   }
 }
